@@ -117,9 +117,14 @@
             }
         }
         Spicetify.Player?.toggleHeart?.();
-        if (willBeLiked && STATE.currentTrack?.artist) {
+        if (STATE.currentTrack?.artist) {
             const a = STATE.currentTrack.artist;
-            STATE.likedArtists.set(a, (STATE.likedArtists.get(a) || 0) + 2);
+            const aUri = STATE.currentTrack.artistUri || Spicetify.Player?.data?.item?.artists?.[0]?.uri || null;
+            if (willBeLiked) {
+                addLikedArtist(a, aUri, 2);
+            } else {
+                removeLikedArtist(a, 1);
+            }
         }
     }
     // Song change listener
@@ -127,13 +132,13 @@
         if (!STATE.active) return;
         const now = Date.now();
         const prevArtist = STATE.currentTrack?.artist;
+        const prevArtistUri = STATE.currentTrack?.artistUri || null;
         const elapsed = (now - STATE.currentTrackStartTime) / 1000;
         if (prevArtist && STATE.currentTrackStartTime > 0 && elapsed > 2) {
             if (elapsed < CONFIG.SKIP_THRESHOLD_SEC) {
-                STATE.dislikedArtists.add(prevArtist.toLowerCase());
+                addDislikedArtist(prevArtist);
             } else if (elapsed >= CONFIG.LIKE_THRESHOLD_SEC) {
-                const w = (STATE.likedArtists.get(prevArtist) || 0) + 1;
-                STATE.likedArtists.set(prevArtist, w);
+                addLikedArtist(prevArtist, prevArtistUri, 1);
             }
         }
         const cur = Spicetify.Player?.data?.item;
@@ -147,6 +152,7 @@
                 uri: cur.uri,
                 title: curTitle,
                 artist: curArtist,
+                artistUri: curArtistUri,
                 image: curImage,
                 thumb: curImages.thumb || curImage,
                 duration: cur.duration?.milliseconds || safeGetDuration(),

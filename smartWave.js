@@ -945,8 +945,8 @@
         currentTrack: null,         // { uri, title, artist, image, duration }
         historyStack: [],           // History stack for the "Back" (Previous) button
         upcomingWave: [],           // [{ uri, title, artist, image, duration }]
-        dislikedArtists: new Set(),
-        likedArtists: new Map(),
+        dislikedArtists: new Set(JSON.parse(Spicetify.LocalStorage.get("smartWave_disliked_artists") || "[]")),
+        likedArtists: parseLikedArtists(Spicetify.LocalStorage.get("smartWave_liked_artists")),
         history: new Set(),
         comfortPool: [],
         currentTrackStartTime: 0,
@@ -1010,6 +1010,80 @@
             try { return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(b)); } catch {}
         }
         return s;
+    }
+
+    function parseLikedArtists(raw) {
+        try {
+            const arr = JSON.parse(raw || "[]");
+            const map = new Map();
+            for (const item of arr) {
+                if (!Array.isArray(item) || item.length < 2) continue;
+                const [k, v] = item;
+                const key = String(k).toLowerCase();
+                if (typeof v === "number") {
+                    map.set(key, { name: String(k), uri: null, weight: v });
+                } else if (v && typeof v === "object") {
+                    map.set(key, { name: v.name || String(k), uri: v.uri || null, weight: Number(v.weight) || 1 });
+                }
+            }
+            return map;
+        } catch {
+            return new Map();
+        }
+    }
+
+    // Persist taste feedback (caps: 200 bans / 300 liked artists, trimmed by weight)
+    function saveTaste() {
+        try {
+            let disliked = [...STATE.dislikedArtists];
+            if (disliked.length > 200) disliked = disliked.slice(-200);
+            let liked = [...STATE.likedArtists.entries()];
+            if (liked.length > 300) {
+                liked.sort((a, b) => (b[1]?.weight || 0) - (a[1]?.weight || 0));
+                liked = liked.slice(0, 300);
+                STATE.likedArtists = new Map(liked);
+            }
+            Spicetify.LocalStorage.set("smartWave_disliked_artists", JSON.stringify(disliked));
+            Spicetify.LocalStorage.set("smartWave_liked_artists", JSON.stringify(liked));
+        } catch (err) {
+            console.warn("[SmartWave] saveTaste failed:", err);
+        }
+    }
+
+    function addLikedArtist(name, uri = null, delta = 1) {
+        if (!name) return;
+        const key = name.toLowerCase();
+        const existing = STATE.likedArtists.get(key);
+        const newWeight = (existing ? existing.weight : 0) + delta;
+        STATE.likedArtists.set(key, {
+            name: existing?.name || name,
+            uri: uri || existing?.uri || null,
+            weight: Math.max(1, newWeight)
+        });
+        saveTaste();
+    }
+
+    function removeLikedArtist(name, delta = 1) {
+        if (!name) return;
+        const key = name.toLowerCase();
+        const existing = STATE.likedArtists.get(key);
+        if (!existing) return;
+        const newWeight = existing.weight - delta;
+        if (newWeight <= 0) {
+            STATE.likedArtists.delete(key);
+        } else {
+            existing.weight = newWeight;
+            STATE.likedArtists.set(key, existing);
+        }
+        saveTaste();
+    }
+
+    function addDislikedArtist(name) {
+        if (!name) return;
+        const key = name.toLowerCase();
+        STATE.dislikedArtists.add(key);
+        STATE.likedArtists.delete(key);
+        saveTaste();
     }
 
     function isPlayerPlaying() {
@@ -1251,7 +1325,20 @@
             track: STATE.currentTrack?.name,
             isPlaying: isPlayerPlaying()
         }),
-        getState: () => ({ mode: STATE.mode, seed: STATE.currentSeedArtist, seedUri: STATE.currentSeedUri, queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title) }),
+        getState: () => ({
+            mode: STATE.mode,
+            seed: STATE.currentSeedArtist,
+            seedUri: STATE.currentSeedUri,
+            queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title),
+            likedCount: STATE.likedArtists.size,
+            dislikedCount: STATE.dislikedArtists.size,
+            likedArtists: Object.fromEntries([...STATE.likedArtists].map(([k, v]) => [v.name || k, v.weight || 1])),
+            dislikedArtists: [...STATE.dislikedArtists]
+        }),
+        addLikedArtist: (name, uri, delta) => addLikedArtist(name, uri, delta),
+        addDislikedArtist: (name) => addDislikedArtist(name),
+        removeLikedArtist: (name, delta) => removeLikedArtist(name, delta),
+        saveTaste: () => saveTaste(),
         clearCache: clearAllArtistCache,
         getCacheStats: () => ({
             cachedArtists: Object.keys(persistentGraphCache).length,
@@ -1805,6 +1892,45 @@ async function generateNextTrack() {
                           STATE.mode === "discovery" ? false :
                           Math.random() < 0.35;
 
+        // Liked-artist gravity: weighted pick from taste memory steers the wave toward loved territory.
+        // Runs in favorite/stream (never in discovery -- that mode is 100% exploration).
+        if (STATE.mode !== "discovery" && STATE.likedArtists.size > 0 && Math.random() < 0.45) {
+            const weighted = [];
+            for (const [key, item] of STATE.likedArtists) {
+                if (recentArtists.has(key)) continue;
+                let uri = item.uri;
+                if (!uri) {
+                    const t = STATE.comfortPool.find(x => x.artist?.toLowerCase() === key);
+                    uri = t?.artistUri || null;
+                    if (uri) item.uri = uri;
+                }
+                if (uri) {
+                    weighted.push({ name: item.name || key, uri, w: Number(item.weight) || 1 });
+                }
+            }
+            if (weighted.length > 0) {
+                const total = weighted.reduce((s, a) => s + a.w, 0);
+                let roll = Math.random() * total;
+                let picked = weighted[0];
+                for (const a of weighted) {
+                    roll -= a.w;
+                    if (roll <= 0) { picked = a; break; }
+                }
+                const likedGraph = await getArtistGraph(picked.uri);
+                const likedFresh = (likedGraph?.topTracks || []).filter(t =>
+                    t.uri !== curUri && !STATE.history.has(t.uri)
+                );
+                if (likedFresh.length > 0) {
+                    console.log(`[SmartWave] Taste gravity: seeding from loved artist "${picked.name}" (weight ${picked.w})`);
+                    return {
+                        ...likedFresh[Math.floor(Math.random() * likedFresh.length)],
+                        seedUri: picked.uri,
+                        seedArtist: picked.name
+                    };
+                }
+            }
+        }
+
         if (!isComfort && STATE.currentSeedUri) {
             const graph = await getArtistGraph(STATE.currentSeedUri);
             if (graph?.related?.length > 0) {
@@ -2010,6 +2136,7 @@ async function generateNextTrack() {
                 uri: cur.uri,
                 title: fixMojibake(cur.name) || "Track",
                 artist: curArtist,
+                artistUri: curArtistUri,
                 image: getTrackImages(cur).image || resolveImageUrl(cur.metadata?.image_url || ""),
                 thumb: getTrackImages(cur).thumb || resolveImageUrl(cur.metadata?.image_url || ""),
                 duration: cur.duration?.milliseconds || safeGetDuration(),
@@ -2051,8 +2178,7 @@ async function generateNextTrack() {
             if (STATE.historyStack.length > 50) STATE.historyStack.shift();
             // Block the artist ONLY on an explicit Dislike press!
             if (isDislike && STATE.currentTrack.artist) {
-                STATE.dislikedArtists.add(STATE.currentTrack.artist.toLowerCase());
-                
+                addDislikedArtist(STATE.currentTrack.artist);
             }
         }
         let nextTrack = null;
@@ -2231,9 +2357,14 @@ async function generateNextTrack() {
             }
         }
         Spicetify.Player?.toggleHeart?.();
-        if (willBeLiked && STATE.currentTrack?.artist) {
+        if (STATE.currentTrack?.artist) {
             const a = STATE.currentTrack.artist;
-            STATE.likedArtists.set(a, (STATE.likedArtists.get(a) || 0) + 2);
+            const aUri = STATE.currentTrack.artistUri || Spicetify.Player?.data?.item?.artists?.[0]?.uri || null;
+            if (willBeLiked) {
+                addLikedArtist(a, aUri, 2);
+            } else {
+                removeLikedArtist(a, 1);
+            }
         }
     }
     // Song change listener
@@ -2241,13 +2372,13 @@ async function generateNextTrack() {
         if (!STATE.active) return;
         const now = Date.now();
         const prevArtist = STATE.currentTrack?.artist;
+        const prevArtistUri = STATE.currentTrack?.artistUri || null;
         const elapsed = (now - STATE.currentTrackStartTime) / 1000;
         if (prevArtist && STATE.currentTrackStartTime > 0 && elapsed > 2) {
             if (elapsed < CONFIG.SKIP_THRESHOLD_SEC) {
-                STATE.dislikedArtists.add(prevArtist.toLowerCase());
+                addDislikedArtist(prevArtist);
             } else if (elapsed >= CONFIG.LIKE_THRESHOLD_SEC) {
-                const w = (STATE.likedArtists.get(prevArtist) || 0) + 1;
-                STATE.likedArtists.set(prevArtist, w);
+                addLikedArtist(prevArtist, prevArtistUri, 1);
             }
         }
         const cur = Spicetify.Player?.data?.item;
@@ -2261,6 +2392,7 @@ async function generateNextTrack() {
                 uri: cur.uri,
                 title: curTitle,
                 artist: curArtist,
+                artistUri: curArtistUri,
                 image: curImage,
                 thumb: curImages.thumb || curImage,
                 duration: cur.duration?.milliseconds || safeGetDuration(),

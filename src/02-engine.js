@@ -475,6 +475,45 @@ async function generateNextTrack() {
                           STATE.mode === "discovery" ? false :
                           Math.random() < 0.35;
 
+        // Liked-artist gravity: weighted pick from taste memory steers the wave toward loved territory.
+        // Runs in favorite/stream (never in discovery -- that mode is 100% exploration).
+        if (STATE.mode !== "discovery" && STATE.likedArtists.size > 0 && Math.random() < 0.45) {
+            const weighted = [];
+            for (const [key, item] of STATE.likedArtists) {
+                if (recentArtists.has(key)) continue;
+                let uri = item.uri;
+                if (!uri) {
+                    const t = STATE.comfortPool.find(x => x.artist?.toLowerCase() === key);
+                    uri = t?.artistUri || null;
+                    if (uri) item.uri = uri;
+                }
+                if (uri) {
+                    weighted.push({ name: item.name || key, uri, w: Number(item.weight) || 1 });
+                }
+            }
+            if (weighted.length > 0) {
+                const total = weighted.reduce((s, a) => s + a.w, 0);
+                let roll = Math.random() * total;
+                let picked = weighted[0];
+                for (const a of weighted) {
+                    roll -= a.w;
+                    if (roll <= 0) { picked = a; break; }
+                }
+                const likedGraph = await getArtistGraph(picked.uri);
+                const likedFresh = (likedGraph?.topTracks || []).filter(t =>
+                    t.uri !== curUri && !STATE.history.has(t.uri)
+                );
+                if (likedFresh.length > 0) {
+                    console.log(`[SmartWave] Taste gravity: seeding from loved artist "${picked.name}" (weight ${picked.w})`);
+                    return {
+                        ...likedFresh[Math.floor(Math.random() * likedFresh.length)],
+                        seedUri: picked.uri,
+                        seedArtist: picked.name
+                    };
+                }
+            }
+        }
+
         if (!isComfort && STATE.currentSeedUri) {
             const graph = await getArtistGraph(STATE.currentSeedUri);
             if (graph?.related?.length > 0) {
@@ -680,6 +719,7 @@ async function generateNextTrack() {
                 uri: cur.uri,
                 title: fixMojibake(cur.name) || "Track",
                 artist: curArtist,
+                artistUri: curArtistUri,
                 image: getTrackImages(cur).image || resolveImageUrl(cur.metadata?.image_url || ""),
                 thumb: getTrackImages(cur).thumb || resolveImageUrl(cur.metadata?.image_url || ""),
                 duration: cur.duration?.milliseconds || safeGetDuration(),
@@ -721,8 +761,7 @@ async function generateNextTrack() {
             if (STATE.historyStack.length > 50) STATE.historyStack.shift();
             // Block the artist ONLY on an explicit Dislike press!
             if (isDislike && STATE.currentTrack.artist) {
-                STATE.dislikedArtists.add(STATE.currentTrack.artist.toLowerCase());
-                
+                addDislikedArtist(STATE.currentTrack.artist);
             }
         }
         let nextTrack = null;

@@ -940,8 +940,8 @@
         currentTrack: null,         // { uri, title, artist, image, duration }
         historyStack: [],           // History stack for the "Back" (Previous) button
         upcomingWave: [],           // [{ uri, title, artist, image, duration }]
-        dislikedArtists: new Set(),
-        likedArtists: new Map(),
+        dislikedArtists: new Set(JSON.parse(Spicetify.LocalStorage.get("smartWave_disliked_artists") || "[]")),
+        likedArtists: parseLikedArtists(Spicetify.LocalStorage.get("smartWave_liked_artists")),
         history: new Set(),
         comfortPool: [],
         currentTrackStartTime: 0,
@@ -1005,6 +1005,80 @@
             try { return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(b)); } catch {}
         }
         return s;
+    }
+
+    function parseLikedArtists(raw) {
+        try {
+            const arr = JSON.parse(raw || "[]");
+            const map = new Map();
+            for (const item of arr) {
+                if (!Array.isArray(item) || item.length < 2) continue;
+                const [k, v] = item;
+                const key = String(k).toLowerCase();
+                if (typeof v === "number") {
+                    map.set(key, { name: String(k), uri: null, weight: v });
+                } else if (v && typeof v === "object") {
+                    map.set(key, { name: v.name || String(k), uri: v.uri || null, weight: Number(v.weight) || 1 });
+                }
+            }
+            return map;
+        } catch {
+            return new Map();
+        }
+    }
+
+    // Persist taste feedback (caps: 200 bans / 300 liked artists, trimmed by weight)
+    function saveTaste() {
+        try {
+            let disliked = [...STATE.dislikedArtists];
+            if (disliked.length > 200) disliked = disliked.slice(-200);
+            let liked = [...STATE.likedArtists.entries()];
+            if (liked.length > 300) {
+                liked.sort((a, b) => (b[1]?.weight || 0) - (a[1]?.weight || 0));
+                liked = liked.slice(0, 300);
+                STATE.likedArtists = new Map(liked);
+            }
+            Spicetify.LocalStorage.set("smartWave_disliked_artists", JSON.stringify(disliked));
+            Spicetify.LocalStorage.set("smartWave_liked_artists", JSON.stringify(liked));
+        } catch (err) {
+            console.warn("[SmartWave] saveTaste failed:", err);
+        }
+    }
+
+    function addLikedArtist(name, uri = null, delta = 1) {
+        if (!name) return;
+        const key = name.toLowerCase();
+        const existing = STATE.likedArtists.get(key);
+        const newWeight = (existing ? existing.weight : 0) + delta;
+        STATE.likedArtists.set(key, {
+            name: existing?.name || name,
+            uri: uri || existing?.uri || null,
+            weight: Math.max(1, newWeight)
+        });
+        saveTaste();
+    }
+
+    function removeLikedArtist(name, delta = 1) {
+        if (!name) return;
+        const key = name.toLowerCase();
+        const existing = STATE.likedArtists.get(key);
+        if (!existing) return;
+        const newWeight = existing.weight - delta;
+        if (newWeight <= 0) {
+            STATE.likedArtists.delete(key);
+        } else {
+            existing.weight = newWeight;
+            STATE.likedArtists.set(key, existing);
+        }
+        saveTaste();
+    }
+
+    function addDislikedArtist(name) {
+        if (!name) return;
+        const key = name.toLowerCase();
+        STATE.dislikedArtists.add(key);
+        STATE.likedArtists.delete(key);
+        saveTaste();
     }
 
     function isPlayerPlaying() {
@@ -1246,7 +1320,20 @@
             track: STATE.currentTrack?.name,
             isPlaying: isPlayerPlaying()
         }),
-        getState: () => ({ mode: STATE.mode, seed: STATE.currentSeedArtist, seedUri: STATE.currentSeedUri, queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title) }),
+        getState: () => ({
+            mode: STATE.mode,
+            seed: STATE.currentSeedArtist,
+            seedUri: STATE.currentSeedUri,
+            queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title),
+            likedCount: STATE.likedArtists.size,
+            dislikedCount: STATE.dislikedArtists.size,
+            likedArtists: Object.fromEntries([...STATE.likedArtists].map(([k, v]) => [v.name || k, v.weight || 1])),
+            dislikedArtists: [...STATE.dislikedArtists]
+        }),
+        addLikedArtist: (name, uri, delta) => addLikedArtist(name, uri, delta),
+        addDislikedArtist: (name) => addDislikedArtist(name),
+        removeLikedArtist: (name, delta) => removeLikedArtist(name, delta),
+        saveTaste: () => saveTaste(),
         clearCache: clearAllArtistCache,
         getCacheStats: () => ({
             cachedArtists: Object.keys(persistentGraphCache).length,
