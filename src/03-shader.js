@@ -1,6 +1,5 @@
     // =========================================================================
     async function shakeWave() {
-        STATE.currentBpm = null;
         await loadComfortPool();
         const likedUris = new Set((STATE.comfortPool || []).map(t => t.uri));
 
@@ -158,12 +157,6 @@
                 thumb: curImages.thumb || curImage,
                 duration: cur.duration?.milliseconds || safeGetDuration(),
             };
-            fetchTrackBpm(cur.uri).then(bpm => {
-                if (bpm && STATE.currentTrack?.uri === cur.uri) {
-                    STATE.currentBpm = bpm;
-                    console.log(`[SmartWave] Active track BPM: ${bpm}`);
-                }
-            }).catch(() => {});
             STATE.currentTrackStartTime = now;
             STATE.history.add(cur.uri);
             // Immediately start color extraction for the new track

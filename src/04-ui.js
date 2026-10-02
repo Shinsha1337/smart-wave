@@ -1976,7 +1976,6 @@ document.head.appendChild(style);
                     }
 
                     if (STATE.activeGenre === genre) return;
-                    STATE.currentBpm = null;
                     STATE.activeGenre = genre;
                     Spicetify.LocalStorage.set("smartWave_active_genre", genre);
                     overlayEl.querySelectorAll(".sw-chip[data-genre]").forEach(c => c.classList.remove("active"));

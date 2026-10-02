@@ -965,7 +965,6 @@
         currentColorA: [0.95, 0.95, 0.97],
         currentColorB: [0.90, 0.90, 0.95],
         currentEnergy: 0.50,
-        currentBpm: null,
         currentPlayState: 1.0,
         // Glow intensity
         currentGlow: 0.80,
@@ -1314,106 +1313,9 @@
         Spicetify.LocalStorage.remove(GRAPH_CACHE_KEY);
         console.log("[SmartWave] Artist graph cache fully cleared.");
     }
-    // In-memory BPM cache & Tempo Contour helpers
-    const BPM_CACHE = new Map();
-
-    function getMetadataApi() {
-        try {
-            return Spicetify.Platform?.Registry?.resolve?.(Symbol.for("MetadataExtensions")) || null;
-        } catch {
-            return null;
-        }
-    }
-
-    async function fetchBpmBatch(uris) {
-        if (!uris || !uris.length) return {};
-        const meta = getMetadataApi();
-        if (!meta) return {};
-        const missing = uris.filter(u => u && !BPM_CACHE.has(u));
-        if (missing.length > 0) {
-            try {
-                const fetched = await Promise.race([
-                    meta.fetch(...missing.map(u => [u, 222])),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error("BPM timeout")), 450))
-                ]);
-                for (const u of missing) {
-                    const bpm = fetched?.[u]?.["222"]?.bpm ? Math.round(fetched[u]["222"].bpm) : null;
-                    BPM_CACHE.set(u, bpm);
-                }
-            } catch {
-                for (const u of missing) BPM_CACHE.set(u, null);
-            }
-        }
-        const res = {};
-        for (const u of uris) res[u] = BPM_CACHE.get(u) || null;
-        return res;
-    }
-
-    async function fetchTrackBpm(uri) {
-        if (!uri) return null;
-        if (BPM_CACHE.has(uri)) return BPM_CACHE.get(uri);
-        const map = await fetchBpmBatch([uri]);
-        return map[uri] || null;
-    }
-
-    function getBpmDistance(bpm1, bpm2) {
-        if (!bpm1 || !bpm2 || bpm1 <= 0 || bpm2 <= 0) return 999;
-        const diff1 = Math.abs(bpm1 - bpm2) / bpm1;
-        const diffHalf = Math.abs(bpm1 * 2 - bpm2) / (bpm1 * 2);
-        const diffDouble = Math.abs(bpm1 - bpm2 * 2) / bpm1;
-        return Math.min(diff1, diffHalf, diffDouble);
-    }
-
-    async function pickTempoAlignedTrack(candidates, targetBpm) {
-        if (!candidates || candidates.length === 0) return null;
-        if (!targetBpm || candidates.length <= 1) {
-            return candidates[Math.floor(Math.random() * candidates.length)];
-        }
-        try {
-            const bpms = await fetchBpmBatch(candidates.map(c => c.uri));
-            const scored = candidates.map(c => {
-                const b = bpms[c.uri];
-                return {
-                    track: c,
-                    bpm: b,
-                    dist: getBpmDistance(targetBpm, b)
-                };
-            });
-
-            // Priority 1: within +-15% tempo window (including half/double time harmonic matches)
-            const close = scored.filter(s => s.dist <= 0.15);
-            if (close.length > 0) {
-                close.sort((a, b) => a.dist - b.dist);
-                const pickPool = close.slice(0, 3);
-                const picked = pickPool[Math.floor(Math.random() * pickPool.length)];
-                console.log(`[SmartWave] Tempo contour matched: target ${targetBpm} -> candidate ${picked.bpm} (${picked.track.artist} - ${picked.track.title || picked.track.name})`);
-                return picked.track;
-            }
-
-            // Priority 2: within +-25% tempo window
-            const medium = scored.filter(s => s.dist <= 0.25);
-            if (medium.length > 0) {
-                medium.sort((a, b) => a.dist - b.dist);
-                const pickPool = medium.slice(0, 3);
-                const picked = pickPool[Math.floor(Math.random() * pickPool.length)];
-                console.log(`[SmartWave] Tempo contour loose: target ${targetBpm} -> candidate ${picked.bpm} (${picked.track.artist} - ${picked.track.title || picked.track.name})`);
-                return picked.track;
-            }
-        } catch (err) {
-            console.warn("[SmartWave] Tempo contour pick error:", err);
-        }
-
-        // Fallback: standard random pick from candidate pool
-        return candidates[Math.floor(Math.random() * candidates.length)];
-    }
-
     // Export for easy clearing at any time: window.SmartWave.clearCache()
     window.SmartWave = {
         debugPulse: () => STATE.beatPulse,
-        getBpm: () => STATE.currentBpm,
-        getBpmCacheStats: () => ({ size: BPM_CACHE.size }),
-        fetchBpmBatch: (uris) => fetchBpmBatch(uris),
-        getBpmDistance: (a, b) => getBpmDistance(a, b),
         getWaveState: () => ({
             colorA: STATE.currentColorA,
             colorB: STATE.currentColorB,
@@ -1425,7 +1327,6 @@
         }),
         getState: () => ({
             mode: STATE.mode,
-            currentBpm: STATE.currentBpm,
             seed: STATE.currentSeedArtist,
             seedUri: STATE.currentSeedUri,
             queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title),
@@ -1912,7 +1813,7 @@ async function generateNextTrack() {
             if (tracks && tracks.length > 0) {
                 if (STATE.mode === "favorite") {
                     const available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri));
-                    track = available.length > 0 ? (await pickTempoAlignedTrack(available, STATE.currentBpm)) : tracks[0];
+                    track = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : tracks[0];
                 } else if (STATE.mode === "discovery") {
                     const customArtistUris = [...new Set(tracks.map(t => t.artistUri).filter(Boolean))];
                     const seedGraphs = await Promise.all(customArtistUris.slice(0, 4).map(u => getArtistGraph(u).catch(() => null)));
@@ -1928,14 +1829,13 @@ async function generateNextTrack() {
                         const rg = relGraphs[ri];
                         const fresh = (rg?.topTracks || []).filter(t => t.uri !== curUri && !likedUris.has(t.uri) && !STATE.history.has(t.uri));
                         if (fresh.length > 0) {
-                            const picked = await pickTempoAlignedTrack(fresh, STATE.currentBpm);
-                            track = { ...picked, seedUri: relUris[ri].uri, seedArtist: relUris[ri].name };
+                            track = { ...fresh[Math.floor(Math.random() * fresh.length)], seedUri: relUris[ri].uri, seedArtist: relUris[ri].name };
                         }
                     }
                 } else {
                     if (Math.random() < 0.35) {
                         const available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri));
-                        track = available.length > 0 ? (await pickTempoAlignedTrack(available, STATE.currentBpm)) : null;
+                        track = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : null;
                     }
                 }
             }
@@ -1953,7 +1853,7 @@ async function generateNextTrack() {
                         !STATE.history.has(t.uri)
                     );
                     if (matchedLib.length > 0) {
-                        track = await pickTempoAlignedTrack(matchedLib, STATE.currentBpm);
+                        track = matchedLib[Math.floor(Math.random() * matchedLib.length)];
                     }
                 } else if (STATE.mode === "discovery") {
                     const freshPool = genreTracks.filter(t =>
@@ -1963,7 +1863,7 @@ async function generateNextTrack() {
                         !recentArtists.has((t.artist || "").toLowerCase())
                     );
                     if (freshPool.length > 0) {
-                        track = await pickTempoAlignedTrack(freshPool, STATE.currentBpm);
+                        track = freshPool[Math.floor(Math.random() * freshPool.length)];
                     }
                 } else {
                     const isFav = Math.random() < 0.35;
@@ -1973,11 +1873,11 @@ async function generateNextTrack() {
                             t.uri !== curUri &&
                             !STATE.history.has(t.uri)
                         );
-                        if (matchedLib.length > 0) track = await pickTempoAlignedTrack(matchedLib, STATE.currentBpm);
+                        if (matchedLib.length > 0) track = matchedLib[Math.floor(Math.random() * matchedLib.length)];
                     }
                     if (!track) {
                         const available = genreTracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !recentArtists.has((t.artist || "").toLowerCase()));
-                        if (available.length > 0) track = await pickTempoAlignedTrack(available, STATE.currentBpm);
+                        if (available.length > 0) track = available[Math.floor(Math.random() * available.length)];
                     }
                 }
             }
@@ -2022,9 +1922,8 @@ async function generateNextTrack() {
                 );
                 if (likedFresh.length > 0) {
                     console.log(`[SmartWave] Taste gravity: seeding from loved artist "${picked.name}" (weight ${picked.w})`);
-                    const pickedTrack = await pickTempoAlignedTrack(likedFresh, STATE.currentBpm);
                     return {
-                        ...pickedTrack,
+                        ...likedFresh[Math.floor(Math.random() * likedFresh.length)],
                         seedUri: picked.uri,
                         seedArtist: picked.name
                     };
@@ -2058,9 +1957,8 @@ async function generateNextTrack() {
                     );
 
                     if (freshTracks.length > 0) {
-                        const pickedTrack = await pickTempoAlignedTrack(freshTracks, STATE.currentBpm);
                         track = {
-                            ...pickedTrack,
+                            ...freshTracks[Math.floor(Math.random() * freshTracks.length)],
                             seedUri: candidates[ci].uri,
                             seedArtist: candidates[ci].name,
                         };
@@ -2088,7 +1986,7 @@ async function generateNextTrack() {
                 !recentArtists.has((t.artist || "").toLowerCase())
             );
             if (clusterComfort.length > 0) {
-                track = await pickTempoAlignedTrack(clusterComfort, STATE.currentBpm);
+                track = clusterComfort[Math.floor(Math.random() * clusterComfort.length)];
             }
         }
 
@@ -2096,7 +1994,7 @@ async function generateNextTrack() {
             if (STATE.mode === "discovery") {
                 const seedGraph = await getArtistGraph(clusterDef.defaultSeed?.uri);
                 const fresh = (seedGraph?.topTracks || []).filter(t => t.uri !== curUri && !likedUris.has(t.uri) && !STATE.history.has(t.uri));
-                if (fresh.length > 0) track = await pickTempoAlignedTrack(fresh, STATE.currentBpm);
+                if (fresh.length > 0) track = fresh[Math.floor(Math.random() * fresh.length)];
             } else {
                 track = pickComfortTrack(curUri);
             }
@@ -2243,12 +2141,6 @@ async function generateNextTrack() {
                 thumb: getTrackImages(cur).thumb || resolveImageUrl(cur.metadata?.image_url || ""),
                 duration: cur.duration?.milliseconds || safeGetDuration(),
             };
-            fetchTrackBpm(cur.uri).then(bpm => {
-                if (bpm && STATE.currentTrack?.uri === cur.uri) {
-                    STATE.currentBpm = bpm;
-                    console.log(`[SmartWave] Initial track BPM: ${bpm}`);
-                }
-            }).catch(() => {});
             STATE.history.add(cur.uri);
             STATE.currentTrackStartTime = Date.now();
         } else {
@@ -2348,7 +2240,6 @@ async function generateNextTrack() {
     // RECOMMENDATION ENGINE: CLUSTER SPACE AND ORTHOGONAL SHIFT
     // =========================================================================
     async function shakeWave() {
-        STATE.currentBpm = null;
         await loadComfortPool();
         const likedUris = new Set((STATE.comfortPool || []).map(t => t.uri));
 
@@ -2506,12 +2397,6 @@ async function generateNextTrack() {
                 thumb: curImages.thumb || curImage,
                 duration: cur.duration?.milliseconds || safeGetDuration(),
             };
-            fetchTrackBpm(cur.uri).then(bpm => {
-                if (bpm && STATE.currentTrack?.uri === cur.uri) {
-                    STATE.currentBpm = bpm;
-                    console.log(`[SmartWave] Active track BPM: ${bpm}`);
-                }
-            }).catch(() => {});
             STATE.currentTrackStartTime = now;
             STATE.history.add(cur.uri);
             // Immediately start color extraction for the new track
@@ -4771,7 +4656,6 @@ document.head.appendChild(style);
                     }
 
                     if (STATE.activeGenre === genre) return;
-                    STATE.currentBpm = null;
                     STATE.activeGenre = genre;
                     Spicetify.LocalStorage.set("smartWave_active_genre", genre);
                     overlayEl.querySelectorAll(".sw-chip[data-genre]").forEach(c => c.classList.remove("active"));
