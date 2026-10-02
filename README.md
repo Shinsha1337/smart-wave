@@ -150,6 +150,18 @@ Open the wave and click the **gear icon** (top left):
 - **Export / Import** — back up or restore all Smart Wave settings as a JSON file.
 - **Reset all settings** — full wipe with a confirmation step.
 
+
+## Development
+
+The shipped `smartWave.js` is a **generated bundle** — the actual source is modular:
+
+- `src/01-core.js` — config, i18n (15 languages), state, artist graph cache
+- `src/02-engine.js` — recommendation engine: taste clusters, queue, browse catalog
+- `src/03-shader.js` — WebGL fluid wave shader
+- `src/04-ui.js` — overlay DOM, styles, event bindings
+
+Edit the modules, then run `Build-SmartWave.ps1` — it concatenates them in order into the single file Spicetify expects (extensions are injected as one file), syncs this repo, and applies locally.
+
 ## Credits
 
 Created by [Shinsha](https://github.com/Shinsha1337).
