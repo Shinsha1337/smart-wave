@@ -960,6 +960,7 @@
         currentColorA: [0.95, 0.95, 0.97],
         currentColorB: [0.90, 0.90, 0.95],
         currentEnergy: 0.50,
+        currentBpm: null,
         currentPlayState: 1.0,
         // Glow intensity
         currentGlow: 0.80,
@@ -1308,9 +1309,106 @@
         Spicetify.LocalStorage.remove(GRAPH_CACHE_KEY);
         console.log("[SmartWave] Artist graph cache fully cleared.");
     }
+    // In-memory BPM cache & Tempo Contour helpers
+    const BPM_CACHE = new Map();
+
+    function getMetadataApi() {
+        try {
+            return Spicetify.Platform?.Registry?.resolve?.(Symbol.for("MetadataExtensions")) || null;
+        } catch {
+            return null;
+        }
+    }
+
+    async function fetchBpmBatch(uris) {
+        if (!uris || !uris.length) return {};
+        const meta = getMetadataApi();
+        if (!meta) return {};
+        const missing = uris.filter(u => u && !BPM_CACHE.has(u));
+        if (missing.length > 0) {
+            try {
+                const fetched = await Promise.race([
+                    meta.fetch(...missing.map(u => [u, 222])),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error("BPM timeout")), 450))
+                ]);
+                for (const u of missing) {
+                    const bpm = fetched?.[u]?.["222"]?.bpm ? Math.round(fetched[u]["222"].bpm) : null;
+                    BPM_CACHE.set(u, bpm);
+                }
+            } catch {
+                for (const u of missing) BPM_CACHE.set(u, null);
+            }
+        }
+        const res = {};
+        for (const u of uris) res[u] = BPM_CACHE.get(u) || null;
+        return res;
+    }
+
+    async function fetchTrackBpm(uri) {
+        if (!uri) return null;
+        if (BPM_CACHE.has(uri)) return BPM_CACHE.get(uri);
+        const map = await fetchBpmBatch([uri]);
+        return map[uri] || null;
+    }
+
+    function getBpmDistance(bpm1, bpm2) {
+        if (!bpm1 || !bpm2 || bpm1 <= 0 || bpm2 <= 0) return 999;
+        const diff1 = Math.abs(bpm1 - bpm2) / bpm1;
+        const diffHalf = Math.abs(bpm1 * 2 - bpm2) / (bpm1 * 2);
+        const diffDouble = Math.abs(bpm1 - bpm2 * 2) / bpm1;
+        return Math.min(diff1, diffHalf, diffDouble);
+    }
+
+    async function pickTempoAlignedTrack(candidates, targetBpm) {
+        if (!candidates || candidates.length === 0) return null;
+        if (!targetBpm || candidates.length <= 1) {
+            return candidates[Math.floor(Math.random() * candidates.length)];
+        }
+        try {
+            const bpms = await fetchBpmBatch(candidates.map(c => c.uri));
+            const scored = candidates.map(c => {
+                const b = bpms[c.uri];
+                return {
+                    track: c,
+                    bpm: b,
+                    dist: getBpmDistance(targetBpm, b)
+                };
+            });
+
+            // Priority 1: within +-15% tempo window (including half/double time harmonic matches)
+            const close = scored.filter(s => s.dist <= 0.15);
+            if (close.length > 0) {
+                close.sort((a, b) => a.dist - b.dist);
+                const pickPool = close.slice(0, 3);
+                const picked = pickPool[Math.floor(Math.random() * pickPool.length)];
+                console.log(`[SmartWave] Tempo contour matched: target ${targetBpm} -> candidate ${picked.bpm} (${picked.track.artist} - ${picked.track.title || picked.track.name})`);
+                return picked.track;
+            }
+
+            // Priority 2: within +-25% tempo window
+            const medium = scored.filter(s => s.dist <= 0.25);
+            if (medium.length > 0) {
+                medium.sort((a, b) => a.dist - b.dist);
+                const pickPool = medium.slice(0, 3);
+                const picked = pickPool[Math.floor(Math.random() * pickPool.length)];
+                console.log(`[SmartWave] Tempo contour loose: target ${targetBpm} -> candidate ${picked.bpm} (${picked.track.artist} - ${picked.track.title || picked.track.name})`);
+                return picked.track;
+            }
+        } catch (err) {
+            console.warn("[SmartWave] Tempo contour pick error:", err);
+        }
+
+        // Fallback: standard random pick from candidate pool
+        return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
     // Export for easy clearing at any time: window.SmartWave.clearCache()
     window.SmartWave = {
         debugPulse: () => STATE.beatPulse,
+        getBpm: () => STATE.currentBpm,
+        getBpmCacheStats: () => ({ size: BPM_CACHE.size }),
+        fetchBpmBatch: (uris) => fetchBpmBatch(uris),
+        getBpmDistance: (a, b) => getBpmDistance(a, b),
         getWaveState: () => ({
             colorA: STATE.currentColorA,
             colorB: STATE.currentColorB,
@@ -1322,6 +1420,7 @@
         }),
         getState: () => ({
             mode: STATE.mode,
+            currentBpm: STATE.currentBpm,
             seed: STATE.currentSeedArtist,
             seedUri: STATE.currentSeedUri,
             queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title),
