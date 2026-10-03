@@ -117,13 +117,15 @@
             }
         }
         Spicetify.Player?.toggleHeart?.();
-        if (STATE.currentTrack?.artist) {
-            const a = STATE.currentTrack.artist;
-            const aUri = STATE.currentTrack.artistUri || Spicetify.Player?.data?.item?.artists?.[0]?.uri || null;
+        if (STATE.currentTrack) {
             if (willBeLiked) {
-                addLikedArtist(a, aUri, 2);
+                addLikedTrack(STATE.currentTrack, 2);
+                if (!STATE.comfortPool.some(t => t.uri === STATE.currentTrack.uri)) {
+                    STATE.comfortPool.unshift(STATE.currentTrack);
+                }
             } else {
-                removeLikedArtist(a, 1);
+                penalizeTrack(STATE.currentTrack, 2);
+                STATE.comfortPool = STATE.comfortPool.filter(t => t.uri !== STATE.currentTrack.uri);
             }
         }
     }
@@ -131,25 +133,28 @@
     async function onSongChange() {
         if (!STATE.active) return;
         const now = Date.now();
-        const prevArtist = STATE.currentTrack?.artist;
-        const prevArtistUri = STATE.currentTrack?.artistUri || null;
+        const prevTrack = STATE.currentTrack;
         const elapsed = (now - STATE.currentTrackStartTime) / 1000;
-        const trackDur = STATE.currentTrack?.duration || 0;
+        const trackDur = prevTrack?.duration || 0;
         const lastProg = STATE.lastObservedProgress || 0;
         const reachedEnd = trackDur > 0 && (
             (lastProg / trackDur >= 0.85) ||
             (trackDur - lastProg <= 15000)
         );
 
-        if (prevArtist && STATE.currentTrackStartTime > 0 && elapsed > 2) {
+        if (prevTrack && STATE.currentTrackStartTime > 0 && elapsed > 2) {
             if (reachedEnd || elapsed >= CONFIG.LIKE_THRESHOLD_SEC) {
-                // Listened to >= 60s or naturally completed: count as completed (+1 point to artist)!
-                addLikedArtist(prevArtist, prevArtistUri, 1);
+                // Listened to >= 90s (1m 30s) or naturally completed: +1 point to this track!
+                addLikedTrack(prevTrack, 1);
             } else if (elapsed < CONFIG.SKIP_THRESHOLD_SEC) {
-                // Fast skip under 30s: -1 point penalty to artist, NO track ban!
-                removeLikedArtist(prevArtist, 1);
+                // Fast skip under 30s: -1 point penalty to this track, artist is NOT penalized!
+                // Real library favorites (and scored tracks) are NEVER penalized by skips.
+                const isLibrary = (STATE.comfortPool || []).some(t => t.uri === prevTrack.uri);
+                if (!isLibrary && !STATE.likedTracks.has(prevTrack.uri)) {
+                    penalizeTrack(prevTrack, 1);
+                }
             }
-            // 30s to 60s: neutral (0 points)
+            // 30s to 90s: neutral (0 points)
         }
         STATE.lastObservedProgress = 0;
         const cur = Spicetify.Player?.data?.item;
@@ -447,5 +452,13 @@ function startWaveAnimation() {
             STATE.animFrameId = null;
         }
     }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            stopWaveAnimation();
+        } else if (STATE.pageVisible && STATE.waveEffectEnabled) {
+            startWaveAnimation();
+        }
+    });
     // -------------------------------------------------------------------------
     // PURE BLACK DESIGN: CENTERED SCREEN

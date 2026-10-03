@@ -14,7 +14,7 @@
     const CONFIG = {
         MIN_QUEUE: 4,
         SKIP_THRESHOLD_SEC: 30, // < 30s: fast skip (-1 point to artist, no ban)
-        LIKE_THRESHOLD_SEC: 60, // >= 60s: natural listen (+1 point to artist)
+        LIKE_THRESHOLD_SEC: 90, // >= 90s (1m 30s): natural listen (+1 point to artist)
     };
     // Multi-language support (i18n): adapts to the Spotify UI language
     function getLang() {
@@ -78,7 +78,10 @@
             customSubModeDiscoveryTitle: "Открытия",
             customSubModeDiscoveryDesc: "Только новая музыка",
             customSubModeFavoriteTitle: "Любимое",
-            customSubModeFavoriteDesc: "Только из медиатеки"
+            customSubModeFavoriteDesc: "Только из медиатеки",
+            noFavoritesInGenre: "В этом жанре нет любимых треков — включён «Поток»",
+            noFavoritesInCustom: "В этой подборке нет любимых треков — включён «Поток»",
+            genreUnpinned: "Жанр убран с панели"
         },
         en: {
             waveTitle: "My Wave",
@@ -134,7 +137,10 @@
             customSubModeDiscoveryTitle: "Discoveries",
             customSubModeDiscoveryDesc: "Only new music",
             customSubModeFavoriteTitle: "Favorites",
-            customSubModeFavoriteDesc: "Only from your library"
+            customSubModeFavoriteDesc: "Library only",
+            noFavoritesInGenre: "No favorites in this genre — switched to Flow",
+            noFavoritesInCustom: "No favorites in this playlist — switched to Flow",
+            genreUnpinned: "Genre unpinned from bar"
         },
         de: {
             waveTitle: "Smart Wave",
@@ -911,6 +917,9 @@
         return typeof val === "function" ? val(...args) : val;
     }
 
+    let showNotice = () => {};
+    let updateModeChipsUI = () => {};
+
     // Clean slate by default: reset old saved states on first launch
     if (!Spicetify.LocalStorage.get("smartWave_clean_v2")) {
         [
@@ -920,6 +929,13 @@
             "smartWave_upnext_open", "smartWave_effect_enabled", "smartWave_artist_graph_cache_v2"
         ].forEach(k => Spicetify.LocalStorage.remove(k));
         Spicetify.LocalStorage.set("smartWave_clean_v2", "true");
+    }
+    if (!Spicetify.LocalStorage.get("smartWave_clean_taste_v3")) {
+        [
+            "smartWave_liked_tracks", "smartWave_disliked_tracks",
+            "smartWave_liked_artists", "smartWave_disliked_artists"
+        ].forEach(k => Spicetify.LocalStorage.remove(k));
+        Spicetify.LocalStorage.set("smartWave_clean_taste_v3", "true");
     }
 
     const validModes = ["stream", "discovery", "favorite"];
@@ -947,6 +963,7 @@
         upcomingWave: [],           // [{ uri, title, artist, image, duration }]
         dislikedTracks: new Set(JSON.parse(Spicetify.LocalStorage.get("smartWave_disliked_tracks") || "[]")),
         dislikedArtists: new Set(),
+        likedTracks: parseLikedTracks(Spicetify.LocalStorage.get("smartWave_liked_tracks")),
         likedArtists: parseLikedArtists(Spicetify.LocalStorage.get("smartWave_liked_artists")),
         history: new Set(),
         comfortPool: [],
@@ -1014,6 +1031,32 @@
         return s;
     }
 
+    function parseLikedTracks(raw) {
+        try {
+            const arr = JSON.parse(raw || "[]");
+            const map = new Map();
+            for (const item of arr) {
+                if (!Array.isArray(item) || item.length < 2) continue;
+                const [uri, v] = item;
+                if (!uri) continue;
+                if (typeof v === "number") {
+                    map.set(uri, { uri, title: "Track", artist: "Artist", artistUri: null, weight: v });
+                } else if (v && typeof v === "object") {
+                    map.set(uri, {
+                        uri,
+                        title: v.title || "Track",
+                        artist: v.artist || "Artist",
+                        artistUri: v.artistUri || null,
+                        weight: Number(v.weight) || 1
+                    });
+                }
+            }
+            return map;
+        } catch {
+            return new Map();
+        }
+    }
+
     function parseLikedArtists(raw) {
         try {
             const arr = JSON.parse(raw || "[]");
@@ -1034,21 +1077,53 @@
         }
     }
 
-    // Persist taste feedback (caps: 500 banned tracks / 300 liked artists, trimmed by weight)
+    // Persist taste feedback (caps: 500 banned tracks / 500 liked tracks)
     function saveTaste() {
         try {
             let disliked = [...STATE.dislikedTracks];
             if (disliked.length > 500) disliked = disliked.slice(-500);
-            let liked = [...STATE.likedArtists.entries()];
-            if (liked.length > 300) {
-                liked.sort((a, b) => (b[1]?.weight || 0) - (a[1]?.weight || 0));
-                liked = liked.slice(0, 300);
-                STATE.likedArtists = new Map(liked);
+            let likedTracksArr = [...STATE.likedTracks.entries()];
+            if (likedTracksArr.length > 500) {
+                likedTracksArr.sort((a, b) => (b[1]?.weight || 0) - (a[1]?.weight || 0));
+                likedTracksArr = likedTracksArr.slice(0, 500);
+                STATE.likedTracks = new Map(likedTracksArr);
             }
             Spicetify.LocalStorage.set("smartWave_disliked_tracks", JSON.stringify(disliked));
-            Spicetify.LocalStorage.set("smartWave_liked_artists", JSON.stringify(liked));
+            Spicetify.LocalStorage.set("smartWave_liked_tracks", JSON.stringify(likedTracksArr));
+            Spicetify.LocalStorage.set("smartWave_liked_artists", JSON.stringify([...STATE.likedArtists.entries()]));
         } catch (err) {
             console.warn("[SmartWave] saveTaste failed:", err);
+        }
+    }
+
+    function addLikedTrack(track, delta = 1) {
+        if (!track || !track.uri) return;
+        const uri = track.uri;
+        const existing = STATE.likedTracks.get(uri);
+        const newWeight = (existing ? existing.weight : 0) + delta;
+        STATE.likedTracks.set(uri, {
+            uri,
+            title: track.title || existing?.title || "Track",
+            artist: track.artist || existing?.artist || "Artist",
+            artistUri: track.artistUri || existing?.artistUri || null,
+            weight: Math.max(1, newWeight)
+        });
+        saveTaste();
+    }
+
+    function penalizeTrack(track, delta = 1) {
+        if (!track || !track.uri) return;
+        const uri = track.uri;
+        const existing = STATE.likedTracks.get(uri);
+        if (existing) {
+            const newWeight = existing.weight - delta;
+            if (newWeight <= 0) {
+                STATE.likedTracks.delete(uri);
+            } else {
+                existing.weight = newWeight;
+                STATE.likedTracks.set(uri, existing);
+            }
+            saveTaste();
         }
     }
 
@@ -1083,9 +1158,7 @@
     function addDislikedTrack(uri, artistName = null) {
         if (!uri) return;
         STATE.dislikedTracks.add(uri);
-        if (artistName) {
-            removeLikedArtist(artistName, 2);
-        }
+        STATE.likedTracks.delete(uri);
         saveTaste();
     }
 
@@ -1333,14 +1406,19 @@
             seed: STATE.currentSeedArtist,
             seedUri: STATE.currentSeedUri,
             queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title),
-            likedCount: STATE.likedArtists.size,
+            queueUris: STATE.upcomingWave.map(t => t.uri),
+            likedCount: STATE.likedTracks.size,
             dislikedCount: STATE.dislikedTracks.size,
-            likedArtists: Object.fromEntries([...STATE.likedArtists].map(([k, v]) => [v.name || k, v.weight || 1])),
+            likedTracks: Object.fromEntries([...STATE.likedTracks].map(([k, v]) => [v.title + " (" + v.artist + ")", v.weight || 1])),
             dislikedTracksCount: STATE.dislikedTracks.size
         }),
+        addLikedTrack: (track, delta) => addLikedTrack(track, delta),
+        penalizeTrack: (track, delta) => penalizeTrack(track, delta),
         addLikedArtist: (name, uri, delta) => addLikedArtist(name, uri, delta),
         addDislikedTrack: (uri, artist) => addDislikedTrack(uri, artist),
         removeLikedArtist: (name, delta) => removeLikedArtist(name, delta),
+        showNotice: (msg) => showNotice(msg),
+        t: (k) => t(k),
         saveTaste: () => saveTaste(),
         clearCache: clearAllArtistCache,
         getCacheStats: () => ({
@@ -1554,7 +1632,7 @@
             if (!def) return "";
             const active = STATE.activeGenre === gid ? "active" : "";
             const name = def.name?.[lang] || def.name?.en || def.id;
-            return `<button class="sw-chip ${active}" data-genre="${def.id}">${name}</button>`;
+            return `<button class="sw-chip ${active}" data-genre="${def.id}" draggable="true">${name}</button>`;
         }).join("");
     }
 
@@ -1562,7 +1640,7 @@
         if (STATE.comfortPool.length > 0) return;
         try {
             if (Spicetify.Platform?.LibraryAPI?.getTracks) {
-                const res = await Spicetify.Platform.LibraryAPI.getTracks({ limit: 150 });
+                const res = await Spicetify.Platform.LibraryAPI.getTracks({ limit: 1000 });
                 if (res?.items?.length) {
                     STATE.comfortPool = res.items
                         .filter(t => t.isPlayable !== false && t.uri)
@@ -1631,7 +1709,7 @@
                 }
                 // Fallback for Liked Songs on older/other Spotify builds where the system playlist is not readable as a regular playlist URI
                 if (isLikedSongs && items.length === 0 && Spicetify.Platform?.LibraryAPI?.getTracks) {
-                    const lib = await Spicetify.Platform.LibraryAPI.getTracks({ limit: 300 });
+                    const lib = await Spicetify.Platform.LibraryAPI.getTracks({ limit: 1000 });
                     items = lib?.items || [];
                 }
                 for (const item of items) pushTrack(item);
@@ -1815,8 +1893,25 @@ async function generateNextTrack() {
             const tracks = await loadCustomTracksCache();
             if (tracks && tracks.length > 0) {
                 if (STATE.mode === "favorite") {
-                    const available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri));
-                    track = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : tracks[0];
+                    const libraryUris = new Set((STATE.comfortPool || []).map(t => t.uri));
+                    let available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri) && libraryUris.has(t.uri));
+                    if (available.length === 0) {
+                        // Allow repeats from history instead of flipping the mode
+                        available = tracks.filter(t => t.uri !== curUri && !STATE.dislikedTracks.has(t.uri) && libraryUris.has(t.uri));
+                    }
+                    if (available.length === 0) {
+                        available = tracks.filter(t => !STATE.dislikedTracks.has(t.uri) && libraryUris.has(t.uri));
+                    }
+                    if (available.length > 0) {
+                        track = available[Math.floor(Math.random() * available.length)];
+                    } else {
+                        STATE.mode = "stream";
+                        Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                        if (typeof updateModeChipsUI === "function") updateModeChipsUI();
+                        if (typeof showNotice === "function") showNotice(t("noFavoritesInCustom"));
+                        const anyCustom = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                        if (anyCustom.length > 0) track = anyCustom[Math.floor(Math.random() * anyCustom.length)];
+                    }
                 } else if (STATE.mode === "discovery") {
                     const customArtistUris = [...new Set(tracks.map(t => t.artistUri).filter(Boolean))];
                     const seedGraphs = await Promise.all(customArtistUris.slice(0, 4).map(u => getArtistGraph(u).catch(() => null)));
@@ -1850,13 +1945,38 @@ async function generateNextTrack() {
             const genreTracks = await loadGenreTracks(STATE.activeGenre);
             if (genreTracks && genreTracks.length > 0) {
                 if (STATE.mode === "favorite") {
-                    const matchedLib = STATE.comfortPool.filter(t =>
-                        identifyTrackCluster(t) === STATE.activeGenre &&
+                    // Genre-favorites: YOUR liked tracks that are literally in the editorial genre playlist (URI match against library)
+                    const libraryUris = new Set((STATE.comfortPool || []).map(t => t.uri));
+                    let matchedLib = genreTracks.filter(t =>
+                        libraryUris.has(t.uri) &&
                         t.uri !== curUri &&
-                        !STATE.history.has(t.uri)
+                        !STATE.history.has(t.uri) &&
+                        !STATE.dislikedTracks.has(t.uri)
                     );
+                    if (matchedLib.length === 0) {
+                        // Allow repeats from history instead of picking unliked songs
+                        matchedLib = genreTracks.filter(t =>
+                            libraryUris.has(t.uri) &&
+                            t.uri !== curUri &&
+                            !STATE.dislikedTracks.has(t.uri)
+                        );
+                    }
+                    if (matchedLib.length === 0) {
+                        // All genre favorites played or equal to curUri: allow any liked track in this genre
+                        matchedLib = genreTracks.filter(t =>
+                            libraryUris.has(t.uri) &&
+                            !STATE.dislikedTracks.has(t.uri)
+                        );
+                    }
                     if (matchedLib.length > 0) {
                         track = matchedLib[Math.floor(Math.random() * matchedLib.length)];
+                    } else {
+                        STATE.mode = "stream";
+                        Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                        if (typeof updateModeChipsUI === "function") updateModeChipsUI();
+                        if (typeof showNotice === "function") showNotice(t("noFavoritesInGenre"));
+                        const available = genreTracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri) && !recentArtists.has((t.artist || "").toLowerCase()));
+                        if (available.length > 0) track = available[Math.floor(Math.random() * available.length)];
                     }
                 } else if (STATE.mode === "discovery") {
                     const freshPool = genreTracks.filter(t =>
@@ -1895,20 +2015,20 @@ async function generateNextTrack() {
                           STATE.mode === "discovery" ? false :
                           Math.random() < 0.35;
 
-        // Liked-artist gravity: weighted pick from taste memory steers the wave toward loved territory.
-        // Runs in favorite/stream (never in discovery -- that mode is 100% exploration).
-        if (STATE.mode !== "discovery" && STATE.likedArtists.size > 0 && Math.random() < 0.45) {
+        // Liked-track gravity: weighted pick from taste memory steers the wave toward loved territory.
+        // Runs ONLY in stream mode: discovery is 100% exploration, favorite is 100% library tracks.
+        if (STATE.mode === "stream" && STATE.likedTracks.size > 0 && Math.random() < 0.45) {
             const weighted = [];
-            for (const [key, item] of STATE.likedArtists) {
-                if (recentArtists.has(key)) continue;
-                let uri = item.uri;
-                if (!uri) {
-                    const t = STATE.comfortPool.find(x => x.artist?.toLowerCase() === key);
-                    uri = t?.artistUri || null;
-                    if (uri) item.uri = uri;
+            for (const [uri, item] of STATE.likedTracks) {
+                if (recentArtists.has((item.artist || "").toLowerCase())) continue;
+                let artistUri = item.artistUri;
+                if (!artistUri) {
+                    const t = STATE.comfortPool.find(x => x.artist?.toLowerCase() === (item.artist || "").toLowerCase());
+                    artistUri = t?.artistUri || null;
+                    if (artistUri) item.artistUri = artistUri;
                 }
-                if (uri) {
-                    weighted.push({ name: item.name || key, uri, w: Number(item.weight) || 1 });
+                if (artistUri) {
+                    weighted.push({ name: item.artist, uri: artistUri, trackTitle: item.title, w: Number(item.weight) || 1 });
                 }
             }
             if (weighted.length > 0) {
@@ -1921,10 +2041,10 @@ async function generateNextTrack() {
                 }
                 const likedGraph = await getArtistGraph(picked.uri);
                 const likedFresh = (likedGraph?.topTracks || []).filter(t =>
-                    t.uri !== curUri && !STATE.history.has(t.uri)
+                    t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri)
                 );
                 if (likedFresh.length > 0) {
-                    console.log(`[SmartWave] Taste gravity: seeding from loved artist "${picked.name}" (weight ${picked.w})`);
+                    console.log(`[SmartWave] Taste gravity: seeding from loved track "${picked.trackTitle}" (${picked.name}, weight ${picked.w})`);
                     return {
                         ...likedFresh[Math.floor(Math.random() * likedFresh.length)],
                         seedUri: picked.uri,
@@ -2111,10 +2231,11 @@ async function generateNextTrack() {
             let diversityRetries = 0;
             while (STATE.upcomingWave.length < CONFIG.MIN_QUEUE) {
                 const nextTrk = await generateNextTrack();
+                const isFav = STATE.mode === "favorite";
                 const dupe = nextTrk && (
                     STATE.upcomingWave.some(t => t.uri === nextTrk.uri) ||
-                    (nextTrk.artist && STATE.upcomingWave.some(t => t.artist === nextTrk.artist)) ||
-                    (nextTrk.artist && STATE.currentTrack?.artist === nextTrk.artist)
+                    (!isFav && nextTrk.artist && STATE.upcomingWave.some(t => t.artist === nextTrk.artist)) ||
+                    (!isFav && nextTrk.artist && STATE.currentTrack?.artist === nextTrk.artist)
                 );
                 if (nextTrk && !dupe) {
                     STATE.upcomingWave.push(nextTrk);
@@ -2371,13 +2492,15 @@ async function generateNextTrack() {
             }
         }
         Spicetify.Player?.toggleHeart?.();
-        if (STATE.currentTrack?.artist) {
-            const a = STATE.currentTrack.artist;
-            const aUri = STATE.currentTrack.artistUri || Spicetify.Player?.data?.item?.artists?.[0]?.uri || null;
+        if (STATE.currentTrack) {
             if (willBeLiked) {
-                addLikedArtist(a, aUri, 2);
+                addLikedTrack(STATE.currentTrack, 2);
+                if (!STATE.comfortPool.some(t => t.uri === STATE.currentTrack.uri)) {
+                    STATE.comfortPool.unshift(STATE.currentTrack);
+                }
             } else {
-                removeLikedArtist(a, 1);
+                penalizeTrack(STATE.currentTrack, 2);
+                STATE.comfortPool = STATE.comfortPool.filter(t => t.uri !== STATE.currentTrack.uri);
             }
         }
     }
@@ -2385,25 +2508,28 @@ async function generateNextTrack() {
     async function onSongChange() {
         if (!STATE.active) return;
         const now = Date.now();
-        const prevArtist = STATE.currentTrack?.artist;
-        const prevArtistUri = STATE.currentTrack?.artistUri || null;
+        const prevTrack = STATE.currentTrack;
         const elapsed = (now - STATE.currentTrackStartTime) / 1000;
-        const trackDur = STATE.currentTrack?.duration || 0;
+        const trackDur = prevTrack?.duration || 0;
         const lastProg = STATE.lastObservedProgress || 0;
         const reachedEnd = trackDur > 0 && (
             (lastProg / trackDur >= 0.85) ||
             (trackDur - lastProg <= 15000)
         );
 
-        if (prevArtist && STATE.currentTrackStartTime > 0 && elapsed > 2) {
+        if (prevTrack && STATE.currentTrackStartTime > 0 && elapsed > 2) {
             if (reachedEnd || elapsed >= CONFIG.LIKE_THRESHOLD_SEC) {
-                // Listened to >= 60s or naturally completed: count as completed (+1 point to artist)!
-                addLikedArtist(prevArtist, prevArtistUri, 1);
+                // Listened to >= 90s (1m 30s) or naturally completed: +1 point to this track!
+                addLikedTrack(prevTrack, 1);
             } else if (elapsed < CONFIG.SKIP_THRESHOLD_SEC) {
-                // Fast skip under 30s: -1 point penalty to artist, NO track ban!
-                removeLikedArtist(prevArtist, 1);
+                // Fast skip under 30s: -1 point penalty to this track, artist is NOT penalized!
+                // Real library favorites (and scored tracks) are NEVER penalized by skips.
+                const isLibrary = (STATE.comfortPool || []).some(t => t.uri === prevTrack.uri);
+                if (!isLibrary && !STATE.likedTracks.has(prevTrack.uri)) {
+                    penalizeTrack(prevTrack, 1);
+                }
             }
-            // 30s to 60s: neutral (0 points)
+            // 30s to 90s: neutral (0 points)
         }
         STATE.lastObservedProgress = 0;
         const cur = Spicetify.Player?.data?.item;
@@ -2701,6 +2827,14 @@ function startWaveAnimation() {
             STATE.animFrameId = null;
         }
     }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            stopWaveAnimation();
+        } else if (STATE.pageVisible && STATE.waveEffectEnabled) {
+            startWaveAnimation();
+        }
+    });
     // -------------------------------------------------------------------------
     // PURE BLACK DESIGN: CENTERED SCREEN
     // -------------------------------------------------------------------------
@@ -2845,8 +2979,17 @@ function startWaveAnimation() {
                 box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
                 background: #121212;
                 cursor: pointer;
-                transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s;
+                transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
                 flex-shrink: 0;
+            }
+            .sw-cover-card.paused {
+                filter: grayscale(0.85) brightness(0.80) contrast(0.92);
+                transform: scale(0.97);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            }
+            .sw-cover-card.paused:hover {
+                transform: scale(1.02);
+                filter: grayscale(0.65) brightness(0.86);
             }
             .sw-cover-card:hover {
                 transform: scale(1.05);
@@ -2862,35 +3005,47 @@ function startWaveAnimation() {
                 border: var(--sw-inner-glow-border, 1px solid rgba(255, 255, 255, 0.12));
                 pointer-events: none;
                 z-index: 3;
-                transition: box-shadow 0.5s ease, border-color 0.5s ease;
+                transition: box-shadow 0.6s ease, border-color 0.6s ease, opacity 0.6s ease;
+            }
+            .sw-cover-card.paused::after {
+                opacity: 0.30;
             }
             .sw-cover-img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
                 display: block;
+                transition: filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
+            .sw-cover-card.paused .sw-cover-img {
+                filter: grayscale(0.88) brightness(0.82) contrast(0.92);
             }
             /* Title and artist (larger and more readable) */
             .sw-title-text {
-                font-size: clamp(32px, 3.8vw, 56px);
+                font-size: clamp(30px, 3.4vw, 50px);
                 font-weight: 850;
                 color: #ffffff;
                 text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
                 letter-spacing: -0.03em;
-                max-width: min(88vw, 950px);
+                max-width: min(76vw, 680px);
                 white-space: nowrap;
                 overflow: hidden;
                 /* Padding creates room for the text-shadow inside the overflow:hidden box;
                    compensating negative margins keep the visual layout identical */
-                padding: 6px 10px 16px;
-                margin: -6px -10px calc(clamp(2px, 0.4vh, 4px) - 16px);
+                padding: 6px 12px 16px;
+                margin: -6px -12px calc(clamp(2px, 0.4vh, 4px) - 16px);
                 text-overflow: ellipsis;
                 position: relative;
                 z-index: 2;
                 line-height: 1.15;
             }
+            .sw-title-text.sw-marquee-active {
+                text-overflow: clip;
+                mask-image: linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 16px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 16px), transparent 100%);
+            }
             .sw-artist-text {
-                font-size: clamp(18px, 2.0vw, 28px);
+                font-size: clamp(17px, 1.9vw, 26px);
                 font-weight: 500;
                 color: #b3b3b3;
                 text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
@@ -2907,6 +3062,7 @@ function startWaveAnimation() {
                 will-change: transform;
             }
             .sw-marquee-active .sw-marquee-inner {
+                padding-right: 32px;
                 animation: sw-marquee-scroll var(--sw-marquee-duration, 10s) ease-in-out infinite;
             }
             @keyframes sw-marquee-scroll {
@@ -3127,6 +3283,31 @@ function startWaveAnimation() {
                 max-width: 90vw;
                 pointer-events: auto;
             }
+            .sw-notice-toast {
+                position: absolute;
+                bottom: calc(100% + 14px);
+                left: 50%;
+                transform: translateX(-50%) translateY(8px);
+                background: #2a2a2a;
+                color: #ffffff;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 400;
+                letter-spacing: 0;
+                white-space: nowrap;
+                pointer-events: none;
+                opacity: 0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+                transition: opacity 0.2s ease, transform 0.2s ease;
+                z-index: 50;
+            }
+            .sw-notice-toast.visible {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+                pointer-events: auto;
+            }
             /* Filter chips */
             .sw-chips-row {
                 display: flex;
@@ -3176,23 +3357,27 @@ function startWaveAnimation() {
             }
             .sw-settings-io {
                 display: flex;
-                gap: 10px;
+                gap: 12px;
             }
             .sw-io-btn {
-                background: rgba(255, 255, 255, 0.06);
-                border: 1px solid rgba(255, 255, 255, 0.14);
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
                 border-radius: 9999px;
-                color: #d6d6d6;
+                color: #ffffff;
                 font-size: 13px;
-                font-weight: 600;
-                padding: 8px 18px;
+                font-weight: 700;
+                padding: 9px 22px;
                 cursor: pointer;
-                transition: background 0.15s, color 0.15s, border-color 0.15s;
+                transition: background 0.15s ease, transform 0.1s ease;
             }
             .sw-io-btn:hover {
-                background: rgba(255, 255, 255, 0.12);
+                background: rgba(255, 255, 255, 0.2);
                 color: #ffffff;
-                border-color: rgba(255, 255, 255, 0.3);
+                transform: scale(1.03);
+            }
+            .sw-io-btn:active {
+                background: rgba(255, 255, 255, 0.15);
+                transform: scale(0.98);
             }
             .sw-settings-danger {
                 margin-top: 22px;
@@ -3204,23 +3389,26 @@ function startWaveAnimation() {
                 gap: 10px;
             }
             .sw-reset-btn {
-                background: transparent;
-                border: 1px solid rgba(226, 33, 52, 0.6);
+                background: rgba(226, 33, 52, 0.15);
+                border: none;
                 border-radius: 9999px;
-                color: #e22134;
+                color: #ff5263;
                 font-size: 13px;
-                font-weight: 600;
-                padding: 8px 18px;
+                font-weight: 700;
+                padding: 9px 22px;
                 cursor: pointer;
-                transition: background 0.15s, border-color 0.15s, color 0.15s;
+                transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
             }
             .sw-reset-btn:hover {
-                background: rgba(226, 33, 52, 0.12);
-                border-color: #e22134;
+                background: rgba(226, 33, 52, 0.28);
+                color: #ffffff;
+                transform: scale(1.03);
+            }
+            .sw-reset-btn:active {
+                transform: scale(0.98);
             }
             .sw-reset-btn.confirm {
                 background: #e22134;
-                border-color: #e22134;
                 color: #ffffff;
             }
             .sw-settings-regions {
@@ -3280,6 +3468,21 @@ function startWaveAnimation() {
                 color: #ffffff;
                 background: rgba(255, 255, 255, 0.14);
                 transform: scale(1.04);
+            }
+            .sw-chip[draggable="true"] {
+                cursor: grab;
+                user-select: none;
+            }
+            .sw-chip[draggable="true"]:active {
+                cursor: grabbing;
+            }
+            .sw-chip.sw-chip-dragging {
+                opacity: 0.35 !important;
+                transform: scale(0.92) !important;
+            }
+            .sw-chip.sw-chip-drag-over {
+                background: rgba(29, 185, 84, 0.24) !important;
+                transform: translateY(-2px) scale(1.04) !important;
             }
             /* "Up Next" panel (right of the wave, aligned strictly under the right buttons: right 80px) */
             .sw-upnext-panel {
@@ -3388,12 +3591,22 @@ function startWaveAnimation() {
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
+            .sw-upnext-item-title.sw-marquee-active {
+                text-overflow: clip;
+                mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+            }
             .sw-upnext-item-artist {
                 font-size: 12px;
                 color: #888888;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+            }
+            .sw-upnext-item-artist.sw-marquee-active {
+                text-overflow: clip;
+                mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
             }
             .sw-upnext-num {
                 font-size: 12px;
@@ -3758,6 +3971,12 @@ function startWaveAnimation() {
             .sw-browse-icon-btn:active {
                 transform: scale(0.92);
             }
+            .sw-browse-icon-btn.sw-browse-drag-target {
+                background: rgba(226, 33, 52, 0.22) !important;
+                color: #ff5263 !important;
+                transform: scale(1.30) !important;
+                box-shadow: 0 0 16px rgba(226, 33, 52, 0.5) !important;
+            }
 
             /* Browse button in the bottom row */
             .sw-chip.sw-browse-btn {
@@ -3784,33 +4003,45 @@ function startWaveAnimation() {
                 padding: 10px 0;
             }
             .sw-browse-card {
-                background: #181818;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 12px;
+                background: #242424;
+                border: none;
+                border-radius: 10px;
                 padding: 14px 16px;
                 cursor: pointer;
-                transition: all 0.15s ease;
+                transition: background-color 0.15s ease, transform 0.12s ease;
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 5px;
             }
             .sw-browse-card:hover {
-                background: #242424;
-                border-color: rgba(255, 255, 255, 0.20);
-                transform: translateY(-2px);
+                background: #2e2e2e;
+                transform: scale(1.02);
             }
             .sw-browse-card.active {
-                border-color: #1ed760;
-                background: rgba(30, 215, 96, 0.08);
+                background: #1ed760;
+                border: none;
+            }
+            .sw-browse-card.active:hover {
+                background: #1fdf64;
+                transform: scale(1.02);
             }
             .sw-browse-card-name {
                 font-size: 15px;
                 font-weight: 700;
                 color: #ffffff;
+                transition: color 0.15s ease;
             }
             .sw-browse-card-desc {
                 font-size: 12px;
-                color: #888888;
+                color: #a7a7a7;
+                line-height: 1.35;
+                transition: color 0.15s ease;
+            }
+            .sw-browse-card.active .sw-browse-card-name {
+                color: #000000;
+            }
+            .sw-browse-card.active .sw-browse-card-desc {
+                color: rgba(0, 0, 0, 0.72);
             }
 
             
@@ -3955,6 +4186,7 @@ document.head.appendChild(style);
                 </div>
                 <!-- Bottom bar: smart wave settings separated and pinned to the bottom edge -->
                 <div class="sw-bottom-bar" id="sw-bottom-bar">
+                    <div class="sw-notice-toast" id="sw-notice-toast" aria-live="polite"></div>
                     <div class="sw-chips-row" id="sw-genre-chips-row">
                         <button class="sw-chip ${STATE.activeGenre === 'all' ? 'active' : ''}" data-genre="all">${t('allTracks')}</button>
                         <button class="sw-chip ${STATE.activeGenre === 'custom' ? 'active' : ''}" data-genre="custom" id="sw-btn-custom">${t('modeCustom')}</button>
@@ -4613,16 +4845,66 @@ document.head.appendChild(style);
                 renderPresetChips();
             };
         }
+        // Notice toast & mode chips sync
+        let noticeTimer = null;
+        showNotice = function(msg) {
+            if (!overlayEl || !msg) return;
+            const toast = overlayEl.querySelector("#sw-notice-toast");
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.classList.add("visible");
+            if (noticeTimer) clearTimeout(noticeTimer);
+            noticeTimer = setTimeout(() => {
+                toast.classList.remove("visible");
+                noticeTimer = null;
+            }, 3500);
+        };
+
+        updateModeChipsUI = function() {
+            overlayEl?.querySelectorAll(".sw-chip[data-mode]").forEach(c => {
+                c.classList.toggle("active", c.getAttribute("data-mode") === STATE.mode);
+            });
+        };
+
         // Mode chips
-                // --- Top mode switch (Favorites | Stream | Discoveries)
+        // --- Top mode switch (Favorites | Stream | Discoveries)
         overlayEl.querySelectorAll(".sw-chip[data-mode]").forEach(chip => {
             chip.onclick = async () => {
                 const mode = chip.getAttribute("data-mode");
                 if (STATE.mode === mode) return;
+
+                if (mode === "favorite") {
+                    await loadComfortPool();
+                    const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
+                    if (STATE.activeGenre && STATE.activeGenre !== "all" && STATE.activeGenre !== "custom") {
+                        const genreTracks = await loadGenreTracks(STATE.activeGenre);
+                        // A genre sustains Favorites only if the pool can fill the queue (>= 4 own library tracks in the playlist)
+                        const favPool = genreTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                        if (favPool.length < 4) {
+                            STATE.mode = "stream";
+                            Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                            updateModeChipsUI();
+                            showNotice(t("noFavoritesInGenre"));
+                            await regenerateQueue(true);
+                            return;
+                        }
+                    } else if (STATE.activeGenre === "custom") {
+                        const customTracks = await loadCustomTracksCache();
+                        const favPool = customTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                        if (favPool.length < 4) {
+                            STATE.mode = "stream";
+                            Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                            updateModeChipsUI();
+                            showNotice(t("noFavoritesInCustom"));
+                            await regenerateQueue(true);
+                            return;
+                        }
+                    }
+                }
+
                 STATE.mode = mode;
                 Spicetify.LocalStorage.set("smartWave_mode", mode);
-                overlayEl.querySelectorAll(".sw-chip[data-mode]").forEach(c => c.classList.remove("active"));
-                chip.classList.add("active");
+                updateModeChipsUI();
 
                 if (mode === "discovery") {
                     const curCluster = STATE.activeCluster || identifyTrackCluster(STATE.currentTrack);
@@ -4672,6 +4954,19 @@ document.head.appendChild(style);
                             Spicetify.LocalStorage.set("smartWave_active_genre", "custom");
                             overlayEl.querySelectorAll(".sw-chip[data-genre]").forEach(c => c.classList.remove("active"));
                             chip.classList.add("active");
+
+                            if (STATE.mode === "favorite") {
+                                const customTracks = await loadCustomTracksCache();
+                                const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
+                                const favPool = customTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                                if (favPool.length < 4) {
+                                    STATE.mode = "stream";
+                                    Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                                    updateModeChipsUI();
+                                    showNotice(t("noFavoritesInCustom"));
+                                }
+                            }
+
                             openCustomModal();
                             await regenerateQueue(true);
                             return;
@@ -4686,6 +4981,20 @@ document.head.appendChild(style);
                     overlayEl.querySelectorAll(".sw-chip[data-genre]").forEach(c => c.classList.remove("active"));
                     chip.classList.add("active");
 
+                    if (STATE.mode === "favorite" && genre !== "all") {
+                        await loadComfortPool();
+                        const genreTracks = await loadGenreTracks(genre);
+                        const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
+                        // A genre sustains Favorites only if the pool can fill the queue (>= 4 own library tracks in the playlist)
+                        const favPool = genreTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                        if (favPool.length < 4) {
+                            STATE.mode = "stream";
+                            Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                            updateModeChipsUI();
+                            showNotice(t("noFavoritesInGenre"));
+                        }
+                    }
+
                     await regenerateQueue(true);
                 };
             });
@@ -4696,7 +5005,84 @@ document.head.appendChild(style);
                     e.stopPropagation();
                     openBrowseModal();
                 };
+                browseBtn.ondragover = (e) => {
+                    e.preventDefault();
+                    if (dragSrcGenre) {
+                        e.dataTransfer.dropEffect = "move";
+                        browseBtn.classList.add("sw-browse-drag-target");
+                    }
+                };
+                browseBtn.ondragleave = () => {
+                    browseBtn.classList.remove("sw-browse-drag-target");
+                };
+                browseBtn.ondrop = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    browseBtn.classList.remove("sw-browse-drag-target");
+                    const srcId = dragSrcGenre || e.dataTransfer.getData("text/plain");
+                    if (!srcId) return;
+
+                    let pinned = [...(STATE.pinnedGenres || ["chill", "focus", "indie", "electronic", "rock", "hiphop"])];
+                    if (pinned.includes(srcId)) {
+                        pinned = pinned.filter(id => id !== srcId);
+                        STATE.pinnedGenres = pinned;
+                        Spicetify.LocalStorage.set("smartWave_pinned_genres", JSON.stringify(pinned));
+                        if (STATE.activeGenre === srcId) {
+                            STATE.activeGenre = "all";
+                            Spicetify.LocalStorage.set("smartWave_active_genre", "all");
+                            regenerateQueue(true);
+                        }
+                        refreshGenreChips();
+                        showNotice(t("genreUnpinned"));
+                    }
+                };
             }
+
+            // Drag & drop reordering for Browse genre chips
+            let dragSrcGenre = null;
+            overlayEl.querySelectorAll(".sw-chip[draggable='true']").forEach(chip => {
+                chip.ondragstart = (e) => {
+                    dragSrcGenre = chip.getAttribute("data-genre");
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", dragSrcGenre);
+                    chip.classList.add("sw-chip-dragging");
+                };
+                chip.ondragend = () => {
+                    chip.classList.remove("sw-chip-dragging");
+                    overlayEl.querySelectorAll(".sw-chip").forEach(c => c.classList.remove("sw-chip-drag-over"));
+                    dragSrcGenre = null;
+                };
+                chip.ondragover = (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    const targetGid = chip.getAttribute("data-genre");
+                    if (dragSrcGenre && dragSrcGenre !== targetGid) {
+                        chip.classList.add("sw-chip-drag-over");
+                    }
+                };
+                chip.ondragleave = () => {
+                    chip.classList.remove("sw-chip-drag-over");
+                };
+                chip.ondrop = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    chip.classList.remove("sw-chip-drag-over");
+                    const srcId = dragSrcGenre || e.dataTransfer.getData("text/plain");
+                    const dstId = chip.getAttribute("data-genre");
+                    if (!srcId || !dstId || srcId === dstId) return;
+
+                    let pinned = [...(STATE.pinnedGenres || ["chill", "focus", "indie", "electronic", "rock", "hiphop"])];
+                    const fromIdx = pinned.indexOf(srcId);
+                    const toIdx = pinned.indexOf(dstId);
+                    if (fromIdx !== -1 && toIdx !== -1) {
+                        pinned.splice(fromIdx, 1);
+                        pinned.splice(toIdx, 0, srcId);
+                        STATE.pinnedGenres = pinned;
+                        Spicetify.LocalStorage.set("smartWave_pinned_genres", JSON.stringify(pinned));
+                        refreshGenreChips();
+                    }
+                };
+            });
         }
 
         // --- Spotify Browse modal
@@ -4712,8 +5098,8 @@ document.head.appendChild(style);
                 const desc = cat.desc?.[lang] || cat.desc?.en || "";
                 return `
                     <div class="sw-browse-card ${isPinned ? 'active' : ''}" data-cat-id="${cat.id}">
-                        <div class="sw-browse-card-name">${name} ${isPinned ? '✓' : ''}</div>
-                        <div class="sw-browse-card-desc">${desc}</div>
+                        <div class="sw-browse-card-name">${escapeHtml(name)}</div>
+                        <div class="sw-browse-card-desc">${escapeHtml(desc)}</div>
                     </div>
                 `;
             }).join("");
@@ -5096,10 +5482,13 @@ document.head.appendChild(style);
         el.classList.remove("sw-marquee-active");
         inner.style.removeProperty("--sw-marquee-distance");
         inner.style.removeProperty("--sw-marquee-duration");
-        const distance = inner.scrollWidth - el.clientWidth;
-        if (distance > 8) {
-            const duration = Math.min(18, Math.max(6, distance / 45));
-            inner.style.setProperty("--sw-marquee-distance", `${distance}px`);
+        const pad = (parseFloat(getComputedStyle(el).paddingLeft) || 0) + (parseFloat(getComputedStyle(el).paddingRight) || 0);
+        const avail = Math.max(10, el.clientWidth - pad);
+        const distance = inner.scrollWidth - avail;
+        if (distance > 6) {
+            const scrollDistance = distance + 16;
+            const duration = Math.min(18, Math.max(6, scrollDistance / 40));
+            inner.style.setProperty("--sw-marquee-distance", `${scrollDistance}px`);
             inner.style.setProperty("--sw-marquee-duration", `${duration}s`);
             el.classList.add("sw-marquee-active");
         }
@@ -5120,12 +5509,15 @@ document.head.appendChild(style);
                 c.classList.remove("active");
             }
         });
-        // Play/Pause icon
+        // Play/Pause icon & cover pause state
         const playSvg = overlayEl.querySelector("#sw-play-svg");
+        const coverCard = overlayEl.querySelector("#sw-cover-card");
         if (isPlayerPlaying()) {
-            playSvg.innerHTML = `<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`;
+            if (playSvg) playSvg.innerHTML = `<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`;
+            coverCard?.classList.remove("paused");
         } else {
-            playSvg.innerHTML = `<polygon points="6,4 20,12 6,20"/>`;
+            if (playSvg) playSvg.innerHTML = `<polygon points="6,4 20,12 6,20"/>`;
+            coverCard?.classList.add("paused");
         }
         // Heart (Like) - sync with the native state
         const heartBtn = overlayEl.querySelector("#sw-btn-heart");

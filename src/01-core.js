@@ -9,7 +9,7 @@
     const CONFIG = {
         MIN_QUEUE: 4,
         SKIP_THRESHOLD_SEC: 30, // < 30s: fast skip (-1 point to artist, no ban)
-        LIKE_THRESHOLD_SEC: 60, // >= 60s: natural listen (+1 point to artist)
+        LIKE_THRESHOLD_SEC: 90, // >= 90s (1m 30s): natural listen (+1 point to artist)
     };
     // Multi-language support (i18n): adapts to the Spotify UI language
     function getLang() {
@@ -73,7 +73,10 @@
             customSubModeDiscoveryTitle: "Открытия",
             customSubModeDiscoveryDesc: "Только новая музыка",
             customSubModeFavoriteTitle: "Любимое",
-            customSubModeFavoriteDesc: "Только из медиатеки"
+            customSubModeFavoriteDesc: "Только из медиатеки",
+            noFavoritesInGenre: "В этом жанре нет любимых треков — включён «Поток»",
+            noFavoritesInCustom: "В этой подборке нет любимых треков — включён «Поток»",
+            genreUnpinned: "Жанр убран с панели"
         },
         en: {
             waveTitle: "My Wave",
@@ -129,7 +132,10 @@
             customSubModeDiscoveryTitle: "Discoveries",
             customSubModeDiscoveryDesc: "Only new music",
             customSubModeFavoriteTitle: "Favorites",
-            customSubModeFavoriteDesc: "Only from your library"
+            customSubModeFavoriteDesc: "Library only",
+            noFavoritesInGenre: "No favorites in this genre — switched to Flow",
+            noFavoritesInCustom: "No favorites in this playlist — switched to Flow",
+            genreUnpinned: "Genre unpinned from bar"
         },
         de: {
             waveTitle: "Smart Wave",
@@ -906,6 +912,9 @@
         return typeof val === "function" ? val(...args) : val;
     }
 
+    let showNotice = () => {};
+    let updateModeChipsUI = () => {};
+
     // Clean slate by default: reset old saved states on first launch
     if (!Spicetify.LocalStorage.get("smartWave_clean_v2")) {
         [
@@ -915,6 +924,13 @@
             "smartWave_upnext_open", "smartWave_effect_enabled", "smartWave_artist_graph_cache_v2"
         ].forEach(k => Spicetify.LocalStorage.remove(k));
         Spicetify.LocalStorage.set("smartWave_clean_v2", "true");
+    }
+    if (!Spicetify.LocalStorage.get("smartWave_clean_taste_v3")) {
+        [
+            "smartWave_liked_tracks", "smartWave_disliked_tracks",
+            "smartWave_liked_artists", "smartWave_disliked_artists"
+        ].forEach(k => Spicetify.LocalStorage.remove(k));
+        Spicetify.LocalStorage.set("smartWave_clean_taste_v3", "true");
     }
 
     const validModes = ["stream", "discovery", "favorite"];
@@ -942,6 +958,7 @@
         upcomingWave: [],           // [{ uri, title, artist, image, duration }]
         dislikedTracks: new Set(JSON.parse(Spicetify.LocalStorage.get("smartWave_disliked_tracks") || "[]")),
         dislikedArtists: new Set(),
+        likedTracks: parseLikedTracks(Spicetify.LocalStorage.get("smartWave_liked_tracks")),
         likedArtists: parseLikedArtists(Spicetify.LocalStorage.get("smartWave_liked_artists")),
         history: new Set(),
         comfortPool: [],
@@ -1009,6 +1026,32 @@
         return s;
     }
 
+    function parseLikedTracks(raw) {
+        try {
+            const arr = JSON.parse(raw || "[]");
+            const map = new Map();
+            for (const item of arr) {
+                if (!Array.isArray(item) || item.length < 2) continue;
+                const [uri, v] = item;
+                if (!uri) continue;
+                if (typeof v === "number") {
+                    map.set(uri, { uri, title: "Track", artist: "Artist", artistUri: null, weight: v });
+                } else if (v && typeof v === "object") {
+                    map.set(uri, {
+                        uri,
+                        title: v.title || "Track",
+                        artist: v.artist || "Artist",
+                        artistUri: v.artistUri || null,
+                        weight: Number(v.weight) || 1
+                    });
+                }
+            }
+            return map;
+        } catch {
+            return new Map();
+        }
+    }
+
     function parseLikedArtists(raw) {
         try {
             const arr = JSON.parse(raw || "[]");
@@ -1029,21 +1072,53 @@
         }
     }
 
-    // Persist taste feedback (caps: 500 banned tracks / 300 liked artists, trimmed by weight)
+    // Persist taste feedback (caps: 500 banned tracks / 500 liked tracks)
     function saveTaste() {
         try {
             let disliked = [...STATE.dislikedTracks];
             if (disliked.length > 500) disliked = disliked.slice(-500);
-            let liked = [...STATE.likedArtists.entries()];
-            if (liked.length > 300) {
-                liked.sort((a, b) => (b[1]?.weight || 0) - (a[1]?.weight || 0));
-                liked = liked.slice(0, 300);
-                STATE.likedArtists = new Map(liked);
+            let likedTracksArr = [...STATE.likedTracks.entries()];
+            if (likedTracksArr.length > 500) {
+                likedTracksArr.sort((a, b) => (b[1]?.weight || 0) - (a[1]?.weight || 0));
+                likedTracksArr = likedTracksArr.slice(0, 500);
+                STATE.likedTracks = new Map(likedTracksArr);
             }
             Spicetify.LocalStorage.set("smartWave_disliked_tracks", JSON.stringify(disliked));
-            Spicetify.LocalStorage.set("smartWave_liked_artists", JSON.stringify(liked));
+            Spicetify.LocalStorage.set("smartWave_liked_tracks", JSON.stringify(likedTracksArr));
+            Spicetify.LocalStorage.set("smartWave_liked_artists", JSON.stringify([...STATE.likedArtists.entries()]));
         } catch (err) {
             console.warn("[SmartWave] saveTaste failed:", err);
+        }
+    }
+
+    function addLikedTrack(track, delta = 1) {
+        if (!track || !track.uri) return;
+        const uri = track.uri;
+        const existing = STATE.likedTracks.get(uri);
+        const newWeight = (existing ? existing.weight : 0) + delta;
+        STATE.likedTracks.set(uri, {
+            uri,
+            title: track.title || existing?.title || "Track",
+            artist: track.artist || existing?.artist || "Artist",
+            artistUri: track.artistUri || existing?.artistUri || null,
+            weight: Math.max(1, newWeight)
+        });
+        saveTaste();
+    }
+
+    function penalizeTrack(track, delta = 1) {
+        if (!track || !track.uri) return;
+        const uri = track.uri;
+        const existing = STATE.likedTracks.get(uri);
+        if (existing) {
+            const newWeight = existing.weight - delta;
+            if (newWeight <= 0) {
+                STATE.likedTracks.delete(uri);
+            } else {
+                existing.weight = newWeight;
+                STATE.likedTracks.set(uri, existing);
+            }
+            saveTaste();
         }
     }
 
@@ -1078,9 +1153,7 @@
     function addDislikedTrack(uri, artistName = null) {
         if (!uri) return;
         STATE.dislikedTracks.add(uri);
-        if (artistName) {
-            removeLikedArtist(artistName, 2);
-        }
+        STATE.likedTracks.delete(uri);
         saveTaste();
     }
 
@@ -1328,14 +1401,19 @@
             seed: STATE.currentSeedArtist,
             seedUri: STATE.currentSeedUri,
             queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title),
-            likedCount: STATE.likedArtists.size,
+            queueUris: STATE.upcomingWave.map(t => t.uri),
+            likedCount: STATE.likedTracks.size,
             dislikedCount: STATE.dislikedTracks.size,
-            likedArtists: Object.fromEntries([...STATE.likedArtists].map(([k, v]) => [v.name || k, v.weight || 1])),
+            likedTracks: Object.fromEntries([...STATE.likedTracks].map(([k, v]) => [v.title + " (" + v.artist + ")", v.weight || 1])),
             dislikedTracksCount: STATE.dislikedTracks.size
         }),
+        addLikedTrack: (track, delta) => addLikedTrack(track, delta),
+        penalizeTrack: (track, delta) => penalizeTrack(track, delta),
         addLikedArtist: (name, uri, delta) => addLikedArtist(name, uri, delta),
         addDislikedTrack: (uri, artist) => addDislikedTrack(uri, artist),
         removeLikedArtist: (name, delta) => removeLikedArtist(name, delta),
+        showNotice: (msg) => showNotice(msg),
+        t: (k) => t(k),
         saveTaste: () => saveTaste(),
         clearCache: clearAllArtistCache,
         getCacheStats: () => ({

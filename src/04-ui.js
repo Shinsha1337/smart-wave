@@ -140,8 +140,17 @@
                 box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
                 background: #121212;
                 cursor: pointer;
-                transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s;
+                transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
                 flex-shrink: 0;
+            }
+            .sw-cover-card.paused {
+                filter: grayscale(0.85) brightness(0.80) contrast(0.92);
+                transform: scale(0.97);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            }
+            .sw-cover-card.paused:hover {
+                transform: scale(1.02);
+                filter: grayscale(0.65) brightness(0.86);
             }
             .sw-cover-card:hover {
                 transform: scale(1.05);
@@ -157,35 +166,47 @@
                 border: var(--sw-inner-glow-border, 1px solid rgba(255, 255, 255, 0.12));
                 pointer-events: none;
                 z-index: 3;
-                transition: box-shadow 0.5s ease, border-color 0.5s ease;
+                transition: box-shadow 0.6s ease, border-color 0.6s ease, opacity 0.6s ease;
+            }
+            .sw-cover-card.paused::after {
+                opacity: 0.30;
             }
             .sw-cover-img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
                 display: block;
+                transition: filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
+            .sw-cover-card.paused .sw-cover-img {
+                filter: grayscale(0.88) brightness(0.82) contrast(0.92);
             }
             /* Title and artist (larger and more readable) */
             .sw-title-text {
-                font-size: clamp(32px, 3.8vw, 56px);
+                font-size: clamp(30px, 3.4vw, 50px);
                 font-weight: 850;
                 color: #ffffff;
                 text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
                 letter-spacing: -0.03em;
-                max-width: min(88vw, 950px);
+                max-width: min(76vw, 680px);
                 white-space: nowrap;
                 overflow: hidden;
                 /* Padding creates room for the text-shadow inside the overflow:hidden box;
                    compensating negative margins keep the visual layout identical */
-                padding: 6px 10px 16px;
-                margin: -6px -10px calc(clamp(2px, 0.4vh, 4px) - 16px);
+                padding: 6px 12px 16px;
+                margin: -6px -12px calc(clamp(2px, 0.4vh, 4px) - 16px);
                 text-overflow: ellipsis;
                 position: relative;
                 z-index: 2;
                 line-height: 1.15;
             }
+            .sw-title-text.sw-marquee-active {
+                text-overflow: clip;
+                mask-image: linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 16px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 16px), transparent 100%);
+            }
             .sw-artist-text {
-                font-size: clamp(18px, 2.0vw, 28px);
+                font-size: clamp(17px, 1.9vw, 26px);
                 font-weight: 500;
                 color: #b3b3b3;
                 text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
@@ -202,6 +223,7 @@
                 will-change: transform;
             }
             .sw-marquee-active .sw-marquee-inner {
+                padding-right: 32px;
                 animation: sw-marquee-scroll var(--sw-marquee-duration, 10s) ease-in-out infinite;
             }
             @keyframes sw-marquee-scroll {
@@ -422,6 +444,31 @@
                 max-width: 90vw;
                 pointer-events: auto;
             }
+            .sw-notice-toast {
+                position: absolute;
+                bottom: calc(100% + 14px);
+                left: 50%;
+                transform: translateX(-50%) translateY(8px);
+                background: #2a2a2a;
+                color: #ffffff;
+                border: none;
+                padding: 10px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 400;
+                letter-spacing: 0;
+                white-space: nowrap;
+                pointer-events: none;
+                opacity: 0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+                transition: opacity 0.2s ease, transform 0.2s ease;
+                z-index: 50;
+            }
+            .sw-notice-toast.visible {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+                pointer-events: auto;
+            }
             /* Filter chips */
             .sw-chips-row {
                 display: flex;
@@ -471,23 +518,27 @@
             }
             .sw-settings-io {
                 display: flex;
-                gap: 10px;
+                gap: 12px;
             }
             .sw-io-btn {
-                background: rgba(255, 255, 255, 0.06);
-                border: 1px solid rgba(255, 255, 255, 0.14);
+                background: rgba(255, 255, 255, 0.1);
+                border: none;
                 border-radius: 9999px;
-                color: #d6d6d6;
+                color: #ffffff;
                 font-size: 13px;
-                font-weight: 600;
-                padding: 8px 18px;
+                font-weight: 700;
+                padding: 9px 22px;
                 cursor: pointer;
-                transition: background 0.15s, color 0.15s, border-color 0.15s;
+                transition: background 0.15s ease, transform 0.1s ease;
             }
             .sw-io-btn:hover {
-                background: rgba(255, 255, 255, 0.12);
+                background: rgba(255, 255, 255, 0.2);
                 color: #ffffff;
-                border-color: rgba(255, 255, 255, 0.3);
+                transform: scale(1.03);
+            }
+            .sw-io-btn:active {
+                background: rgba(255, 255, 255, 0.15);
+                transform: scale(0.98);
             }
             .sw-settings-danger {
                 margin-top: 22px;
@@ -499,23 +550,26 @@
                 gap: 10px;
             }
             .sw-reset-btn {
-                background: transparent;
-                border: 1px solid rgba(226, 33, 52, 0.6);
+                background: rgba(226, 33, 52, 0.15);
+                border: none;
                 border-radius: 9999px;
-                color: #e22134;
+                color: #ff5263;
                 font-size: 13px;
-                font-weight: 600;
-                padding: 8px 18px;
+                font-weight: 700;
+                padding: 9px 22px;
                 cursor: pointer;
-                transition: background 0.15s, border-color 0.15s, color 0.15s;
+                transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
             }
             .sw-reset-btn:hover {
-                background: rgba(226, 33, 52, 0.12);
-                border-color: #e22134;
+                background: rgba(226, 33, 52, 0.28);
+                color: #ffffff;
+                transform: scale(1.03);
+            }
+            .sw-reset-btn:active {
+                transform: scale(0.98);
             }
             .sw-reset-btn.confirm {
                 background: #e22134;
-                border-color: #e22134;
                 color: #ffffff;
             }
             .sw-settings-regions {
@@ -575,6 +629,21 @@
                 color: #ffffff;
                 background: rgba(255, 255, 255, 0.14);
                 transform: scale(1.04);
+            }
+            .sw-chip[draggable="true"] {
+                cursor: grab;
+                user-select: none;
+            }
+            .sw-chip[draggable="true"]:active {
+                cursor: grabbing;
+            }
+            .sw-chip.sw-chip-dragging {
+                opacity: 0.35 !important;
+                transform: scale(0.92) !important;
+            }
+            .sw-chip.sw-chip-drag-over {
+                background: rgba(29, 185, 84, 0.24) !important;
+                transform: translateY(-2px) scale(1.04) !important;
             }
             /* "Up Next" panel (right of the wave, aligned strictly under the right buttons: right 80px) */
             .sw-upnext-panel {
@@ -683,12 +752,22 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
+            .sw-upnext-item-title.sw-marquee-active {
+                text-overflow: clip;
+                mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+            }
             .sw-upnext-item-artist {
                 font-size: 12px;
                 color: #888888;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+            }
+            .sw-upnext-item-artist.sw-marquee-active {
+                text-overflow: clip;
+                mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0px, black 10px, black calc(100% - 10px), transparent 100%);
             }
             .sw-upnext-num {
                 font-size: 12px;
@@ -1053,6 +1132,12 @@
             .sw-browse-icon-btn:active {
                 transform: scale(0.92);
             }
+            .sw-browse-icon-btn.sw-browse-drag-target {
+                background: rgba(226, 33, 52, 0.22) !important;
+                color: #ff5263 !important;
+                transform: scale(1.30) !important;
+                box-shadow: 0 0 16px rgba(226, 33, 52, 0.5) !important;
+            }
 
             /* Browse button in the bottom row */
             .sw-chip.sw-browse-btn {
@@ -1079,33 +1164,45 @@
                 padding: 10px 0;
             }
             .sw-browse-card {
-                background: #181818;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 12px;
+                background: #242424;
+                border: none;
+                border-radius: 10px;
                 padding: 14px 16px;
                 cursor: pointer;
-                transition: all 0.15s ease;
+                transition: background-color 0.15s ease, transform 0.12s ease;
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 5px;
             }
             .sw-browse-card:hover {
-                background: #242424;
-                border-color: rgba(255, 255, 255, 0.20);
-                transform: translateY(-2px);
+                background: #2e2e2e;
+                transform: scale(1.02);
             }
             .sw-browse-card.active {
-                border-color: #1ed760;
-                background: rgba(30, 215, 96, 0.08);
+                background: #1ed760;
+                border: none;
+            }
+            .sw-browse-card.active:hover {
+                background: #1fdf64;
+                transform: scale(1.02);
             }
             .sw-browse-card-name {
                 font-size: 15px;
                 font-weight: 700;
                 color: #ffffff;
+                transition: color 0.15s ease;
             }
             .sw-browse-card-desc {
                 font-size: 12px;
-                color: #888888;
+                color: #a7a7a7;
+                line-height: 1.35;
+                transition: color 0.15s ease;
+            }
+            .sw-browse-card.active .sw-browse-card-name {
+                color: #000000;
+            }
+            .sw-browse-card.active .sw-browse-card-desc {
+                color: rgba(0, 0, 0, 0.72);
             }
 
             
@@ -1250,6 +1347,7 @@ document.head.appendChild(style);
                 </div>
                 <!-- Bottom bar: smart wave settings separated and pinned to the bottom edge -->
                 <div class="sw-bottom-bar" id="sw-bottom-bar">
+                    <div class="sw-notice-toast" id="sw-notice-toast" aria-live="polite"></div>
                     <div class="sw-chips-row" id="sw-genre-chips-row">
                         <button class="sw-chip ${STATE.activeGenre === 'all' ? 'active' : ''}" data-genre="all">${t('allTracks')}</button>
                         <button class="sw-chip ${STATE.activeGenre === 'custom' ? 'active' : ''}" data-genre="custom" id="sw-btn-custom">${t('modeCustom')}</button>
@@ -1908,16 +2006,66 @@ document.head.appendChild(style);
                 renderPresetChips();
             };
         }
+        // Notice toast & mode chips sync
+        let noticeTimer = null;
+        showNotice = function(msg) {
+            if (!overlayEl || !msg) return;
+            const toast = overlayEl.querySelector("#sw-notice-toast");
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.classList.add("visible");
+            if (noticeTimer) clearTimeout(noticeTimer);
+            noticeTimer = setTimeout(() => {
+                toast.classList.remove("visible");
+                noticeTimer = null;
+            }, 3500);
+        };
+
+        updateModeChipsUI = function() {
+            overlayEl?.querySelectorAll(".sw-chip[data-mode]").forEach(c => {
+                c.classList.toggle("active", c.getAttribute("data-mode") === STATE.mode);
+            });
+        };
+
         // Mode chips
-                // --- Top mode switch (Favorites | Stream | Discoveries)
+        // --- Top mode switch (Favorites | Stream | Discoveries)
         overlayEl.querySelectorAll(".sw-chip[data-mode]").forEach(chip => {
             chip.onclick = async () => {
                 const mode = chip.getAttribute("data-mode");
                 if (STATE.mode === mode) return;
+
+                if (mode === "favorite") {
+                    await loadComfortPool();
+                    const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
+                    if (STATE.activeGenre && STATE.activeGenre !== "all" && STATE.activeGenre !== "custom") {
+                        const genreTracks = await loadGenreTracks(STATE.activeGenre);
+                        // A genre sustains Favorites only if the pool can fill the queue (>= 4 own library tracks in the playlist)
+                        const favPool = genreTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                        if (favPool.length < 4) {
+                            STATE.mode = "stream";
+                            Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                            updateModeChipsUI();
+                            showNotice(t("noFavoritesInGenre"));
+                            await regenerateQueue(true);
+                            return;
+                        }
+                    } else if (STATE.activeGenre === "custom") {
+                        const customTracks = await loadCustomTracksCache();
+                        const favPool = customTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                        if (favPool.length < 4) {
+                            STATE.mode = "stream";
+                            Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                            updateModeChipsUI();
+                            showNotice(t("noFavoritesInCustom"));
+                            await regenerateQueue(true);
+                            return;
+                        }
+                    }
+                }
+
                 STATE.mode = mode;
                 Spicetify.LocalStorage.set("smartWave_mode", mode);
-                overlayEl.querySelectorAll(".sw-chip[data-mode]").forEach(c => c.classList.remove("active"));
-                chip.classList.add("active");
+                updateModeChipsUI();
 
                 if (mode === "discovery") {
                     const curCluster = STATE.activeCluster || identifyTrackCluster(STATE.currentTrack);
@@ -1967,6 +2115,19 @@ document.head.appendChild(style);
                             Spicetify.LocalStorage.set("smartWave_active_genre", "custom");
                             overlayEl.querySelectorAll(".sw-chip[data-genre]").forEach(c => c.classList.remove("active"));
                             chip.classList.add("active");
+
+                            if (STATE.mode === "favorite") {
+                                const customTracks = await loadCustomTracksCache();
+                                const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
+                                const favPool = customTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                                if (favPool.length < 4) {
+                                    STATE.mode = "stream";
+                                    Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                                    updateModeChipsUI();
+                                    showNotice(t("noFavoritesInCustom"));
+                                }
+                            }
+
                             openCustomModal();
                             await regenerateQueue(true);
                             return;
@@ -1981,6 +2142,20 @@ document.head.appendChild(style);
                     overlayEl.querySelectorAll(".sw-chip[data-genre]").forEach(c => c.classList.remove("active"));
                     chip.classList.add("active");
 
+                    if (STATE.mode === "favorite" && genre !== "all") {
+                        await loadComfortPool();
+                        const genreTracks = await loadGenreTracks(genre);
+                        const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
+                        // A genre sustains Favorites only if the pool can fill the queue (>= 4 own library tracks in the playlist)
+                        const favPool = genreTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                        if (favPool.length < 4) {
+                            STATE.mode = "stream";
+                            Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                            updateModeChipsUI();
+                            showNotice(t("noFavoritesInGenre"));
+                        }
+                    }
+
                     await regenerateQueue(true);
                 };
             });
@@ -1991,7 +2166,84 @@ document.head.appendChild(style);
                     e.stopPropagation();
                     openBrowseModal();
                 };
+                browseBtn.ondragover = (e) => {
+                    e.preventDefault();
+                    if (dragSrcGenre) {
+                        e.dataTransfer.dropEffect = "move";
+                        browseBtn.classList.add("sw-browse-drag-target");
+                    }
+                };
+                browseBtn.ondragleave = () => {
+                    browseBtn.classList.remove("sw-browse-drag-target");
+                };
+                browseBtn.ondrop = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    browseBtn.classList.remove("sw-browse-drag-target");
+                    const srcId = dragSrcGenre || e.dataTransfer.getData("text/plain");
+                    if (!srcId) return;
+
+                    let pinned = [...(STATE.pinnedGenres || ["chill", "focus", "indie", "electronic", "rock", "hiphop"])];
+                    if (pinned.includes(srcId)) {
+                        pinned = pinned.filter(id => id !== srcId);
+                        STATE.pinnedGenres = pinned;
+                        Spicetify.LocalStorage.set("smartWave_pinned_genres", JSON.stringify(pinned));
+                        if (STATE.activeGenre === srcId) {
+                            STATE.activeGenre = "all";
+                            Spicetify.LocalStorage.set("smartWave_active_genre", "all");
+                            regenerateQueue(true);
+                        }
+                        refreshGenreChips();
+                        showNotice(t("genreUnpinned"));
+                    }
+                };
             }
+
+            // Drag & drop reordering for Browse genre chips
+            let dragSrcGenre = null;
+            overlayEl.querySelectorAll(".sw-chip[draggable='true']").forEach(chip => {
+                chip.ondragstart = (e) => {
+                    dragSrcGenre = chip.getAttribute("data-genre");
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", dragSrcGenre);
+                    chip.classList.add("sw-chip-dragging");
+                };
+                chip.ondragend = () => {
+                    chip.classList.remove("sw-chip-dragging");
+                    overlayEl.querySelectorAll(".sw-chip").forEach(c => c.classList.remove("sw-chip-drag-over"));
+                    dragSrcGenre = null;
+                };
+                chip.ondragover = (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    const targetGid = chip.getAttribute("data-genre");
+                    if (dragSrcGenre && dragSrcGenre !== targetGid) {
+                        chip.classList.add("sw-chip-drag-over");
+                    }
+                };
+                chip.ondragleave = () => {
+                    chip.classList.remove("sw-chip-drag-over");
+                };
+                chip.ondrop = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    chip.classList.remove("sw-chip-drag-over");
+                    const srcId = dragSrcGenre || e.dataTransfer.getData("text/plain");
+                    const dstId = chip.getAttribute("data-genre");
+                    if (!srcId || !dstId || srcId === dstId) return;
+
+                    let pinned = [...(STATE.pinnedGenres || ["chill", "focus", "indie", "electronic", "rock", "hiphop"])];
+                    const fromIdx = pinned.indexOf(srcId);
+                    const toIdx = pinned.indexOf(dstId);
+                    if (fromIdx !== -1 && toIdx !== -1) {
+                        pinned.splice(fromIdx, 1);
+                        pinned.splice(toIdx, 0, srcId);
+                        STATE.pinnedGenres = pinned;
+                        Spicetify.LocalStorage.set("smartWave_pinned_genres", JSON.stringify(pinned));
+                        refreshGenreChips();
+                    }
+                };
+            });
         }
 
         // --- Spotify Browse modal
@@ -2007,8 +2259,8 @@ document.head.appendChild(style);
                 const desc = cat.desc?.[lang] || cat.desc?.en || "";
                 return `
                     <div class="sw-browse-card ${isPinned ? 'active' : ''}" data-cat-id="${cat.id}">
-                        <div class="sw-browse-card-name">${name} ${isPinned ? '✓' : ''}</div>
-                        <div class="sw-browse-card-desc">${desc}</div>
+                        <div class="sw-browse-card-name">${escapeHtml(name)}</div>
+                        <div class="sw-browse-card-desc">${escapeHtml(desc)}</div>
                     </div>
                 `;
             }).join("");
@@ -2391,10 +2643,13 @@ document.head.appendChild(style);
         el.classList.remove("sw-marquee-active");
         inner.style.removeProperty("--sw-marquee-distance");
         inner.style.removeProperty("--sw-marquee-duration");
-        const distance = inner.scrollWidth - el.clientWidth;
-        if (distance > 8) {
-            const duration = Math.min(18, Math.max(6, distance / 45));
-            inner.style.setProperty("--sw-marquee-distance", `${distance}px`);
+        const pad = (parseFloat(getComputedStyle(el).paddingLeft) || 0) + (parseFloat(getComputedStyle(el).paddingRight) || 0);
+        const avail = Math.max(10, el.clientWidth - pad);
+        const distance = inner.scrollWidth - avail;
+        if (distance > 6) {
+            const scrollDistance = distance + 16;
+            const duration = Math.min(18, Math.max(6, scrollDistance / 40));
+            inner.style.setProperty("--sw-marquee-distance", `${scrollDistance}px`);
             inner.style.setProperty("--sw-marquee-duration", `${duration}s`);
             el.classList.add("sw-marquee-active");
         }
@@ -2415,12 +2670,15 @@ document.head.appendChild(style);
                 c.classList.remove("active");
             }
         });
-        // Play/Pause icon
+        // Play/Pause icon & cover pause state
         const playSvg = overlayEl.querySelector("#sw-play-svg");
+        const coverCard = overlayEl.querySelector("#sw-cover-card");
         if (isPlayerPlaying()) {
-            playSvg.innerHTML = `<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`;
+            if (playSvg) playSvg.innerHTML = `<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`;
+            coverCard?.classList.remove("paused");
         } else {
-            playSvg.innerHTML = `<polygon points="6,4 20,12 6,20"/>`;
+            if (playSvg) playSvg.innerHTML = `<polygon points="6,4 20,12 6,20"/>`;
+            coverCard?.classList.add("paused");
         }
         // Heart (Like) - sync with the native state
         const heartBtn = overlayEl.querySelector("#sw-btn-heart");
