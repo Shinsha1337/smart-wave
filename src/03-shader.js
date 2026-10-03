@@ -44,6 +44,11 @@
                     ? diffTracks[Math.floor(Math.random() * diffTracks.length)]
                     : pickComfortTrack(STATE.currentTrack?.uri);
             } else {
+                // Recent artists (same anti-repeat rule as the main engine)
+                const recentArtists = new Set(
+                    [STATE.currentTrack?.artist, ...STATE.upcomingWave.slice(-3).map(t => t.artist)]
+                        .filter(Boolean).map(a => a.toLowerCase())
+                );
                 const seeds = (STATE.comfortPool || []).filter(t => t.artistUri && t.artistUri !== STATE.currentSeedUri);
                 const newSeed = seeds.length > 0 ? seeds[Math.floor(Math.random() * seeds.length)] : null;
                 if (newSeed?.artistUri) {
