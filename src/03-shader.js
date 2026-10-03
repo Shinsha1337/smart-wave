@@ -134,13 +134,24 @@
         const prevArtist = STATE.currentTrack?.artist;
         const prevArtistUri = STATE.currentTrack?.artistUri || null;
         const elapsed = (now - STATE.currentTrackStartTime) / 1000;
+        const trackDur = STATE.currentTrack?.duration || 0;
+        const lastProg = STATE.lastObservedProgress || 0;
+        const reachedEnd = trackDur > 0 && (
+            (lastProg / trackDur >= 0.85) ||
+            (trackDur - lastProg <= 15000)
+        );
+
         if (prevArtist && STATE.currentTrackStartTime > 0 && elapsed > 2) {
-            if (elapsed < CONFIG.SKIP_THRESHOLD_SEC) {
-                addDislikedArtist(prevArtist);
-            } else if (elapsed >= CONFIG.LIKE_THRESHOLD_SEC) {
+            if (reachedEnd || elapsed >= CONFIG.LIKE_THRESHOLD_SEC) {
+                // Listened to >= 60s or naturally completed: count as completed (+1 point to artist)!
                 addLikedArtist(prevArtist, prevArtistUri, 1);
+            } else if (elapsed < CONFIG.SKIP_THRESHOLD_SEC) {
+                // Fast skip under 30s: -1 point penalty to artist, NO track ban!
+                removeLikedArtist(prevArtist, 1);
             }
+            // 30s to 60s: neutral (0 points)
         }
+        STATE.lastObservedProgress = 0;
         const cur = Spicetify.Player?.data?.item;
         if (cur) {
             const curArtist = fixMojibake(cur.artists?.[0]?.name) || "Artist";

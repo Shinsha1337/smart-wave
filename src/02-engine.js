@@ -83,7 +83,7 @@
                         duration: i.duration?.milliseconds || 180000,
                         genres: [genreId]
                     })).filter(t => t.uri);
-                    items = raw.filter(t => !isUnwantedRegionalTrack(t));
+                    items = raw.filter(t => !isUnwantedRegionalTrack(t) && !STATE.dislikedTracks.has(t.uri));
                 }
             } catch (err) {
                 console.warn("[SmartWave] Editorial playlist fetch error:", err);
@@ -115,7 +115,7 @@
                             genres: [genreId]
                         };
                     }).filter(Boolean);
-                    items = mapped.filter(t => !isUnwantedRegionalTrack(t));
+                    items = mapped.filter(t => !isUnwantedRegionalTrack(t) && !STATE.dislikedTracks.has(t.uri));
                 }
             } catch (err) {}
         }
@@ -162,8 +162,8 @@
     }
     function pickComfortTrack(excludeUri) {
         if (!STATE.comfortPool.length) return null;
-        let pool = STATE.comfortPool.filter(t => t.uri !== excludeUri && !STATE.history.has(t.uri));
-        if (!pool.length) pool = STATE.comfortPool.filter(t => t.uri !== excludeUri);
+        let pool = STATE.comfortPool.filter(t => t.uri !== excludeUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+        if (!pool.length) pool = STATE.comfortPool.filter(t => t.uri !== excludeUri && !STATE.dislikedTracks.has(t.uri));
         if (!pool.length) return null;
         return pool[Math.floor(Math.random() * pool.length)];
     }
@@ -769,9 +769,10 @@ async function generateNextTrack() {
         if (STATE.currentTrack) {
             STATE.historyStack.push(STATE.currentTrack);
             if (STATE.historyStack.length > 50) STATE.historyStack.shift();
-            // Block the artist ONLY on an explicit Dislike press!
-            if (isDislike && STATE.currentTrack.artist) {
-                addDislikedArtist(STATE.currentTrack.artist);
+            // Block the specific track on an explicit Dislike press!
+            if (isDislike && STATE.currentTrack?.uri) {
+                addDislikedTrack(STATE.currentTrack.uri, STATE.currentTrack.artist);
+                console.log(`[SmartWave] Track banned via dislike: ${STATE.currentTrack.artist} — ${STATE.currentTrack.title}`);
             }
         }
         let nextTrack = null;

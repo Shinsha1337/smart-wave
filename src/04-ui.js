@@ -2336,6 +2336,7 @@ document.head.appendChild(style);
                 duration = trackDuration;
             }
             let progress = safeGetProgress();
+            STATE.lastObservedProgress = progress;
             if (trackDuration > 0 && progress > duration + 3000) {
                 progress = 0;
             }
