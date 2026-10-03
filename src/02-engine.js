@@ -526,7 +526,14 @@ async function generateNextTrack() {
                 const clusterMatched = unplayedRelated.filter(a => identifyTrackCluster({ artist: a.name }) === targetClusterKey);
                 const pool = clusterMatched.length > 0 ? clusterMatched : unplayedRelated;
 
-                const candidates = pool.slice(0, 5);
+                // Epsilon-exploration (~15% probability, ~1 in 7 tracks):
+                // Explores the deeper ring of related artists (ranks 6-15) instead of cycling
+                // between the same top-5 mainstream artists forever.
+                const isEpsilon = Math.random() < 0.15 && pool.length > 5;
+                const candidatePool = isEpsilon ? pool.slice(5, 15) : pool.slice(0, 5);
+                // Shuffle candidate order so artist #0 doesn't monopolize picks
+                const candidates = [...candidatePool].sort(() => Math.random() - 0.5).slice(0, 5);
+
                 // Parallel fetch: latency = slowest request instead of the sum of all five
                 const graphs = await Promise.all(candidates.map(c => getArtistGraph(c.uri).catch(() => null)));
                 for (let ci = 0; ci < candidates.length && !track; ci++) {
@@ -540,6 +547,9 @@ async function generateNextTrack() {
                     );
 
                     if (freshTracks.length > 0) {
+                        if (isEpsilon) {
+                            console.log(`[SmartWave] Epsilon exploration: branched into deeper related artist "${candidates[ci].name}"`);
+                        }
                         track = {
                             ...freshTracks[Math.floor(Math.random() * freshTracks.length)],
                             seedUri: candidates[ci].uri,
