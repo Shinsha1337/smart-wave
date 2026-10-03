@@ -17,7 +17,8 @@
                     const freshPool = genreTracks.filter(t => !likedUris.has(t.uri) && !STATE.history.has(t.uri));
                     if (freshPool.length > 0) anchorTrack = freshPool[Math.floor(Math.random() * freshPool.length)];
                 } else if (STATE.mode === "favorite") {
-                    const favPool = STATE.comfortPool.filter(t => identifyTrackCluster(t) === STATE.activeGenre && !STATE.history.has(t.uri));
+                    const libraryUris = new Set((STATE.comfortPool || []).map(t => t.uri));
+                    const favPool = genreTracks.filter(t => libraryUris.has(t.uri) && !STATE.history.has(t.uri));
                     if (favPool.length > 0) anchorTrack = favPool[Math.floor(Math.random() * favPool.length)];
                 } else {
                     const pool = genreTracks.filter(t => !STATE.history.has(t.uri));
@@ -34,36 +35,32 @@
                 anchorTrack = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : tracks[0];
             }
         }
-        // 3. "All tracks" mode: orthogonal cluster jump
+        // 3. "All tracks" mode: jump to a different artist branch from user's universe
         else {
-            const curCluster = identifyTrackCluster(STATE.currentTrack || { artist: STATE.currentSeedArtist });
-            const clusterKeys = Object.keys(TASTE_CLUSTERS);
-
-            const otherClusters = clusterKeys.filter(k => k !== curCluster && k !== lastActiveCluster);
-            const targetClusterKey = otherClusters.length > 0
-                ? otherClusters[Math.floor(Math.random() * otherClusters.length)]
-                : clusterKeys.find(k => k !== curCluster) || "indie";
-
-            lastActiveCluster = targetClusterKey;
-            STATE.activeCluster = targetClusterKey;
-            const targetCluster = TASTE_CLUSTERS[targetClusterKey];
-            toastLabel = getLang() === "ru" ? targetCluster.ruLabel : targetCluster.label;
-
-            if (STATE.mode === "discovery") {
-                const seed = targetCluster.defaultSeed;
-                const graph = await getArtistGraph(seed?.uri);
-                for (const rel of (graph?.related || []).slice(0, 5)) {
-                    if (anchorTrack) break;
-                    const rg = await getArtistGraph(rel.uri);
-                    const fresh = (rg?.topTracks || []).filter(t => !likedUris.has(t.uri) && !STATE.history.has(t.uri));
-                    if (fresh.length > 0) anchorTrack = { ...fresh[0], seedUri: rel.uri, seedArtist: rel.name };
-                }
+            if (STATE.mode === "favorite") {
+                const curArtist = (STATE.currentTrack?.artist || "").toLowerCase();
+                const diffTracks = (STATE.comfortPool || []).filter(t => (t.artist || "").toLowerCase() !== curArtist && !STATE.history.has(t.uri));
+                anchorTrack = diffTracks.length > 0
+                    ? diffTracks[Math.floor(Math.random() * diffTracks.length)]
+                    : pickComfortTrack(STATE.currentTrack?.uri);
             } else {
-                const clusterPool = STATE.comfortPool.filter(t => identifyTrackCluster(t) === targetClusterKey && !STATE.history.has(t.uri));
-                if (clusterPool.length > 0) {
-                    anchorTrack = clusterPool[Math.floor(Math.random() * clusterPool.length)];
+                const seeds = (STATE.comfortPool || []).filter(t => t.artistUri && t.artistUri !== STATE.currentSeedUri);
+                const newSeed = seeds.length > 0 ? seeds[Math.floor(Math.random() * seeds.length)] : null;
+                if (newSeed?.artistUri) {
+                    STATE.currentSeedUri = newSeed.artistUri;
+                    STATE.currentSeedArtist = newSeed.artist;
+                    const g = await getArtistGraph(newSeed.artistUri);
+                    const rel = (g?.related || []).filter(a => !recentArtists.has((a.name || "").toLowerCase()));
+                    const targetArtist = rel.length > 0 ? rel[Math.floor(Math.random() * Math.min(6, rel.length))] : newSeed;
+                    const targetGraph = targetArtist.uri !== newSeed.artistUri ? await getArtistGraph(targetArtist.uri) : g;
+                    const fresh = (targetGraph?.topTracks || []).filter(t => !STATE.history.has(t.uri) && (STATE.mode !== "discovery" || !likedUris.has(t.uri)));
+                    if (fresh.length > 0) {
+                        anchorTrack = { ...fresh[Math.floor(Math.random() * fresh.length)], seedUri: targetArtist.uri, seedArtist: targetArtist.name };
+                    }
                 }
+                if (!anchorTrack) anchorTrack = pickComfortTrack(STATE.currentTrack?.uri);
             }
+            if (anchorTrack?.artist) toastLabel = anchorTrack.artist;
         }
 
         // Show a concise status, strictly without emoji

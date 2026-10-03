@@ -33,26 +33,26 @@
         sleep: { id: "sleep", name: { en: "Sleep", ru: "Сон" }, desc: { en: "Sleep Sounds & Ambient", ru: "Спокойный сон и звуки природы" }, uri: "spotify:playlist:37i9dQZF1DWZd79rJ6a7lp", query: "Sleep" },
         metal: { id: "metal", name: { en: "Metal", ru: "Метал" }, desc: { en: "Heavy, Nu & Thrash Metal", ru: "Хэви-метал и альтернатива" }, uri: "spotify:playlist:37i9dQZF1DX9qNs32fujYe", query: "Heavy Metal" },
         jazz: { id: "jazz", name: { en: "Jazz", ru: "Джаз" }, desc: { en: "Smooth & Classic Jazz", ru: "Классический и мягкий джаз" }, uri: "spotify:playlist:37i9dQZF1DXbITWG1ZJKYt", query: "Jazz Classics" },
-        rnb: { id: "rnb", name: { en: "R&B", ru: "R&B" }, desc: { en: "Contemporary & Classic R&B", ru: "Современный и классический R&B" }, uri: "spotify:playlist:37i9dQZF1DX4SBhb3fqAp5", query: "Are & Be" },
+        rnb: { id: "rnb", name: { en: "R&B", ru: "R&B" }, desc: { en: "Contemporary & Classic R&B", ru: "Современный и классический R&B" }, uri: "spotify:playlist:37i9dQZF1DWUzFXarNiofw", query: "R&B Weekly" },
         kpop: { id: "kpop", name: { en: "K-Pop", ru: "K-Pop" }, desc: { en: "Korean Pop & Hits", ru: "Корейский поп и тренды" }, uri: "spotify:playlist:37i9dQZF1DX9tPFwDMOaN1", query: "K-Pop ON!" },
         anime: { id: "anime", name: { en: "Anime", ru: "Аниме" }, desc: { en: "J-Rock, J-Pop & Soundtracks", ru: "Саундтреки и японский рок" }, uri: "spotify:playlist:37i9dQZF1DWT8aqnwgRt92", query: "Anime Now" },
         gaming: { id: "gaming", name: { en: "Gaming", ru: "Гейминг" }, desc: { en: "Video Game Soundtracks & Bass", ru: "Игровая музыка и биты" }, uri: "spotify:playlist:37i9dQZF1DWTyiBJ6yEqeu", query: "Top Gaming Tracks" },
         mood: { id: "mood", name: { en: "Mood", ru: "Настроение" }, desc: { en: "Feel Good & Emotional", ru: "Музыка под настроение" }, uri: "spotify:playlist:37i9dQZF1DX3rxVfibe1L0", query: "Mood Booster" },
-        party: { id: "party", name: { en: "Party", ru: "Вечеринка" }, desc: { en: "Party Hits & Dance Anthems", ru: "Танцевальные гимны вечеринок" }, uri: "spotify:playlist:37i9dQZF1DXa2PvU9277JD", query: "Party Hits" },
+        party: { id: "party", name: { en: "Party", ru: "Вечеринка" }, desc: { en: "Party Hits & Dance Anthems", ru: "Танцевальные гимны вечеринок" }, uri: "spotify:playlist:37i9dQZF1DXa2PvUpywmrr", query: "Party Hits" },
         workout: { id: "workout", name: { en: "Workout", ru: "Спорт" }, desc: { en: "Energy & Training Beats", ru: "Энергичная музыка для зала" }, uri: "spotify:playlist:37i9dQZF1DX76Wlfdnj7AP", query: "Beast Mode" },
-        classical: { id: "classical", name: { en: "Classical", ru: "Классика" }, desc: { en: "Piano & Symphonic Classics", ru: "Фортепиано и оркестровая классика" }, uri: "spotify:playlist:37i9dQZF1DWV0gynK7Pt6W", query: "Classical Essentials" },
-        folk: { id: "folk", name: { en: "Folk & Acoustic", ru: "Фолк и Акустика" }, desc: { en: "Acoustic, Indie Folk & Roots", ru: "Акустический инди-фолк" }, uri: "spotify:playlist:37i9dQZF1DX2419TkhN6qf", query: "Folk Pop" },
+        classical: { id: "classical", name: { en: "Classical", ru: "Классика" }, desc: { en: "Piano & Symphonic Classics", ru: "Фортепиано и оркестровая классика" }, uri: "spotify:playlist:37i9dQZF1DWWEJlAGA9gs0", query: "Classical Essentials" },
+        folk: { id: "folk", name: { en: "Folk & Acoustic", ru: "Фолк и Акустика" }, desc: { en: "Acoustic, Indie Folk & Roots", ru: "Акустический инди-фолк" }, uri: "spotify:playlist:37i9dQZF1DWXJyjYpHunCf", query: "Folk Pop" },
         ambient: { id: "ambient", name: { en: "Ambient", ru: "Эмбиент" }, desc: { en: "Atmospheric & Space Sounds", ru: "Атмосферные звуковые ландшафты" }, uri: "spotify:playlist:37i9dQZF1DX3Ogo9pFvBkY", query: "Ambient Chill" },
         punk: { id: "punk", name: { en: "Punk", ru: "Панк" }, desc: { en: "Pop-Punk & Post-Punk", ru: "Поп-панк и пост-панк" }, uri: "spotify:playlist:37i9dQZF1DXasneILDRM7B", query: "Pure Pop Punk" },
         soul: { id: "soul", name: { en: "Soul", ru: "Соул" }, desc: { en: "Neo-Soul & Motown", ru: "Нео-соул и мотаун" }, uri: "spotify:playlist:37i9dQZF1DWULEW2RfoSCi", query: "Soul Lounge" },
-        lofi: { id: "lofi", name: { en: "Lo-Fi", ru: "Лоу-фай" }, desc: { en: "Lo-Fi Beats & Rainy Vibes", ru: "Лоу-фай биты и чилловый вайб" }, uri: "spotify:playlist:37i9dQZF1DXdLEN7aqioXM", query: "Lo-Fi Beats" },
+        lofi: { id: "lofi", name: { en: "Lo-Fi", ru: "Лоу-фай" }, desc: { en: "Lo-Fi Beats & Rainy Vibes", ru: "Лоу-фай биты и чилловый вайб" }, uri: "spotify:playlist:37i9dQZF1DWWQRwui0ExPn", query: "lofi beats" },
         country: { id: "country", name: { en: "Country", ru: "Кантри" }, desc: { en: "Country Hits & Americana", ru: "Кантри и американа" }, uri: "spotify:playlist:37i9dQZF1DX1lVhptIYRda", query: "Hot Country" },
         latin: { id: "latin", name: { en: "Latin", ru: "Латина" }, desc: { en: "Reggaeton & Latin Pop", ru: "Реггетон и латиноамериканский поп" }, uri: "spotify:playlist:37i9dQZF1DX10zKzsJ2jva", query: "Viva Latino" },
-        instrumental: { id: "instrumental", name: { en: "Instrumental", ru: "Инструментальная" }, desc: { en: "Post-Rock & Acoustic Strings", ru: "Пост-рок и инструментал" }, uri: "spotify:playlist:37i9dQZF1DX7gP9a7B8w2Z", query: "Instrumental Pop" },
+        instrumental: { id: "instrumental", name: { en: "Instrumental", ru: "Инструментальная" }, desc: { en: "Peaceful Piano & Instrumental", ru: "Спокойный фортепианный инструментал" }, uri: "spotify:playlist:37i9dQZF1DX4sWSpwq3LiO", query: "Peaceful Piano" },
         trending: { id: "trending", name: { en: "Trending", ru: "В тренде" }, desc: { en: "Viral & Chart-Topping Hits", ru: "Вирусные треки и чарты" }, uri: "spotify:playlist:37i9dQZF1DX4JAvHpjipBk", query: "New Music Friday" },
         newreleases: { id: "newreleases", name: { en: "New Releases", ru: "Новинки" }, desc: { en: "Fresh Music This Week", ru: "Свежие релизы этой недели" }, query: "New Music Friday" },
-        altrock: { id: "altrock", name: { en: "Alternative", ru: "Альтернатива" }, desc: { en: "90s & Modern Alternative", ru: "Альтернативный рок 90-х и современный" }, uri: "spotify:playlist:37i9dQZF1DXkGRe8Z1557d", query: "Modern Rock" },
-        synthwave: { id: "synthwave", name: { en: "Synthwave", ru: "Синтвейв" }, desc: { en: "80s Retrowave & Cyberpunk", ru: "Ретровейв 80-х и киберпанк" }, uri: "spotify:playlist:37i9dQZF1DXdLEN7aqioXM", query: "RetroWave" },
+        altrock: { id: "altrock", name: { en: "Alternative", ru: "Альтернатива" }, desc: { en: "New Alternative & Rock", ru: "Новая альтернатива и рок" }, uri: "spotify:playlist:37i9dQZF1DWT2jS7NwYPVI", query: "New Noise" },
+        synthwave: { id: "synthwave", name: { en: "Synthwave", ru: "Синтвейв" }, desc: { en: "80s Retrowave & Cyberpunk", ru: "Ретровейв 80-х и киберпанк" }, uri: "spotify:playlist:37i9dQZF1DXdLEN7aqioXM", query: "Retrowave Outrun" },
         night: { id: "night", name: { en: "Night", ru: "Ночь" }, desc: { en: "Late Night Calm & Drives", ru: "Ночные поездки и спокойствие" }, query: "Night Rain" },
         blues: { id: "blues", name: { en: "Blues", ru: "Блюз" }, desc: { en: "Delta & Electric Blues", ru: "Электрический и дельта-блюз" }, uri: "spotify:playlist:37i9dQZF1DXd9rSDyQguIk", query: "Blues Classics" }
     };
@@ -322,60 +322,8 @@
         updateUI();
     }
         // =========================================================================
-    // RECOMMENDATION ENGINE: CLUSTER SPACE
+    // RECOMMENDATION ENGINE: SEED & GRAPH NAVIGATION
     // =========================================================================
-    const TASTE_CLUSTERS = {
-        electronic: {
-            label: "Electronic & Ambient Slowed",
-            ruLabel: "Электроника и Slowed",
-            keywords: ["slowed", "reverb", "speed up", "ambient", "synth", "mac quayle", "lonown", "13aurora", "oneheart", "ost", "soundtrack", "crystal castles", "pastel ghost", "downtempo", "wave", "cyberpunk", "phonk"],
-            defaultSeed: { uri: "spotify:artist:3HLApxqtvULlffnRnW88O8", name: "Mac Quayle" }
-        },
-        indie: {
-            label: "Indie & Dream Pop",
-            ruLabel: "Инди и Дрим-поп",
-            keywords: ["tv girl", "malcolm todd", "dominic fike", "tame impala", "cults", "fuzzy", "indie", "bedroom", "dream pop", "pop", "mac demarco", "clairo", "boy pablo", "beach house", "men i trust"],
-            defaultSeed: { uri: "spotify:artist:0Y6dVaC9DZtPNH4591M42W", name: "TV Girl" }
-        },
-        shoegaze: {
-            label: "Shoegaze & Post-Punk",
-            ruLabel: "Шугейз и Пост-панк",
-            keywords: ["fermenting", "panchiko", "cigarettes after sex", "shoegaze", "post-punk", "post-rock", "deftones", "have a nice life", "whirr", "slowdive", "duster", "grunge", "rock"],
-            defaultSeed: { uri: "spotify:artist:4KEHIUSoWCcqrk8AddTE1O", name: "Panchiko" }
-        },
-        japanese: {
-            label: "J-Alt & Anime Wave",
-            ruLabel: "Японский альт и Вокалоид",
-            keywords: ["deco*27", "yakui", "tokyo manaka", "shimamiya", "vocaloid", "hatsune", "anime", "touhou", "j-rock", "j-pop", "kanji", "monet"],
-            defaultSeed: { uri: "spotify:artist:7zmtMpvftyeW2mTcZlezAi", name: "Yakui The Maid" }
-        },
-        hiphop: {
-            label: "Dark Trap & Hip-Hop",
-            ruLabel: "Трэп и Хип-хоп",
-            keywords: ["suicideboy", "21 savage", "ghostemane", "trap", "rap", "drill", "hip hop", "hip-hop", "memphis", "carti", "yeat", "bones"],
-            defaultSeed: { uri: "spotify:artist:1VPmR4DJC1PlOtd0IADAO0", name: "$uicideboy$" }
-        }
-    };
-
-    function identifyTrackCluster(track) {
-        if (!track) return "indie";
-        const title = String(track.title || track.name || "").toLowerCase();
-        const artist = String(track.artist || track.artists?.[0]?.name || "").toLowerCase();
-        const text = title + " " + artist;
-
-        if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(title + artist)) {
-            return "japanese";
-        }
-
-        for (const [key, cluster] of Object.entries(TASTE_CLUSTERS)) {
-            for (const kw of cluster.keywords) {
-                if (text.includes(kw)) return key;
-            }
-        }
-        return "indie";
-    }
-
-    let lastActiveCluster = null;
 
 async function generateNextTrack() {
         const curUri = Spicetify.Player?.data?.item?.uri;
@@ -493,8 +441,9 @@ async function generateNextTrack() {
                 } else {
                     const isFav = Math.random() < 0.35;
                     if (isFav) {
-                        const matchedLib = STATE.comfortPool.filter(t =>
-                            identifyTrackCluster(t) === STATE.activeGenre &&
+                        const genreUris = new Set(genreTracks.map(t => t.uri));
+                        const matchedLib = (STATE.comfortPool || []).filter(t =>
+                            genreUris.has(t.uri) &&
                             t.uri !== curUri &&
                             !STATE.history.has(t.uri)
                         );
@@ -510,9 +459,6 @@ async function generateNextTrack() {
         }
 
         // 3. "All tracks" mode (global Smart Wave stream)
-        const targetClusterKey = STATE.activeCluster || identifyTrackCluster(STATE.currentTrack || { artist: STATE.currentSeedArtist });
-        const clusterDef = TASTE_CLUSTERS[targetClusterKey] || TASTE_CLUSTERS.indie;
-
         const isComfort = STATE.mode === "favorite" ? true :
                           STATE.mode === "discovery" ? false :
                           Math.random() < 0.35;
@@ -565,8 +511,7 @@ async function generateNextTrack() {
                     if (STATE.mode === "discovery" && libraryArtistNames.has(aName)) return false;
                     return true;
                 });
-                const clusterMatched = unplayedRelated.filter(a => identifyTrackCluster({ artist: a.name }) === targetClusterKey);
-                const pool = clusterMatched.length > 0 ? clusterMatched : unplayedRelated;
+                const pool = unplayedRelated;
 
                 // Epsilon-exploration (~15% probability, ~1 in 7 tracks):
                 // Explores the deeper ring of related artists (ranks 6-15) instead of cycling
@@ -603,33 +548,22 @@ async function generateNextTrack() {
         }
 
         if (STATE.mode === "favorite" && !track) {
-            const clusterComfort = STATE.comfortPool.filter(t =>
-                identifyTrackCluster(t) === targetClusterKey &&
-                t.uri !== curUri &&
-                !STATE.history.has(t.uri)
-            );
-            track = clusterComfort.length > 0
-                ? clusterComfort[Math.floor(Math.random() * clusterComfort.length)]
-                : pickComfortTrack(curUri);
+            track = pickComfortTrack(curUri);
         }
 
         if (STATE.mode === "stream" && !track) {
-            const clusterComfort = STATE.comfortPool.filter(t =>
-                identifyTrackCluster(t) === targetClusterKey &&
-                t.uri !== curUri &&
-                !STATE.history.has(t.uri) &&
-                !recentArtists.has((t.artist || "").toLowerCase())
-            );
-            if (clusterComfort.length > 0) {
-                track = clusterComfort[Math.floor(Math.random() * clusterComfort.length)];
-            }
+            track = pickComfortTrack(curUri);
         }
 
         if (!track) {
             if (STATE.mode === "discovery") {
-                const seedGraph = await getArtistGraph(clusterDef.defaultSeed?.uri);
-                const fresh = (seedGraph?.topTracks || []).filter(t => t.uri !== curUri && !likedUris.has(t.uri) && !STATE.history.has(t.uri));
-                if (fresh.length > 0) track = fresh[Math.floor(Math.random() * fresh.length)];
+                const availableLib = (STATE.comfortPool || []).filter(t => t.artistUri && t.artistUri !== STATE.currentSeedUri);
+                const fallbackItem = availableLib.length > 0 ? availableLib[Math.floor(Math.random() * availableLib.length)] : null;
+                if (fallbackItem?.artistUri) {
+                    const fGraph = await getArtistGraph(fallbackItem.artistUri);
+                    const fresh = (fGraph?.topTracks || []).filter(t => t.uri !== curUri && !likedUris.has(t.uri) && !STATE.history.has(t.uri));
+                    if (fresh.length > 0) track = fresh[Math.floor(Math.random() * fresh.length)];
+                }
             } else {
                 track = pickComfortTrack(curUri);
             }
@@ -780,22 +714,11 @@ async function generateNextTrack() {
             STATE.history.add(cur.uri);
             STATE.currentTrackStartTime = Date.now();
         } else {
-            let first = pickComfortTrack(null);
-            if (!first) {
-                first = { uri: "spotify:track:2nMeu6UenVvwUktBCpLMK9", title: "Young And Beautiful", artist: "Lana Del Rey" };
-            }
-            STATE.currentTrack = first;
-            STATE.history.add(first.uri);
-            if (first.artistUri) {
-                STATE.currentSeedUri = first.artistUri;
-                STATE.currentSeedArtist = first.artist;
-            }
-            STATE.currentTrackStartTime = Date.now();
-            try {
-                if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(first.uri, {});
-            } catch (err) {
-                console.warn("[SmartWave] startWave playUri skipped (player not ready)");
-            }
+            // Cold start with an empty library and no active playback:
+            // don't force any hardcoded track — just start the wave queue; the engine
+            // will pick whatever Spotify itself is able to serve (search fallback path).
+            STATE.currentTrack = null;
+            STATE.currentTrackStartTime = 0;
         }
         STATE.upcomingWave = [];
         await ensureWaveQueue();

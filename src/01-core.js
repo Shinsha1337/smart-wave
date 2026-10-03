@@ -939,7 +939,6 @@
 
     const STATE = {
         active: false,
-        activeCluster: null,
         mode: initialMode, // "stream" (Flow)
         activeGenre: Spicetify.LocalStorage.get("smartWave_active_genre") || "all", // "all" (All tracks)
         pinnedGenres: JSON.parse(Spicetify.LocalStorage.get("smartWave_pinned_genres") || "[]"), // Empty by default (clean slate)
@@ -1452,10 +1451,9 @@
             const artistData = res?.data?.artistUnion;
             if (!artistData || artistData.__typename === "NotFound" || !artistData.discography) return null;
 
-            // Anti-regional filter: if the artist is Turkish (top cities in TR) or has Turkish markers
-            const topCities = artistData.stats?.topCities?.items || [];
-            const isLocalTurkish = topCities.length > 0 && topCities.slice(0, 2).every(c => c.country === "TR");
-            if (isLocalTurkish || isUnwantedRegionalTrack({ artist: artistData.profile?.name })) {
+            // Regional filter: only the regions the USER explicitly excluded in settings.
+            // No hidden per-country cuts: every artist passes unless opted out.
+            if (isUnwantedRegionalTrack({ artist: artistData.profile?.name })) {
                 return null;
             }
             const name = artistData.profile?.name || "Artist";

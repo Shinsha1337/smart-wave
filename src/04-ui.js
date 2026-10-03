@@ -2068,11 +2068,9 @@ document.head.appendChild(style);
                 updateModeChipsUI();
 
                 if (mode === "discovery") {
-                    const curCluster = STATE.activeCluster || identifyTrackCluster(STATE.currentTrack);
-                    const defSeed = TASTE_CLUSTERS[curCluster]?.defaultSeed;
-                    if (defSeed) {
-                        STATE.currentSeedUri = defSeed.uri;
-                        STATE.currentSeedArtist = defSeed.name;
+                    if (STATE.currentTrack?.artistUri) {
+                        STATE.currentSeedUri = STATE.currentTrack.artistUri;
+                        STATE.currentSeedArtist = STATE.currentTrack.artist;
                     }
                 }
 
