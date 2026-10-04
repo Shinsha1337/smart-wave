@@ -1,17 +1,18 @@
 # Smart Wave
 
-**Smart Wave** turns Spotify into an endless personalized radio station with a hardware-accelerated WebGL fluid wave visualizer — pick a mood, pin a genre, or let it read your library and surf your taste clusters.
+**Smart Wave** turns Spotify into an endless personalized radio station with a hardware-accelerated WebGL fluid wave visualizer — pick a mode, pin a genre, or let it read your library and surf your taste.
 
 ![preview](preview.png)
 
 ## Features
 
-- **Endless personalized radio** built on Spotify's own recommendation graph — three modes: **Favorites** (your library only), **Flow** (60% new / 40% comfort), **Discoveries** (100% new, zero tracks from your library).
-- **Taste clusters** — the wave detects what you're listening to and stays in that musical territory. Hit **Shake** to jump into a different cluster.
-- **Browse integration** — pin Spotify editorial categories (Chill, Focus, Indie, Rock, Hip-Hop…) to the wave's bottom bar.
+- **Endless personalized radio** built on Spotify's own recommendation graph — three modes: **Favorites** (your library only), **Flow** (fresh recommendations with taste gravity toward what you love), **Discoveries** (100% new — zero tracks from your library).
+- **Track-level taste learning** — no artist is banned for one bad track. +1 to a track after ~90 s of listening or a full playthrough, −1 on a fast skip (< 30 s), dislike = permanent track ban (FIFO, max 500). Liked tracks are never penalized by skips. Taste memory only steers **Flow**; **Favorites** is strictly your Spotify library.
+- **Shake** — jump the wave to a different artist branch of your own library, with an anti-repeat guarantee. The new anchor artist is shown in the toast.
+- **Browse integration** — pin Spotify editorial categories (Chill, Focus, Indie, Rock, Hip-Hop…) to the wave's bottom bar. Reorder chips by drag & drop, unpin by dragging a chip onto the Browse button.
 - **Custom wave** — build a wave from your own playlists with per-mode sub-presets.
-- **Regional filters** — settings let you exclude music from specific regions (Turkish, Indian, Pakistani, Egyptian, Vietnamese, Filipino, Indonesian, Nigerian, Argentinian, South African, German, French, Spanish/Latin, Brazilian, K-Pop, Japanese). Useful if your account is registered in a region whose local music you don't want.
-- **WebGL visualizer** — fluid single-color plasma with silk caustics and needle rays, tinted by the current cover art. 60 FPS throttled, pauses when hidden.
+- **Regional filters** — settings let you exclude music from specific regions (Turkish, Indian, Pakistani, Egyptian, Vietnamese, Filipino, Indonesian, Nigerian, Argentinian, South African, German, French, Spanish/Latin, Brazilian, K-Pop, Japanese). All filters are opt-in; nothing is filtered by default.
+- **WebGL visualizer** — fluid single-color plasma with silk caustics and needle rays, tinted by the current cover art. 60 FPS throttled, pauses when the window is hidden. The cover desaturates while paused and comes back to color on play.
 - Localized UI — English, Russian, German, Spanish, French, Portuguese, Italian, Polish, Turkish, Ukrainian, Japanese, Korean, Chinese, Dutch, Swedish (follows the Spotify client language).
 
 ## Important compatibility note
@@ -156,7 +157,7 @@ Open the wave and click the **gear icon** (top left):
 The shipped `smartWave.js` is a **generated bundle** — the actual source is modular:
 
 - `src/01-core.js` — config, i18n (15 languages), state, artist graph cache
-- `src/02-engine.js` — recommendation engine: taste clusters, queue, browse catalog
+- `src/02-engine.js` — recommendation engine: artist graph navigation, queue, browse catalog
 - `src/03-shader.js` — WebGL fluid wave shader
 - `src/04-ui.js` — overlay DOM, styles, event bindings
 

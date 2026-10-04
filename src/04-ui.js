@@ -572,6 +572,29 @@
                 background: #e22134;
                 color: #ffffff;
             }
+            .sw-taste-clear-btn {
+                background: rgba(255, 191, 0, 0.14);
+                border: none;
+                border-radius: 9999px;
+                color: #ffcf4d;
+                font-size: 13px;
+                font-weight: 700;
+                padding: 9px 22px;
+                cursor: pointer;
+                transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+            }
+            .sw-taste-clear-btn:hover {
+                background: rgba(255, 191, 0, 0.26);
+                color: #ffffff;
+                transform: scale(1.03);
+            }
+            .sw-taste-clear-btn:active {
+                transform: scale(0.98);
+            }
+            .sw-taste-clear-btn.confirm {
+                background: #ffbf00;
+                color: #000000;
+            }
             .sw-settings-regions {
                 display: flex;
                 flex-wrap: wrap;
@@ -1450,6 +1473,7 @@ document.head.appendChild(style);
                                 <button class="sw-io-btn" id="sw-btn-import">${t('settingsImport')}</button>
                                 <input type="file" id="sw-import-file" accept=".json,application/json" style="display:none" />
                             </div>
+                            <button class="sw-taste-clear-btn" id="sw-btn-clear-taste">${t('settingsClearTaste')}</button>
                             <button class="sw-reset-btn" id="sw-btn-reset-all">${t('settingsReset')}</button>
                         </div>
                     </div>
@@ -2376,6 +2400,39 @@ document.head.appendChild(style);
                     }
                 };
                 reader.readAsText(file);
+            };
+        }
+        // Clear taste memory: wipes track points/bans only, settings untouched (two-click confirm)
+        const clearTasteBtn = overlayEl.querySelector("#sw-btn-clear-taste");
+        if (clearTasteBtn) {
+            let tasteArmed = false;
+            let tasteArmTimer = null;
+            clearTasteBtn.onclick = () => {
+                if (!tasteArmed) {
+                    tasteArmed = true;
+                    clearTasteBtn.classList.add("confirm");
+                    clearTasteBtn.textContent = t("settingsClearTasteConfirm");
+                    clearTimeout(tasteArmTimer);
+                    tasteArmTimer = setTimeout(() => {
+                        tasteArmed = false;
+                        clearTasteBtn.classList.remove("confirm");
+                        clearTasteBtn.textContent = t("settingsClearTaste");
+                    }, 3000);
+                    return;
+                }
+                clearTimeout(tasteArmTimer);
+                try {
+                    STATE.likedTracks.clear();
+                    STATE.dislikedTracks.clear();
+                    saveTaste();
+                    // saveTaste persists the (now empty) maps, removing old data
+                    showNotice(t("tasteCleared"));
+                } catch (err) {
+                    console.warn("[SmartWave] taste clear failed:", err);
+                }
+                clearTasteBtn.classList.remove("confirm");
+                clearTasteBtn.textContent = t("settingsClearTaste");
+                tasteArmed = false;
             };
         }
         // Danger zone: full settings wipe (two-click confirm)

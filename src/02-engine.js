@@ -238,7 +238,7 @@
         // 1. Track directly from the selected playlists
         if (isComfort) {
             const available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.upcomingWave.some(u => u.uri === t.uri));
-            const pick = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : pool[Math.floor(Math.random() * pool.length)];
+            const pick = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : tracks[0];
             if (pick) {
                 return {
                     uri: pick.uri,
@@ -298,7 +298,7 @@
             if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(nextTrack.uri, {});
         } catch (err) {}
         STATE.currentTrack = nextTrack;
-        STATE.history.add(nextTrack.uri);
+        addHistory(nextTrack.uri);
         if (nextTrack.seedUri) {
             STATE.currentSeedUri = nextTrack.seedUri;
             STATE.currentSeedArtist = nextTrack.seedArtist;
@@ -648,7 +648,7 @@ async function generateNextTrack() {
             console.warn("[SmartWave] playUri skipped (player not ready)");
         }
         STATE.currentTrack = target;
-        STATE.history.add(target.uri);
+        addHistory(target.uri);
         if (target.seedUri) {
             STATE.currentSeedUri = target.seedUri;
             STATE.currentSeedArtist = target.seedArtist;
@@ -675,7 +675,7 @@ async function generateNextTrack() {
                 );
                 if (nextTrk && !dupe) {
                     STATE.upcomingWave.push(nextTrk);
-                    STATE.history.add(nextTrk.uri);
+                    addHistory(nextTrk.uri);
                 } else {
                     diversityRetries++;
                     if (diversityRetries > 10) break;
@@ -711,7 +711,7 @@ async function generateNextTrack() {
                 thumb: getTrackImages(cur).thumb || resolveImageUrl(cur.metadata?.image_url || ""),
                 duration: cur.duration?.milliseconds || safeGetDuration(),
             };
-            STATE.history.add(cur.uri);
+            addHistory(cur.uri);
             STATE.currentTrackStartTime = Date.now();
         } else {
             // Cold start with an empty library and no active playback:
@@ -759,7 +759,7 @@ async function generateNextTrack() {
                 console.warn("[SmartWave] playUri skipped (player not ready)");
             }
             STATE.currentTrack = nextTrack;
-            STATE.history.add(nextTrack.uri);
+            addHistory(nextTrack.uri);
             if (nextTrack.seedUri) {
                 STATE.currentSeedUri = nextTrack.seedUri;
                 STATE.currentSeedArtist = nextTrack.seedArtist;

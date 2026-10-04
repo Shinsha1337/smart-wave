@@ -1,6 +1,6 @@
 {
   "name": "Smart Wave",
-  "description": "Endless personalized radio inside Spotify: WebGL fluid wave visualizer, taste clusters, three discovery modes, genre pinning, custom playlist waves, regional filters. 15 languages.",
+  "description": "Endless personalized radio inside Spotify: WebGL fluid wave visualizer, track-level taste learning, three discovery modes, genre pinning, custom playlist waves, regional filters. 15 languages.",
   "preview": "preview.png",
   "main": "smartWave.js",
   "readme": "README.md",

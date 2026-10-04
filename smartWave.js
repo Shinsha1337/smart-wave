@@ -67,6 +67,9 @@
             settingsWaveEffect: "Эффект волны",
             settingsReset: "Сбросить все настройки",
             settingsResetConfirm: "Нажмите ещё раз для подтверждения",
+            settingsClearTaste: "Сбросить память вкуса",
+            settingsClearTasteConfirm: "Нажмите ещё раз для подтверждения",
+            tasteCleared: "Память вкуса очищена",
             settingsExport: "Экспорт настроек",
             settingsImport: "Импорт настроек",
             settingsImportError: "Неверный файл настроек",
@@ -126,6 +129,9 @@
             settingsWaveEffect: "Wave effect",
             settingsReset: "Reset all settings",
             settingsResetConfirm: "Click again to confirm",
+            settingsClearTaste: "Clear taste memory",
+            settingsClearTasteConfirm: "Click again to confirm",
+            tasteCleared: "Taste memory cleared",
             settingsExport: "Export settings",
             settingsImport: "Import settings",
             settingsImportError: "Invalid settings file",
@@ -192,6 +198,9 @@
             settingsWaveEffect: "Wellen-Effekt",
             settingsReset: "Alle Einstellungen zurücksetzen",
             settingsResetConfirm: "Zur Bestätigung erneut klicken",
+            settingsClearTaste: "Geschmacksspeicher löschen",
+            settingsClearTasteConfirm: "Zur Bestätigung erneut klicken",
+            tasteCleared: "Geschmacksspeicher gelöscht",
             settingsExport: "Einstellungen exportieren",
             settingsImport: "Einstellungen importieren",
             settingsImportError: "Ungültige Einstellungsdatei",
@@ -248,6 +257,9 @@
             settingsWaveEffect: "Efecto de onda",
             settingsReset: "Restablecer todos los ajustes",
             settingsResetConfirm: "Haz clic de nuevo para confirmar",
+            settingsClearTaste: "Borrar memoria de gusto",
+            settingsClearTasteConfirm: "Haz clic de nuevo para confirmar",
+            tasteCleared: "Memoria de gusto borrada",
             settingsExport: "Exportar ajustes",
             settingsImport: "Importar ajustes",
             settingsImportError: "Archivo de ajustes no válido",
@@ -304,6 +316,9 @@
             settingsWaveEffect: "Effet de vague",
             settingsReset: "Réinitialiser tous les paramètres",
             settingsResetConfirm: "Cliquez à nouveau pour confirmer",
+            settingsClearTaste: "Effacer la mémoire du goût",
+            settingsClearTasteConfirm: "Cliquez à nouveau pour confirmer",
+            tasteCleared: "Mémoire du goût effacée",
             settingsExport: "Exporter les paramètres",
             settingsImport: "Importer les paramètres",
             settingsImportError: "Fichier de paramètres invalide",
@@ -360,6 +375,9 @@
             settingsWaveEffect: "Efeito de onda",
             settingsReset: "Redefinir todas as configurações",
             settingsResetConfirm: "Clique novamente para confirmar",
+            settingsClearTaste: "Limpar memória de gosto",
+            settingsClearTasteConfirm: "Clique novamente para confirmar",
+            tasteCleared: "Memória de gosto limpa",
             settingsExport: "Exportar configurações",
             settingsImport: "Importar configurações",
             settingsImportError: "Arquivo de configurações inválido",
@@ -416,6 +434,9 @@
             settingsWaveEffect: "Effetto onda",
             settingsReset: "Reimposta tutte le impostazioni",
             settingsResetConfirm: "Clicca di nuovo per confermare",
+            settingsClearTaste: "Cancella memoria del gusto",
+            settingsClearTasteConfirm: "Clicca di nuovo per confermare",
+            tasteCleared: "Memoria del gusto cancellata",
             settingsExport: "Esporta impostazioni",
             settingsImport: "Importa impostazioni",
             settingsImportError: "File di impostazioni non valido",
@@ -472,6 +493,9 @@
             settingsWaveEffect: "Efekt fali",
             settingsReset: "Zresetuj wszystkie ustawienia",
             settingsResetConfirm: "Kliknij ponownie, aby potwierdzić",
+            settingsClearTaste: "Wyczyść pamięć gustu",
+            settingsClearTasteConfirm: "Kliknij ponownie, aby potwierdzić",
+            tasteCleared: "Pamięć gustu wyczyszczona",
             settingsExport: "Eksportuj ustawienia",
             settingsImport: "Importuj ustawienia",
             settingsImportError: "Nieprawidłowy plik ustawień",
@@ -528,6 +552,9 @@
             settingsWaveEffect: "Dalga efekti",
             settingsReset: "Tüm ayarları sıfırla",
             settingsResetConfirm: "Onaylamak için tekrar tıkla",
+            settingsClearTaste: "Müzik zevki hafızasını sil",
+            settingsClearTasteConfirm: "Onaylamak için tekrar tıkla",
+            tasteCleared: "Müzik zevki hafızası silindi",
             settingsExport: "Ayarları dışa aktar",
             settingsImport: "Ayarları içe aktar",
             settingsImportError: "Geçersiz ayar dosyası",
@@ -584,6 +611,9 @@
             settingsWaveEffect: "Ефект хвилі",
             settingsReset: "Скинути всі налаштування",
             settingsResetConfirm: "Натисніть ще раз для підтвердження",
+            settingsClearTaste: "Скинути пам'ять смаку",
+            settingsClearTasteConfirm: "Натисніть ще раз для підтвердження",
+            tasteCleared: "Пам'ять смаку скинута",
             settingsExport: "Експорт налаштувань",
             settingsImport: "Імпорт налаштувань",
             settingsImportError: "Невірний файл налаштувань",
@@ -640,6 +670,9 @@
             settingsWaveEffect: "ウェーブエフェクト",
             settingsReset: "すべての設定をリセット",
             settingsResetConfirm: "もう一度クリックして確認",
+            settingsClearTaste: "音楽の好みをリセット",
+            settingsClearTasteConfirm: "もう一度クリックして確認",
+            tasteCleared: "音楽の好みをリセットしました",
             settingsExport: "設定をエクスポート",
             settingsImport: "設定をインポート",
             settingsImportError: "無効な設定ファイル",
@@ -696,6 +729,9 @@
             settingsWaveEffect: "웨이브 효과",
             settingsReset: "모든 설정 초기화",
             settingsResetConfirm: "확인하려면 다시 클릭하세요",
+            settingsClearTaste: "취향 기록 초기화",
+            settingsClearTasteConfirm: "확인하려면 다시 클릭하세요",
+            tasteCleared: "취향 기록이 초기화되었습니다",
             settingsExport: "설정 내보내기",
             settingsImport: "설정 가져오기",
             settingsImportError: "잘못된 설정 파일",
@@ -752,6 +788,9 @@
             settingsWaveEffect: "波浪效果",
             settingsReset: "重置所有设置",
             settingsResetConfirm: "再次点击以确认",
+            settingsClearTaste: "清除音乐偏好记录",
+            settingsClearTasteConfirm: "再次点击以确认",
+            tasteCleared: "已清除音乐偏好记录",
             settingsExport: "导出设置",
             settingsImport: "导入设置",
             settingsImportError: "设置文件无效",
@@ -808,6 +847,9 @@
             settingsWaveEffect: "Golfeffect",
             settingsReset: "Alle instellingen resetten",
             settingsResetConfirm: "Klik nogmaals om te bevestigen",
+            settingsClearTaste: "Smaakgeheugen wissen",
+            settingsClearTasteConfirm: "Klik nogmaals om te bevestigen",
+            tasteCleared: "Smaakgeheugen gewist",
             settingsExport: "Instellingen exporteren",
             settingsImport: "Instellingen importeren",
             settingsImportError: "Ongeldig instellingenbestand",
@@ -864,6 +906,9 @@
             settingsWaveEffect: "Vågeffekt",
             settingsReset: "Återställ alla inställningar",
             settingsResetConfirm: "Klicka igen för att bekräfta",
+            settingsClearTaste: "Radera smakminne",
+            settingsClearTasteConfirm: "Klicka igen för att bekräfta",
+            tasteCleared: "Smakminne raderat",
             settingsExport: "Exportera inställningar",
             settingsImport: "Importera inställningar",
             settingsImportError: "Ogiltig inställningsfil",
@@ -961,9 +1006,7 @@
         historyStack: [],           // History stack for the "Back" (Previous) button
         upcomingWave: [],           // [{ uri, title, artist, image, duration }]
         dislikedTracks: new Set(JSON.parse(Spicetify.LocalStorage.get("smartWave_disliked_tracks") || "[]")),
-        dislikedArtists: new Set(),
         likedTracks: parseLikedTracks(Spicetify.LocalStorage.get("smartWave_liked_tracks")),
-        likedArtists: parseLikedArtists(Spicetify.LocalStorage.get("smartWave_liked_artists")),
         history: new Set(),
         comfortPool: [],
         currentTrackStartTime: 0,
@@ -994,6 +1037,23 @@
         // Remember wave effect on/off state in LocalStorage
         waveEffectEnabled: Spicetify.LocalStorage.get("smartWave_effect_enabled") !== "false",
     };
+    // Anti-repeat memory: FIFO-capped (200 entries ≈ 10+ hours of listening).
+    // Without the cap the Set grows forever in long sessions.
+    const HISTORY_MAX = 200;
+    function addHistory(uri) {
+        if (!uri) return;
+        if (STATE.history.has(uri)) STATE.history.delete(uri);
+        STATE.history.add(uri);
+        if (STATE.history.size > HISTORY_MAX) {
+            const overflow = STATE.history.size - HISTORY_MAX;
+            let i = 0;
+            for (const u of STATE.history) {
+                if (i >= overflow) break;
+                STATE.history.delete(u);
+                i++;
+            }
+        }
+    }
     // Safe playback state check
     // Spotify desktop sometimes delivers CJK metadata mis-decoded as Windows-1252
     // (UTF-8 bytes interpreted as CP1252, e.g. Japanese artist names). Repair by mapping
@@ -1056,26 +1116,6 @@
         }
     }
 
-    function parseLikedArtists(raw) {
-        try {
-            const arr = JSON.parse(raw || "[]");
-            const map = new Map();
-            for (const item of arr) {
-                if (!Array.isArray(item) || item.length < 2) continue;
-                const [k, v] = item;
-                const key = String(k).toLowerCase();
-                if (typeof v === "number") {
-                    map.set(key, { name: String(k), uri: null, weight: v });
-                } else if (v && typeof v === "object") {
-                    map.set(key, { name: v.name || String(k), uri: v.uri || null, weight: Number(v.weight) || 1 });
-                }
-            }
-            return map;
-        } catch {
-            return new Map();
-        }
-    }
-
     // Persist taste feedback (caps: 500 banned tracks / 500 liked tracks)
     function saveTaste() {
         try {
@@ -1089,7 +1129,6 @@
             }
             Spicetify.LocalStorage.set("smartWave_disliked_tracks", JSON.stringify(disliked));
             Spicetify.LocalStorage.set("smartWave_liked_tracks", JSON.stringify(likedTracksArr));
-            Spicetify.LocalStorage.set("smartWave_liked_artists", JSON.stringify([...STATE.likedArtists.entries()]));
         } catch (err) {
             console.warn("[SmartWave] saveTaste failed:", err);
         }
@@ -1124,34 +1163,6 @@
             }
             saveTaste();
         }
-    }
-
-    function addLikedArtist(name, uri = null, delta = 1) {
-        if (!name) return;
-        const key = name.toLowerCase();
-        const existing = STATE.likedArtists.get(key);
-        const newWeight = (existing ? existing.weight : 0) + delta;
-        STATE.likedArtists.set(key, {
-            name: existing?.name || name,
-            uri: uri || existing?.uri || null,
-            weight: Math.max(1, newWeight)
-        });
-        saveTaste();
-    }
-
-    function removeLikedArtist(name, delta = 1) {
-        if (!name) return;
-        const key = name.toLowerCase();
-        const existing = STATE.likedArtists.get(key);
-        if (!existing) return;
-        const newWeight = existing.weight - delta;
-        if (newWeight <= 0) {
-            STATE.likedArtists.delete(key);
-        } else {
-            existing.weight = newWeight;
-            STATE.likedArtists.set(key, existing);
-        }
-        saveTaste();
     }
 
     function addDislikedTrack(uri, artistName = null) {
@@ -1413,9 +1424,7 @@
         }),
         addLikedTrack: (track, delta) => addLikedTrack(track, delta),
         penalizeTrack: (track, delta) => penalizeTrack(track, delta),
-        addLikedArtist: (name, uri, delta) => addLikedArtist(name, uri, delta),
         addDislikedTrack: (uri, artist) => addDislikedTrack(uri, artist),
-        removeLikedArtist: (name, delta) => removeLikedArtist(name, delta),
         showNotice: (msg) => showNotice(msg),
         t: (k) => t(k),
         saveTaste: () => saveTaste(),
@@ -1734,7 +1743,7 @@
         // 1. Track directly from the selected playlists
         if (isComfort) {
             const available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.upcomingWave.some(u => u.uri === t.uri));
-            const pick = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : pool[Math.floor(Math.random() * pool.length)];
+            const pick = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : tracks[0];
             if (pick) {
                 return {
                     uri: pick.uri,
@@ -1794,7 +1803,7 @@
             if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(nextTrack.uri, {});
         } catch (err) {}
         STATE.currentTrack = nextTrack;
-        STATE.history.add(nextTrack.uri);
+        addHistory(nextTrack.uri);
         if (nextTrack.seedUri) {
             STATE.currentSeedUri = nextTrack.seedUri;
             STATE.currentSeedArtist = nextTrack.seedArtist;
@@ -2144,7 +2153,7 @@ async function generateNextTrack() {
             console.warn("[SmartWave] playUri skipped (player not ready)");
         }
         STATE.currentTrack = target;
-        STATE.history.add(target.uri);
+        addHistory(target.uri);
         if (target.seedUri) {
             STATE.currentSeedUri = target.seedUri;
             STATE.currentSeedArtist = target.seedArtist;
@@ -2171,7 +2180,7 @@ async function generateNextTrack() {
                 );
                 if (nextTrk && !dupe) {
                     STATE.upcomingWave.push(nextTrk);
-                    STATE.history.add(nextTrk.uri);
+                    addHistory(nextTrk.uri);
                 } else {
                     diversityRetries++;
                     if (diversityRetries > 10) break;
@@ -2207,7 +2216,7 @@ async function generateNextTrack() {
                 thumb: getTrackImages(cur).thumb || resolveImageUrl(cur.metadata?.image_url || ""),
                 duration: cur.duration?.milliseconds || safeGetDuration(),
             };
-            STATE.history.add(cur.uri);
+            addHistory(cur.uri);
             STATE.currentTrackStartTime = Date.now();
         } else {
             // Cold start with an empty library and no active playback:
@@ -2255,7 +2264,7 @@ async function generateNextTrack() {
                 console.warn("[SmartWave] playUri skipped (player not ready)");
             }
             STATE.currentTrack = nextTrack;
-            STATE.history.add(nextTrack.uri);
+            addHistory(nextTrack.uri);
             if (nextTrack.seedUri) {
                 STATE.currentSeedUri = nextTrack.seedUri;
                 STATE.currentSeedArtist = nextTrack.seedArtist;
@@ -2382,7 +2391,7 @@ async function generateNextTrack() {
                 if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(anchorTrack.uri, {});
             } catch (err) {}
             STATE.currentTrack = anchorTrack;
-            STATE.history.add(anchorTrack.uri);
+            addHistory(anchorTrack.uri);
             resetProgressUI();
             updateUI();
             await ensureWaveQueue(true);
@@ -2472,7 +2481,7 @@ async function generateNextTrack() {
                 duration: cur.duration?.milliseconds || safeGetDuration(),
             };
             STATE.currentTrackStartTime = now;
-            STATE.history.add(cur.uri);
+            addHistory(cur.uri);
             // Immediately start color extraction for the new track
             if (curImage && STATE.lastExtractedImg !== curImage) {
                 STATE.lastExtractedImg = curImage;
@@ -3333,6 +3342,29 @@ function startWaveAnimation() {
             .sw-reset-btn.confirm {
                 background: #e22134;
                 color: #ffffff;
+            }
+            .sw-taste-clear-btn {
+                background: rgba(255, 191, 0, 0.14);
+                border: none;
+                border-radius: 9999px;
+                color: #ffcf4d;
+                font-size: 13px;
+                font-weight: 700;
+                padding: 9px 22px;
+                cursor: pointer;
+                transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+            }
+            .sw-taste-clear-btn:hover {
+                background: rgba(255, 191, 0, 0.26);
+                color: #ffffff;
+                transform: scale(1.03);
+            }
+            .sw-taste-clear-btn:active {
+                transform: scale(0.98);
+            }
+            .sw-taste-clear-btn.confirm {
+                background: #ffbf00;
+                color: #000000;
             }
             .sw-settings-regions {
                 display: flex;
@@ -4212,6 +4244,7 @@ document.head.appendChild(style);
                                 <button class="sw-io-btn" id="sw-btn-import">${t('settingsImport')}</button>
                                 <input type="file" id="sw-import-file" accept=".json,application/json" style="display:none" />
                             </div>
+                            <button class="sw-taste-clear-btn" id="sw-btn-clear-taste">${t('settingsClearTaste')}</button>
                             <button class="sw-reset-btn" id="sw-btn-reset-all">${t('settingsReset')}</button>
                         </div>
                     </div>
@@ -5138,6 +5171,39 @@ document.head.appendChild(style);
                     }
                 };
                 reader.readAsText(file);
+            };
+        }
+        // Clear taste memory: wipes track points/bans only, settings untouched (two-click confirm)
+        const clearTasteBtn = overlayEl.querySelector("#sw-btn-clear-taste");
+        if (clearTasteBtn) {
+            let tasteArmed = false;
+            let tasteArmTimer = null;
+            clearTasteBtn.onclick = () => {
+                if (!tasteArmed) {
+                    tasteArmed = true;
+                    clearTasteBtn.classList.add("confirm");
+                    clearTasteBtn.textContent = t("settingsClearTasteConfirm");
+                    clearTimeout(tasteArmTimer);
+                    tasteArmTimer = setTimeout(() => {
+                        tasteArmed = false;
+                        clearTasteBtn.classList.remove("confirm");
+                        clearTasteBtn.textContent = t("settingsClearTaste");
+                    }, 3000);
+                    return;
+                }
+                clearTimeout(tasteArmTimer);
+                try {
+                    STATE.likedTracks.clear();
+                    STATE.dislikedTracks.clear();
+                    saveTaste();
+                    // saveTaste persists the (now empty) maps, removing old data
+                    showNotice(t("tasteCleared"));
+                } catch (err) {
+                    console.warn("[SmartWave] taste clear failed:", err);
+                }
+                clearTasteBtn.classList.remove("confirm");
+                clearTasteBtn.textContent = t("settingsClearTaste");
+                tasteArmed = false;
             };
         }
         // Danger zone: full settings wipe (two-click confirm)

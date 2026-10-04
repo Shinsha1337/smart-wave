@@ -86,7 +86,7 @@
                 if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(anchorTrack.uri, {});
             } catch (err) {}
             STATE.currentTrack = anchorTrack;
-            STATE.history.add(anchorTrack.uri);
+            addHistory(anchorTrack.uri);
             resetProgressUI();
             updateUI();
             await ensureWaveQueue(true);
@@ -176,7 +176,7 @@
                 duration: cur.duration?.milliseconds || safeGetDuration(),
             };
             STATE.currentTrackStartTime = now;
-            STATE.history.add(cur.uri);
+            addHistory(cur.uri);
             // Immediately start color extraction for the new track
             if (curImage && STATE.lastExtractedImg !== curImage) {
                 STATE.lastExtractedImg = curImage;
