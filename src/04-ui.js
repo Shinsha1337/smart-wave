@@ -298,71 +298,113 @@
                 background: #f5f5f5;
                 box-shadow: 0 6px 28px rgba(255, 255, 255, 0.35);
             }
-            /* Wide progress bar: spacious, comfortable, far from the buttons */
+            /* Wide progress bar: spacious, comfortable, Spotify native style */
             .sw-timeline {
                 width: 100% !important;
                 align-self: stretch !important;
                 display: flex;
                 align-items: center;
-                gap: 7px;
-                font-size: 13px;
+                gap: 6px;
+                font-size: 11.5px;
                 color: #a7a7a7;
                 position: relative;
                 box-sizing: border-box;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .sw-timeline.dragging {
+                cursor: pointer;
             }
             .sw-time-num {
-                width: 42px;
-                min-width: 42px;
+                width: auto;
                 flex-shrink: 0;
                 font-variant-numeric: tabular-nums;
                 font-feature-settings: "tnum";
-                font-weight: 500;
+                font-weight: 400;
+                font-size: 11.5px;
+                color: #a7a7a7;
+                letter-spacing: -0.01em;
             }
             #sw-cur-time {
-                text-align: left;
+                min-width: 34px;
+                text-align: right;
                 padding: 0;
             }
             #sw-tot-time {
-                text-align: right;
+                min-width: auto;
+                text-align: left;
                 padding: 0;
             }
             .sw-bar-bg {
                 flex: 1;
-                height: 6px;
-                background: rgba(255, 255, 255, 0.18);
+                height: 4px;
+                background: rgba(255, 255, 255, 0.22);
                 border-radius: 9999px;
                 position: relative;
                 cursor: pointer;
-                transition: height 0.15s;
+                transition: height 0.12s ease, background 0.12s ease;
             }
-            .sw-bar-bg:hover {
-                height: 8px;
+            /* Generous invisible grab area so scrubbing is effortless and never slips */
+            .sw-bar-bg::before {
+                content: "";
+                position: absolute;
+                top: -8px;
+                bottom: -8px;
+                left: 0;
+                right: 0;
+                cursor: pointer;
+            }
+            .sw-bar-bg:hover,
+            .sw-timeline.dragging .sw-bar-bg {
+                height: 5px;
+                background: rgba(255, 255, 255, 0.32);
             }
             .sw-bar-fill {
                 height: 100%;
                 background: #ffffff;
                 border-radius: 9999px;
                 width: 0%;
-                transition: background 0.1s;
+                position: relative;
+                transition: background 0.12s ease;
                 pointer-events: none;
             }
-            .sw-bar-bg:hover .sw-bar-fill {
+            .sw-bar-bg:hover .sw-bar-fill,
+            .sw-timeline.dragging .sw-bar-fill {
                 background: #1ed760;
             }
-            /* Volume: placed at the right edge of the wide bar (free space) */
+            .sw-bar-thumb {
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translate(50%, -50%) scale(0);
+                width: 12px;
+                height: 12px;
+                background: #ffffff;
+                border-radius: 50%;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                transition: transform 0.1s ease, opacity 0.1s ease;
+                pointer-events: none;
+            }
+            .sw-bar-bg:hover .sw-bar-thumb,
+            .sw-timeline.dragging .sw-bar-thumb {
+                opacity: 1;
+                transform: translate(50%, -50%) scale(1);
+            }
+            /* Volume: placed tightly at the right edge of the total time */
             .sw-vol-popup-wrap {
                 position: relative;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-left: 6px;
+                margin-left: -2px;
             }
             .sw-vol-icon-btn {
                 background: none;
                 border: none;
                 color: #b3b3b3;
                 cursor: pointer;
-                padding: 4px;
+                padding: 2px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -371,9 +413,9 @@
             }
             .sw-vol-icon-btn:hover {
                 color: #ffffff;
-                transform: scale(1.15);
+                transform: scale(1.1);
             }
-            /* Popup vertical volume slider: compact, does not reach the buttons */
+            /* Popup vertical volume slider: compact, matching progress bar style */
             .sw-vol-panel {
                 position: absolute;
                 bottom: 22px;
@@ -403,16 +445,28 @@
                 transform: translateX(-50%) translateY(0);
             }
             .sw-vol-track {
-                width: 6px;
+                width: 4px;
                 height: 94px;
                 background: rgba(255, 255, 255, 0.22);
-                border-radius: 3px;
+                border-radius: 9999px;
                 position: relative;
                 cursor: pointer;
-                transition: width 0.15s;
+                transition: width 0.12s ease, background 0.12s ease;
             }
-            .sw-vol-track:hover {
-                width: 8px;
+            /* Generous invisible grab area so volume scrubbing never slips */
+            .sw-vol-track::before {
+                content: "";
+                position: absolute;
+                left: -10px;
+                right: -10px;
+                top: 0;
+                bottom: 0;
+                cursor: pointer;
+            }
+            .sw-vol-track:hover,
+            .sw-vol-popup-wrap.dragging .sw-vol-track {
+                width: 5px;
+                background: rgba(255, 255, 255, 0.32);
             }
             .sw-vol-fill {
                 position: absolute;
@@ -421,12 +475,32 @@
                 width: 100%;
                 height: 80%;
                 background: #ffffff;
-                border-radius: 3px;
-                transition: background-color 0.15s;
+                border-radius: 9999px;
+                transition: background 0.12s ease;
                 pointer-events: none;
             }
-            .sw-vol-track:hover .sw-vol-fill {
+            .sw-vol-track:hover .sw-vol-fill,
+            .sw-vol-popup-wrap.dragging .sw-vol-fill {
                 background: #1ed760;
+            }
+            .sw-vol-thumb {
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                width: 12px;
+                height: 12px;
+                background: #ffffff;
+                border-radius: 50%;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+                opacity: 0;
+                transition: transform 0.1s ease, opacity 0.1s ease;
+                pointer-events: none;
+            }
+            .sw-vol-track:hover .sw-vol-thumb,
+            .sw-vol-popup-wrap.dragging .sw-vol-thumb {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
             }
 
             /* Bottom bar: smart wave settings separated and pinned to the bottom edge */
@@ -1348,7 +1422,9 @@ document.head.appendChild(style);
                         <div class="sw-timeline">
                             <span class="sw-time-num" id="sw-cur-time">0:00</span>
                             <div class="sw-bar-bg" id="sw-bar-bg">
-                                <div class="sw-bar-fill" id="sw-bar-fill"></div>
+                                <div class="sw-bar-fill" id="sw-bar-fill">
+                                    <div class="sw-bar-thumb" id="sw-bar-thumb"></div>
+                                </div>
                             </div>
                             <span class="sw-time-num" id="sw-tot-time">0:00</span>
                             <!-- Volume icon without a background, right of the total time; bottom-up scale -->
@@ -1361,7 +1437,9 @@ document.head.appendChild(style);
                                 </button>
                                 <div class="sw-vol-panel" id="sw-vol-panel">
                                     <div class="sw-vol-track" id="sw-vol-bar-bg">
-                                        <div class="sw-vol-fill" id="sw-vol-bar-fill"></div>
+                                        <div class="sw-vol-fill" id="sw-vol-bar-fill">
+                                            <div class="sw-vol-thumb" id="sw-vol-thumb"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1605,14 +1683,87 @@ document.head.appendChild(style);
         overlayEl.querySelector("#sw-btn-dislike").onclick = () => skipWaveTrack(true);
         overlayEl.querySelector("#sw-btn-heart").onclick = likeCurrentBranch;
         overlayEl.querySelector("#sw-btn-shake").onclick = shakeWave;
-        // Seek by clicking the bar
+        // Spotify-style smooth scrubbing & seeking for progress bar
         const barBg = overlayEl.querySelector("#sw-bar-bg");
-        barBg.onclick = (e) => {
-            const rect = barBg.getBoundingClientRect();
-            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            const dur = safeGetDuration();
-            if (dur > 0) Spicetify.Player?.seek?.(Math.round(pct * dur));
-        };
+        const barFill = overlayEl.querySelector("#sw-bar-fill");
+        const curTimeEl = overlayEl.querySelector("#sw-cur-time");
+        const timelineEl = overlayEl.querySelector(".sw-timeline");
+
+        if (barBg && barFill) {
+            let isDraggingSeek = false;
+            let cachedBarRect = null;
+            let targetSeekPct = 0;
+            let seekReleaseTimer = null;
+
+            const updateScrubUI = (clientX) => {
+                if (!cachedBarRect) cachedBarRect = barBg.getBoundingClientRect();
+                const width = cachedBarRect.width || 1;
+                targetSeekPct = Math.max(0, Math.min(1, (clientX - cachedBarRect.left) / width));
+
+                // Visual progress bar fill
+                barFill.style.width = `${targetSeekPct * 100}%`;
+
+                // Real-time timestamp update while scrubbing
+                const dur = safeGetDuration() || STATE.currentTrack?.duration || 0;
+                if (curTimeEl && dur > 0) {
+                    curTimeEl.textContent = formatTime(Math.round(targetSeekPct * dur));
+                }
+            };
+
+            barBg.onmousedown = (e) => {
+                if (e.button !== 0) return;
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (seekReleaseTimer) {
+                    clearTimeout(seekReleaseTimer);
+                    seekReleaseTimer = null;
+                }
+
+                isDraggingSeek = true;
+                STATE.isDraggingProgress = true;
+                cachedBarRect = barBg.getBoundingClientRect();
+                timelineEl?.classList.add("dragging");
+
+                updateScrubUI(e.clientX);
+            };
+
+            window.addEventListener("mousemove", (e) => {
+                if (!isDraggingSeek) return;
+                updateScrubUI(e.clientX);
+            }, { passive: true });
+
+            const commitSeek = () => {
+                if (!isDraggingSeek) return;
+                isDraggingSeek = false;
+                cachedBarRect = null;
+                timelineEl?.classList.remove("dragging");
+
+                const dur = safeGetDuration() || STATE.currentTrack?.duration || 0;
+                if (dur > 0) {
+                    const targetMs = Math.round(targetSeekPct * dur);
+                    STATE.lastObservedProgress = targetMs;
+                    try {
+                        Spicetify.Player?.seek?.(targetMs);
+                    } catch (err) {
+                        console.warn("[SmartWave] seek error:", err);
+                    }
+                }
+
+                // Keep isDraggingProgress locked for 300ms grace window
+                // so the progressInterval doesn't snap backwards to stale player state before Spotify seeks
+                seekReleaseTimer = setTimeout(() => {
+                    STATE.isDraggingProgress = false;
+                    seekReleaseTimer = null;
+                }, 300);
+            };
+
+            window.addEventListener("mouseup", () => {
+                if (isDraggingSeek) {
+                    commitSeek();
+                }
+            });
+        }
         // Volume control: popup vertical slider above the icon
         let lastNonZeroVolume = 0.8;
         function setPlayerVolume(pct) {
@@ -1649,16 +1800,35 @@ document.head.appendChild(style);
         if (volBar) {
             let isDraggingVol = false;
             let cachedBarRect = null;
-            const setVolFromEvent = (e) => {
-                if (!cachedBarRect) cachedBarRect = volBar.getBoundingClientRect();
-                const pct = Math.max(0, Math.min(1, 1.0 - (e.clientY - cachedBarRect.top) / cachedBarRect.height));
+            let pendingVolPct = null;
+            let volRafId = null;
+
+            const updateVolVisual = (pct) => {
                 const fill = overlayEl?.querySelector("#sw-vol-bar-fill");
                 if (fill) fill.style.height = `${pct * 100}%`;
-                if (pct > 0.05) lastNonZeroVolume = pct;
-                setPlayerVolume(pct);
-                updateVolumeUI();
             };
+
+            const setVolFromEvent = (e) => {
+                if (!cachedBarRect) cachedBarRect = volBar.getBoundingClientRect();
+                const height = cachedBarRect.height || 1;
+                const pct = Math.max(0, Math.min(1, 1.0 - (e.clientY - cachedBarRect.top) / height));
+                updateVolVisual(pct);
+                if (pct > 0.05) lastNonZeroVolume = pct;
+                pendingVolPct = pct;
+
+                if (!volRafId) {
+                    volRafId = requestAnimationFrame(() => {
+                        volRafId = null;
+                        if (pendingVolPct !== null) {
+                            setPlayerVolume(pendingVolPct);
+                            updateVolumeUI();
+                        }
+                    });
+                }
+            };
+
             volBar.onmousedown = (e) => {
+                if (e.button !== 0) return;
                 e.stopPropagation();
                 e.preventDefault();
                 isDraggingVol = true;
@@ -1666,20 +1836,26 @@ document.head.appendChild(style);
                 volPopupWrap?.classList.add("dragging");
                 setVolFromEvent(e);
             };
-            volBar.onclick = (e) => {
-                e.stopPropagation();
-                setVolFromEvent(e);
-            };
+
             window.addEventListener("mousemove", (e) => {
                 if (isDraggingVol) {
                     setVolFromEvent(e);
                 }
             }, { passive: true });
+
             window.addEventListener("mouseup", () => {
                 if (isDraggingVol) {
                     isDraggingVol = false;
                     cachedBarRect = null;
                     volPopupWrap?.classList.remove("dragging");
+                    if (volRafId) {
+                        cancelAnimationFrame(volRafId);
+                        volRafId = null;
+                    }
+                    if (pendingVolPct !== null) {
+                        setPlayerVolume(pendingVolPct);
+                        pendingVolPct = null;
+                    }
                     updateVolumeUI();
                 }
             });
@@ -2623,6 +2799,7 @@ document.head.appendChild(style);
         else showPage();
     }
     function resetProgressUI() {
+        STATE.isDraggingProgress = false;
         const fill = overlayEl?.querySelector("#sw-bar-fill");
         const curT = overlayEl?.querySelector("#sw-cur-time");
         const totT = overlayEl?.querySelector("#sw-tot-time");
@@ -2637,6 +2814,7 @@ document.head.appendChild(style);
         const totT = overlayEl?.querySelector("#sw-tot-time");
         STATE.progressInterval = setInterval(() => {
             if (!STATE.pageVisible) return;
+            if (STATE.isDraggingProgress) return;
             const trackDuration = STATE.currentTrack?.duration || 0;
             let duration = safeGetDuration();
             if ((!duration || duration <= 0 || (trackDuration > 0 && Math.abs(duration - trackDuration) > 30000)) && trackDuration > 0) {

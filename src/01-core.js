@@ -1008,6 +1008,7 @@
         lastObservedProgress: 0,
         isQueueing: false,
         pageVisible: false,
+        isDraggingProgress: false,
         progressInterval: null,
         animFrameId: null,
         closeGraceTimer: null,
