@@ -415,28 +415,37 @@
                 color: #ffffff;
                 transform: scale(1.1);
             }
-            /* Popup vertical volume slider: compact, matching progress bar style */
+            /* Popup vertical volume slider: compact, tight to volume button */
             .sw-vol-panel {
                 position: absolute;
-                bottom: 22px;
+                bottom: 100%;
                 left: 50%;
-                transform: translateX(-50%) translateY(4px);
-                width: 28px;
-                height: 110px;
+                transform: translateX(-50%) translateY(2px);
+                width: 36px;
+                height: 106px;
                 background: none;
                 border: none;
                 box-shadow: none;
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
                 display: flex;
-                align-items: center;
+                align-items: flex-end;
                 justify-content: center;
-                padding-bottom: 6px;
+                padding-bottom: 4px;
                 box-sizing: border-box;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 0.15s ease, transform 0.15s ease;
+                transition: opacity 0.12s ease, transform 0.12s ease;
                 z-index: 100;
+            }
+            /* Invisible hover bridge to eliminate any gap between button and slider */
+            .sw-vol-panel::after {
+                content: "";
+                position: absolute;
+                bottom: -10px;
+                left: 0;
+                right: 0;
+                height: 14px;
             }
             .sw-vol-popup-wrap:hover .sw-vol-panel,
             .sw-vol-popup-wrap.dragging .sw-vol-panel {
@@ -457,10 +466,10 @@
             .sw-vol-track::before {
                 content: "";
                 position: absolute;
-                left: -10px;
-                right: -10px;
-                top: 0;
-                bottom: 0;
+                left: -14px;
+                right: -14px;
+                top: -8px;
+                bottom: -8px;
                 cursor: pointer;
             }
             .sw-vol-track:hover,
