@@ -1139,21 +1139,29 @@
             .sw-preset-row {
                 display: flex;
                 flex-wrap: wrap;
+                align-items: center;
                 gap: 8px;
-                min-height: 30px;
+                min-height: 32px;
             }
             .sw-preset-chip {
                 background: #121212;
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 color: #e0e0e0;
                 border-radius: 500px;
-                padding: 7px 16px;
+                height: 32px;
+                max-height: 32px;
+                padding: 0 16px;
+                line-height: 30px;
                 font-size: clamp(12px, 0.9vw, 13px);
                 font-weight: 600;
+                font-family: inherit;
                 cursor: pointer;
                 transition: background-color 0.15s, color 0.15s;
                 display: inline-flex;
                 align-items: center;
+                justify-content: center;
+                box-sizing: border-box;
+                vertical-align: middle;
             }
             .sw-preset-chip:hover { background: #1e1e1e; }
             .sw-preset-chip.active {
@@ -1161,19 +1169,40 @@
                 color: #000000;
                 border-color: #ffffff;
             }
-            .sw-preset-input {
-                background: #1e1e1e;
-                border: 1px solid transparent;
-                box-shadow: 0 0 0 2px #1ed760;
-                border-radius: 500px;
+            /* Spotify-style inline preset rename pill */
+            .sw-preset-chip-input {
+                background: #242424;
+                border: 1px solid #1ed760;
+                box-shadow: 0 0 0 1px #1ed760;
                 color: #ffffff;
+                border-radius: 500px;
+                height: 32px;
+                max-height: 32px;
+                padding: 0 16px;
+                line-height: 30px;
                 font-size: clamp(12px, 0.9vw, 13px);
                 font-weight: 600;
-                padding: 6px 15px;
+                font-family: inherit;
                 outline: none;
-                min-width: 110px;
                 text-align: center;
                 caret-color: #1ed760;
+                box-sizing: border-box;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                vertical-align: middle;
+                transition: border-color 0.15s, box-shadow 0.15s;
+                min-width: 90px;
+                max-width: 240px;
+            }
+            .sw-preset-chip-input:focus {
+                background: #2a2a2a;
+                border-color: #1ed760;
+                box-shadow: 0 0 0 1px #1ed760;
+            }
+            .sw-preset-chip-input::selection {
+                background: rgba(30, 215, 96, 0.35);
+                color: #ffffff;
             }
             .sw-text-btn.sw-danger:hover { color: #ff5555; }
             
@@ -1912,6 +1941,25 @@ document.head.appendChild(style);
             };
         }
         let modalSelectedPlaylists = new Set(STATE.customPlaylists || []);
+        let modalActivePresetId = "default";
+        const saveCustomPresets = () => {
+            try { Spicetify.LocalStorage.set("smartWave_custom_presets", JSON.stringify(STATE.customPresets)); } catch {}
+        };
+        const saveCurrentActivePreset = () => {
+            const activePill = overlayEl?.querySelector(".sw-submode-pill.active");
+            const chosenSubMode = activePill?.getAttribute("data-submode") || "flow";
+            if (modalActivePresetId === "default") {
+                STATE.customDefault = { playlists: Array.from(modalSelectedPlaylists), subMode: chosenSubMode };
+                try { Spicetify.LocalStorage.set("smartWave_custom_default", JSON.stringify(STATE.customDefault)); } catch {}
+            } else {
+                const curPreset = STATE.customPresets.find(p => p.id === modalActivePresetId);
+                if (curPreset) {
+                    curPreset.playlists = Array.from(modalSelectedPlaylists);
+                    curPreset.subMode = chosenSubMode;
+                    saveCustomPresets();
+                }
+            }
+        };
         async function openCustomModal() {
             const modalBackdrop = overlayEl?.querySelector("#sw-custom-modal-backdrop");
             const container = overlayEl?.querySelector("#sw-playlists-container");
@@ -2037,18 +2085,21 @@ document.head.appendChild(style);
                         modalSelectedPlaylists.add(uri);
                     }
                     updateSelectedUI();
+                    saveCurrentActivePreset();
                 };
             });
             if (selectAllBtn) {
                 selectAllBtn.onclick = () => {
                     playlists.forEach(pl => modalSelectedPlaylists.add(pl.uri));
                     updateSelectedUI();
+                    saveCurrentActivePreset();
                 };
             }
             if (deselectAllBtn) {
                 deselectAllBtn.onclick = () => {
                     modalSelectedPlaylists.clear();
                     updateSelectedUI();
+                    saveCurrentActivePreset();
                 };
             }
             updateSelectedUI();
@@ -2069,27 +2120,17 @@ document.head.appendChild(style);
             pill.onclick = () => {
                 overlayEl.querySelectorAll(".sw-submode-pill").forEach(p => p.classList.remove("active"));
                 pill.classList.add("active");
+                saveCurrentActivePreset();
             };
         });
         const modalApplyBtn = overlayEl.querySelector("#sw-custom-apply");
         if (modalApplyBtn) {
             modalApplyBtn.onclick = async () => {
+                saveCurrentActivePreset();
                 const activePill = overlayEl.querySelector(".sw-submode-pill.active");
                 const chosenSubMode = activePill?.getAttribute("data-submode") || "flow";
                 STATE.customSubMode = chosenSubMode;
                 Spicetify.LocalStorage.set("smartWave_custom_submode", chosenSubMode);
-                // Apply writes ONLY to the selected preset; the wave's live state = its contents
-                if (modalActivePresetId === "default") {
-                    STATE.customDefault = { playlists: Array.from(modalSelectedPlaylists), subMode: chosenSubMode };
-                    Spicetify.LocalStorage.set("smartWave_custom_default", JSON.stringify(STATE.customDefault));
-                } else {
-                    const activePreset = STATE.customPresets.find(p => p.id === modalActivePresetId);
-                    if (activePreset) {
-                        activePreset.playlists = Array.from(modalSelectedPlaylists);
-                        activePreset.subMode = chosenSubMode;
-                        saveCustomPresets();
-                    }
-                }
                 Spicetify.LocalStorage.set("smartWave_active_preset", modalActivePresetId);
                 STATE.customPlaylists = Array.from(modalSelectedPlaylists);
                 Spicetify.LocalStorage.set("smartWave_custom_playlists", JSON.stringify(STATE.customPlaylists));
@@ -2105,14 +2146,21 @@ document.head.appendChild(style);
                 overlayEl.querySelectorAll(".sw-chip[data-mode]").forEach(c => {
                     c.classList.toggle("active", c.getAttribute("data-mode") === STATE.mode);
                 });
+                if (STATE.mode === "favorite") {
+                    const customTracks = await loadCustomTracksCache();
+                    const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
+                    const favPool = customTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
+                    if (favPool.length < 4) {
+                        STATE.mode = "stream";
+                        Spicetify.LocalStorage.set("smartWave_mode", "stream");
+                        updateModeChipsUI();
+                        showNotice(t("noFavoritesInCustom"));
+                    }
+                }
                 await regenerateQueue();
             };
         }
         // --- Custom wave presets ---
-        let modalActivePresetId = "default";
-        const saveCustomPresets = () => {
-            try { Spicetify.LocalStorage.set("smartWave_custom_presets", JSON.stringify(STATE.customPresets)); } catch {}
-        };
         const syncSubmodePills = (subMode) => {
             overlayEl.querySelectorAll(".sw-submode-pill").forEach(p => {
                 p.classList.toggle("active", p.getAttribute("data-submode") === subMode);
@@ -2136,6 +2184,8 @@ document.head.appendChild(style);
                 chip.className = "sw-preset-chip" + (modalActivePresetId === p.id ? " active" : "");
                 chip.textContent = p.name;
                 chip.onclick = () => {
+                    if (modalActivePresetId === p.id) return;
+                    saveCurrentActivePreset();
                     modalActivePresetId = p.id;
                     if (p.id === "default") {
                         const def = STATE.customDefault || { playlists: STATE.customPlaylists || [], subMode: STATE.customSubMode || "flow" };
@@ -2149,7 +2199,10 @@ document.head.appendChild(style);
                     renderPresetChips();
                 };
                 if (p.id !== "default") {
-                    chip.ondblclick = (e) => { e.stopPropagation(); startRenamePreset(chip, p); };
+                    chip.ondblclick = (e) => {
+                        e.stopPropagation();
+                        startRenamePreset(chip, p);
+                    };
                 }
                 row.appendChild(chip);
             }
@@ -2162,39 +2215,70 @@ document.head.appendChild(style);
         const newPresetBtn = overlayEl.querySelector("#sw-preset-new");
         if (newPresetBtn) {
             newPresetBtn.onclick = () => {
+                saveCurrentActivePreset();
                 const preset = {
                     id: Date.now().toString(36),
                     name: "Preset " + (STATE.customPresets.length + 1),
-                    playlists: Array.from(modalSelectedPlaylists),
-                    subMode: overlayEl.querySelector(".sw-submode-pill.active")?.getAttribute("data-submode") || "flow"
+                    playlists: [],
+                    subMode: "flow"
                 };
                 STATE.customPresets.push(preset);
                 saveCustomPresets();
                 modalActivePresetId = preset.id;
+                modalSelectedPlaylists = new Set();
+                syncSubmodePills("flow");
+                syncPlaylistChecks();
                 renderPresetChips();
             };
         }
         function startRenamePreset(chipEl, preset) {
             const input = document.createElement("input");
-            input.className = "sw-preset-input";
-            input.value = preset.name;
-            chipEl.replaceChildren(input);
-            chipEl.onclick = null;
-            input.focus();
-            input.select();
+            input.type = "text";
+            input.className = "sw-preset-chip-input";
+            input.value = preset.name || "";
+            input.maxLength = 50;
+            input.spellcheck = false;
+            input.autocomplete = "off";
+
+            const adjustWidth = () => {
+                input.style.width = Math.max(80, Math.min(220, (input.value.length + 3) * 8.5)) + "px";
+            };
+            adjustWidth();
+            input.oninput = adjustWidth;
+
+            // Replace chipEl directly with input in the chips container (no outer button halo)
+            chipEl.parentNode.replaceChild(input, chipEl);
+
+            let finished = false;
             const commit = () => {
+                if (finished) return;
+                finished = true;
                 const v = input.value.trim();
                 if (v) preset.name = v;
                 saveCustomPresets();
                 renderPresetChips();
             };
+
+            const cancel = () => {
+                if (finished) return;
+                finished = true;
+                renderPresetChips();
+            };
+
             input.onkeydown = (e) => {
                 e.stopPropagation();
-                if (e.key === "Enter") commit();
-                if (e.key === "Escape") renderPresetChips();
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    commit();
+                } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    cancel();
+                }
             };
             input.onblur = commit;
-            input.onclick = (e) => e.stopPropagation();
+
+            input.focus();
+            input.select();
         }
         const renamePresetBtn = overlayEl.querySelector("#sw-preset-rename");
         if (renamePresetBtn) {
@@ -2324,28 +2408,6 @@ document.head.appendChild(style);
                     const genre = chip.getAttribute("data-genre");
 
                     if (genre === "custom") {
-                        if (STATE.activeGenre !== "custom") {
-                            STATE.activeGenre = "custom";
-                            Spicetify.LocalStorage.set("smartWave_active_genre", "custom");
-                            overlayEl.querySelectorAll(".sw-chip[data-genre]").forEach(c => c.classList.remove("active"));
-                            chip.classList.add("active");
-
-                            if (STATE.mode === "favorite") {
-                                const customTracks = await loadCustomTracksCache();
-                                const libraryUris = new Set((STATE.comfortPool || []).map(x => x.uri));
-                                const favPool = customTracks.filter(t => libraryUris.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
-                                if (favPool.length < 4) {
-                                    STATE.mode = "stream";
-                                    Spicetify.LocalStorage.set("smartWave_mode", "stream");
-                                    updateModeChipsUI();
-                                    showNotice(t("noFavoritesInCustom"));
-                                }
-                            }
-
-                            openCustomModal();
-                            await regenerateQueue(true);
-                            return;
-                        }
                         openCustomModal();
                         return;
                     }
