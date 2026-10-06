@@ -3076,8 +3076,8 @@ function startWaveAnimation() {
                 align-self: stretch !important;
                 display: flex;
                 align-items: center;
-                gap: 6px;
-                font-size: 11.5px;
+                gap: clamp(6px, 0.75vmin, 10px);
+                font-size: clamp(11.5px, 1.2vmin, 15px);
                 color: #a7a7a7;
                 position: relative;
                 box-sizing: border-box;
@@ -3093,12 +3093,12 @@ function startWaveAnimation() {
                 font-variant-numeric: tabular-nums;
                 font-feature-settings: "tnum";
                 font-weight: 400;
-                font-size: 11.5px;
+                font-size: clamp(11.5px, 1.2vmin, 15px);
                 color: #a7a7a7;
                 letter-spacing: -0.01em;
             }
             #sw-cur-time {
-                min-width: 34px;
+                min-width: clamp(34px, 3.4vmin, 46px);
                 text-align: right;
                 padding: 0;
             }
@@ -3109,7 +3109,7 @@ function startWaveAnimation() {
             }
             .sw-bar-bg {
                 flex: 1;
-                height: 4px;
+                height: clamp(4px, 0.45vmin, 6px);
                 background: rgba(255, 255, 255, 0.22);
                 border-radius: 9999px;
                 position: relative;
@@ -3120,15 +3120,15 @@ function startWaveAnimation() {
             .sw-bar-bg::before {
                 content: "";
                 position: absolute;
-                top: -8px;
-                bottom: -8px;
+                top: clamp(-10px, -1.1vmin, -8px);
+                bottom: clamp(-10px, -1.1vmin, -8px);
                 left: 0;
                 right: 0;
                 cursor: pointer;
             }
             .sw-bar-bg:hover,
             .sw-timeline.dragging .sw-bar-bg {
-                height: 5px;
+                height: clamp(5px, 0.6vmin, 8px);
                 background: rgba(255, 255, 255, 0.32);
             }
             .sw-bar-fill {
@@ -3149,8 +3149,8 @@ function startWaveAnimation() {
                 right: 0;
                 top: 50%;
                 transform: translate(50%, -50%) scale(0);
-                width: 12px;
-                height: 12px;
+                width: clamp(12px, 1.35vmin, 16px);
+                height: clamp(12px, 1.35vmin, 16px);
                 background: #ffffff;
                 border-radius: 50%;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -3176,25 +3176,32 @@ function startWaveAnimation() {
                 border: none;
                 color: #b3b3b3;
                 cursor: pointer;
-                padding: 2px;
+                padding: clamp(2px, 0.25vmin, 4px);
+                width: clamp(20px, 2.2vmin, 28px);
+                height: clamp(20px, 2.2vmin, 28px);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 50%;
                 transition: color 0.15s, transform 0.15s;
             }
+            .sw-vol-icon-btn svg,
+            #sw-vol-icon {
+                width: clamp(15px, 1.6vmin, 20px) !important;
+                height: clamp(15px, 1.6vmin, 20px) !important;
+            }
             .sw-vol-icon-btn:hover {
                 color: #ffffff;
                 transform: scale(1.1);
             }
-            /* Popup vertical volume slider: compact, tight to volume button */
+            /* Popup vertical volume slider: strictly aligned with the volume button column */
             .sw-vol-panel {
                 position: absolute;
                 bottom: 100%;
                 left: 50%;
-                transform: translateX(-50%) translateY(2px);
-                width: 36px;
-                height: 106px;
+                transform: translateX(-50%);
+                width: clamp(20px, 2.2vmin, 28px);
+                height: clamp(98px, 10.5vmin, 132px);
                 background: none;
                 border: none;
                 box-shadow: none;
@@ -3203,50 +3210,50 @@ function startWaveAnimation() {
                 display: flex;
                 align-items: flex-end;
                 justify-content: center;
-                padding-bottom: 4px;
+                padding-bottom: 2px;
                 box-sizing: border-box;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 0.12s ease, transform 0.12s ease;
+                transition: opacity 0.12s ease;
                 z-index: 100;
             }
-            /* Invisible hover bridge to eliminate any gap between button and slider */
+            /* Invisible hover bridge strictly above the volume icon */
             .sw-vol-panel::after {
                 content: "";
                 position: absolute;
-                bottom: -10px;
+                bottom: clamp(-8px, -0.8vmin, -6px);
                 left: 0;
-                right: 0;
-                height: 14px;
+                width: 100%;
+                height: clamp(9px, 1vmin, 12px);
+                pointer-events: auto;
             }
             .sw-vol-popup-wrap:hover .sw-vol-panel,
             .sw-vol-popup-wrap.dragging .sw-vol-panel {
                 opacity: 1;
                 pointer-events: auto;
-                transform: translateX(-50%) translateY(0);
             }
             .sw-vol-track {
-                width: 4px;
-                height: 94px;
+                width: clamp(4px, 0.45vmin, 6px);
+                height: clamp(88px, 9.4vmin, 120px);
                 background: rgba(255, 255, 255, 0.22);
                 border-radius: 9999px;
                 position: relative;
                 cursor: pointer;
                 transition: width 0.12s ease, background 0.12s ease;
             }
-            /* Generous invisible grab area so volume scrubbing never slips */
+            /* Invisible grab area strictly within the 20px column */
             .sw-vol-track::before {
                 content: "";
                 position: absolute;
-                left: -14px;
-                right: -14px;
-                top: -8px;
-                bottom: -8px;
+                left: -8px;
+                right: -8px;
+                top: -6px;
+                bottom: -4px;
                 cursor: pointer;
             }
             .sw-vol-track:hover,
             .sw-vol-popup-wrap.dragging .sw-vol-track {
-                width: 5px;
+                width: clamp(5px, 0.6vmin, 8px);
                 background: rgba(255, 255, 255, 0.32);
             }
             .sw-vol-fill {
@@ -3269,8 +3276,8 @@ function startWaveAnimation() {
                 top: 0;
                 left: 50%;
                 transform: translate(-50%, -50%) scale(0);
-                width: 12px;
-                height: 12px;
+                width: clamp(12px, 1.35vmin, 16px);
+                height: clamp(12px, 1.35vmin, 16px);
                 background: #ffffff;
                 border-radius: 50%;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -5625,20 +5632,11 @@ document.head.appendChild(style);
             STATE.progressInterval = null;
         }
     }
-        // Align the progress bar edges strictly to the chip button edges:
-    // left part (0:00) exactly above the left edge of "Stream", right part (volume) exactly above the right edge of "Shake"
     function alignTimelineToChips() {
-        const firstChip = overlayEl?.querySelector(".sw-chips-row .sw-chip:first-child");
-        const lastChip = overlayEl?.querySelector("#sw-btn-shake");
         const timeline = overlayEl?.querySelector(".sw-timeline");
-        if (firstChip && lastChip && timeline) {
-            const fRect = firstChip.getBoundingClientRect();
-            const lRect = lastChip.getBoundingClientRect();
-            const targetSpan = lRect.right - fRect.left;
-            if (targetSpan > 150) {
-                timeline.style.maxWidth = "none";
-                timeline.style.width = targetSpan + "px";
-            }
+        if (timeline) {
+            timeline.style.removeProperty("width");
+            timeline.style.removeProperty("max-width");
         }
     }
     function setMarqueeText(el, value) {
