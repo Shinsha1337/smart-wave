@@ -1009,7 +1009,6 @@
         historyStack: [],           // History stack for the "Back" (Previous) button
         upcomingWave: [],           // [{ uri, title, artist, image, duration }]
         dislikedTracks: new Set(JSON.parse(Spicetify.LocalStorage.get("smartWave_disliked_tracks") || "[]")),
-        likedTracks: parseLikedTracks(Spicetify.LocalStorage.get("smartWave_liked_tracks")),
         history: new Set(),
         comfortPool: [],
         currentTrackStartTime: 0,
@@ -1022,6 +1021,7 @@
         closeGraceTimer: null,
         waveTime: 0,
         lastFrameTime: 0,
+        waveSpeedMultiplier: 1.0,
         beatPulse: 0.0,
         // Two-color palette: ColorA (base) and ColorB (top trail)
         extractedColorA: [0.95, 0.12, 0.55],
@@ -1094,85 +1094,25 @@
         return s;
     }
 
-    function parseLikedTracks(raw) {
-        try {
-            const arr = JSON.parse(raw || "[]");
-            const map = new Map();
-            for (const item of arr) {
-                if (!Array.isArray(item) || item.length < 2) continue;
-                const [uri, v] = item;
-                if (!uri) continue;
-                if (typeof v === "number") {
-                    map.set(uri, { uri, title: "Track", artist: "Artist", artistUri: null, weight: v });
-                } else if (v && typeof v === "object") {
-                    map.set(uri, {
-                        uri,
-                        title: v.title || "Track",
-                        artist: v.artist || "Artist",
-                        artistUri: v.artistUri || null,
-                        weight: Number(v.weight) || 1
-                    });
-                }
-            }
-            return map;
-        } catch {
-            return new Map();
-        }
-    }
-
-    // Persist taste feedback (caps: 500 banned tracks / 500 liked tracks)
+    // Persist blacklist (cap: 500 banned tracks, FIFO)
     function saveTaste() {
         try {
             let disliked = [...STATE.dislikedTracks];
             if (disliked.length > 500) disliked = disliked.slice(-500);
-            let likedTracksArr = [...STATE.likedTracks.entries()];
-            if (likedTracksArr.length > 500) {
-                likedTracksArr.sort((a, b) => (b[1]?.weight || 0) - (a[1]?.weight || 0));
-                likedTracksArr = likedTracksArr.slice(0, 500);
-                STATE.likedTracks = new Map(likedTracksArr);
-            }
             Spicetify.LocalStorage.set("smartWave_disliked_tracks", JSON.stringify(disliked));
-            Spicetify.LocalStorage.set("smartWave_liked_tracks", JSON.stringify(likedTracksArr));
         } catch (err) {
-            console.warn("[SmartWave] saveTaste failed:", err);
-        }
-    }
-
-    function addLikedTrack(track, delta = 1) {
-        if (!track || !track.uri) return;
-        const uri = track.uri;
-        const existing = STATE.likedTracks.get(uri);
-        const newWeight = (existing ? existing.weight : 0) + delta;
-        STATE.likedTracks.set(uri, {
-            uri,
-            title: track.title || existing?.title || "Track",
-            artist: track.artist || existing?.artist || "Artist",
-            artistUri: track.artistUri || existing?.artistUri || null,
-            weight: Math.max(1, newWeight)
-        });
-        saveTaste();
-    }
-
-    function penalizeTrack(track, delta = 1) {
-        if (!track || !track.uri) return;
-        const uri = track.uri;
-        const existing = STATE.likedTracks.get(uri);
-        if (existing) {
-            const newWeight = existing.weight - delta;
-            if (newWeight <= 0) {
-                STATE.likedTracks.delete(uri);
-            } else {
-                existing.weight = newWeight;
-                STATE.likedTracks.set(uri, existing);
-            }
-            saveTaste();
+            console.warn("[SmartWave] saveBlacklist failed:", err);
         }
     }
 
     function addDislikedTrack(uri, artistName = null) {
         if (!uri) return;
         STATE.dislikedTracks.add(uri);
-        STATE.likedTracks.delete(uri);
+        // FIFO trim
+        if (STATE.dislikedTracks.size > 500) {
+            const first = STATE.dislikedTracks.values().next().value;
+            STATE.dislikedTracks.delete(first);
+        }
         saveTaste();
     }
 
@@ -1358,52 +1298,7 @@
             img.src = imgUrl;
         });
     }
-    // -------------------------------------------------------------------------
-    // SPOTIFY MUSIC GRAPH (GRAPHQL + LOCALSTORAGE CACHE WITH TTL AND LRU)
-    // -------------------------------------------------------------------------
-    const GRAPH_CACHE_KEY = "smartWave_artist_graph_cache_v2";
-    const GRAPH_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // Cache TTL: 7 days
-    const GRAPH_CACHE_MAX_ITEMS = 120; // Max artists in LocalStorage cache
-    const memoryArtistCache = new Map();
-    function loadPersistentGraphCache() {
-        try {
-            const raw = Spicetify.LocalStorage.get(GRAPH_CACHE_KEY);
-            if (!raw) return {};
-            const parsed = JSON.parse(raw);
-            const now = Date.now();
-            const valid = {};
-            for (const [uri, entry] of Object.entries(parsed)) {
-                if (entry && entry.timestamp && (now - entry.timestamp < GRAPH_CACHE_TTL_MS)) {
-                    valid[uri] = entry;
-                }
-            }
-            return valid;
-        } catch {
-            return {};
-        }
-    }
-    let persistentGraphCache = loadPersistentGraphCache();
-    function savePersistentGraphCache() {
-        try {
-            const entries = Object.entries(persistentGraphCache);
-            // If entries exceed the limit — trim the oldest (LRU)
-            if (entries.length > GRAPH_CACHE_MAX_ITEMS) {
-                entries.sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
-                persistentGraphCache = Object.fromEntries(entries.slice(0, GRAPH_CACHE_MAX_ITEMS));
-            }
-            Spicetify.LocalStorage.set(GRAPH_CACHE_KEY, JSON.stringify(persistentGraphCache));
-        } catch (err) {
-            console.warn("[SmartWave] Save persistent cache error:", err);
-        }
-    }
-    // Manual and programmatic cache clearing
-    function clearAllArtistCache() {
-        memoryArtistCache.clear();
-        persistentGraphCache = {};
-        Spicetify.LocalStorage.remove(GRAPH_CACHE_KEY);
-        console.log("[SmartWave] Artist graph cache fully cleared.");
-    }
-    // Export for easy clearing at any time: window.SmartWave.clearCache()
+    // Export debug and public API: window.SmartWave
     window.SmartWave = {
         debugPulse: () => STATE.beatPulse,
         getWaveState: () => ({
@@ -1412,7 +1307,7 @@
             extA: STATE.extractedColorA,
             extB: STATE.extractedColorB,
             energy: STATE.currentEnergy,
-            track: STATE.currentTrack?.name,
+            track: STATE.currentTrack?.title,
             isPlaying: isPlayerPlaying()
         }),
         getState: () => ({
@@ -1421,89 +1316,12 @@
             seedUri: STATE.currentSeedUri,
             queue: STATE.upcomingWave.map(t => t.artist + " — " + t.title),
             queueUris: STATE.upcomingWave.map(t => t.uri),
-            likedCount: STATE.likedTracks.size,
             dislikedCount: STATE.dislikedTracks.size,
-            likedTracks: Object.fromEntries([...STATE.likedTracks].map(([k, v]) => [v.title + " (" + v.artist + ")", v.weight || 1])),
-            dislikedTracksCount: STATE.dislikedTracks.size
+            dislikedTracks: [...STATE.dislikedTracks]
         }),
-        addLikedTrack: (track, delta) => addLikedTrack(track, delta),
-        penalizeTrack: (track, delta) => penalizeTrack(track, delta),
         addDislikedTrack: (uri, artist) => addDislikedTrack(uri, artist),
         showNotice: (msg) => showNotice(msg),
         t: (k) => t(k),
-        saveTaste: () => saveTaste(),
-        clearCache: clearAllArtistCache,
-        getCacheStats: () => ({
-            cachedArtists: Object.keys(persistentGraphCache).length,
-            maxLimit: GRAPH_CACHE_MAX_ITEMS,
-            ttlDays: 7
-        })
+        saveTaste: () => saveTaste()
     };
-    async function getArtistGraph(artistUri) {
-        if (!artistUri) return null;
-        // 1. Check the ultra-fast in-memory cache
-        if (memoryArtistCache.has(artistUri)) {
-            return memoryArtistCache.get(artistUri);
-        }
-        // 2. Check the persistent LocalStorage cache
-        const now = Date.now();
-        const cached = persistentGraphCache[artistUri];
-        if (cached && (now - (cached.timestamp || 0) < GRAPH_CACHE_TTL_MS)) {
-            const result = {
-                name: cached.name,
-                topTracks: (cached.topTracks || []).filter(t => !STATE.dislikedTracks.has(t.uri)),
-                related: cached.related || []
-            };
-            memoryArtistCache.set(artistUri, result);
-            return result;
-        }
-        // 3. Query via Spotify's internal GraphQL
-        try {
-            const { queryArtistOverview } = Spicetify.GraphQL.Definitions;
-            if (!queryArtistOverview) return null;
-            const res = await Spicetify.GraphQL.Request(queryArtistOverview, {
-                uri: artistUri,
-                locale: Spicetify.Locale?.getLocale?.() || "en",
-                includePrerelease: false,
-            });
-            const artistData = res?.data?.artistUnion;
-            if (!artistData || artistData.__typename === "NotFound" || !artistData.discography) return null;
-
-            // Regional filter: only the regions the USER explicitly excluded in settings.
-            // No hidden per-country cuts: every artist passes unless opted out.
-            if (isUnwantedRegionalTrack({ artist: artistData.profile?.name })) {
-                return null;
-            }
-            const name = artistData.profile?.name || "Artist";
-            const topTracks = (artistData.discography?.topTracks?.items || []).map(i => {
-                const imgs = getTrackImages(i.track);
-                return {
-                    uri: i.track?.uri,
-                    title: i.track?.name,
-                    artist: name,
-                    image: imgs.image,
-                    thumb: imgs.thumb || imgs.image,
-                    duration: i.track?.duration?.totalMilliseconds || 180000,
-                };
-            }).filter(t => t.uri && !STATE.dislikedTracks.has(t.uri));
-            const related = (artistData.relatedContent?.relatedArtists?.items || []).map(a => ({
-                uri: a.uri,
-                name: a.profile?.name,
-            })).filter(a => a.uri);
-            const result = { name, topTracks, related };
-            memoryArtistCache.set(artistUri, result);
-            // Save to LocalStorage with a timestamp
-            persistentGraphCache[artistUri] = {
-                name,
-                topTracks,
-                related,
-                timestamp: now
-            };
-            savePersistentGraphCache();
-            return result;
-        } catch (err) {
-            console.warn("[SmartWave] GraphQL artist error:", artistUri, err);
-            return null;
-        }
-    }
     

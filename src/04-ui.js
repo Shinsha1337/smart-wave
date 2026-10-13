@@ -142,6 +142,8 @@
                 cursor: pointer;
                 transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
                 flex-shrink: 0;
+                backface-visibility: hidden;
+                will-change: transform, box-shadow;
             }
             .sw-cover-card.paused {
                 filter: grayscale(0.85) brightness(0.80) contrast(0.92);
@@ -155,6 +157,42 @@
             .sw-cover-card:hover {
                 transform: scale(1.05);
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
+            }
+            @keyframes swCardFlipOut {
+                0% {
+                    transform: perspective(900px) rotateY(0deg) scale(1);
+                    opacity: 1;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+                }
+                60% {
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+                }
+                100% {
+                    transform: perspective(900px) rotateY(90deg) scale(0.85);
+                    opacity: 0.9;
+                    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+                }
+            }
+            @keyframes swCardFlipIn {
+                0% {
+                    transform: perspective(900px) rotateY(-90deg) scale(0.85);
+                    opacity: 0.9;
+                    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+                }
+                40% {
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+                }
+                100% {
+                    transform: perspective(900px) rotateY(0deg) scale(1);
+                    opacity: 1;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+                }
+            }
+            .sw-cover-card.flip-out {
+                animation: swCardFlipOut 0.26s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+            }
+            .sw-cover-card.flip-in {
+                animation: swCardFlipIn 0.44s cubic-bezier(0.2, 1.25, 0.4, 1) forwards !important;
             }
             /* Inner Glow: takes the color of the wave gradient's inner core */
             .sw-cover-card::after {
@@ -1681,8 +1719,7 @@ document.head.appendChild(style);
         }
         // Apply the saved effect state
         setWaveEffect(STATE.waveEffectEnabled);
-        // Cover click: jump to the track in regular Spotify
-        // Cover click opens the track source (playlist/album) but must not start playback when paused.
+        // Cover click: navigate to the track/album in Spotify while keeping the wave mode active indefinitely
         const coverCardEl = overlayEl.querySelector("#sw-cover-card");
         if (coverCardEl) {
             coverCardEl.title = t('coverHint');
@@ -1691,16 +1728,14 @@ document.head.appendChild(style);
                 e.stopPropagation();
                 const wasPlaying = isPlayerPlaying() || !!Spicetify.Player?.isPlaying?.();
                 const item = Spicetify.Player?.data?.item;
-                const contextUri = Spicetify.Player?.data?.context_uri
-                    || Spicetify.Player?.data?.context?.uri
-                    || item?.album?.uri
-                    || item?.uri;
+                const albumUri = item?.album?.uri || item?.uri;
                 let path = null;
-                try { path = Spicetify.URI?.fromString?.(contextUri)?.toURLPath?.(); } catch {}
+                try { path = Spicetify.URI?.fromString?.(albumUri)?.toURLPath?.(); } catch {}
                 if (!path && item?.uri) {
                     try { path = Spicetify.URI?.fromString?.(item.uri)?.toURLPath?.(); } catch {}
                 }
-                hidePage({ deferMs: 30000 });
+                // Hide the overlay, keep wave running forever (no 30s timer)
+                hidePage({ keepActive: true });
                 if (path && Spicetify.Platform?.History?.push) {
                     setTimeout(() => {
                         try { Spicetify.Platform.History.push({ pathname: "/" + String(path).replace(/^\/+/, "") }); } catch {}
@@ -1712,7 +1747,6 @@ document.head.appendChild(style);
                     };
                     setTimeout(forcePause, 180);
                     setTimeout(forcePause, 650);
-                    setTimeout(forcePause, 1200);
                 }
             };
         }
@@ -1929,7 +1963,11 @@ document.head.appendChild(style);
             if (isOpen) {
                 upnextPanel?.classList.add("open");
                 upnextBtn?.classList.add("active");
-                                renderUpNextList();
+                if (typeof syncUpcomingWaveFromNativeQueue === "function" && STATE.mode !== "favorite") {
+                    syncUpcomingWaveFromNativeQueue();
+                } else {
+                    renderUpNextList();
+                }
             } else {
                 upnextPanel?.classList.remove("open");
                 upnextBtn?.classList.remove("active");
@@ -2676,10 +2714,8 @@ document.head.appendChild(style);
                 }
                 clearTimeout(tasteArmTimer);
                 try {
-                    STATE.likedTracks.clear();
                     STATE.dislikedTracks.clear();
                     saveTaste();
-                    // saveTaste persists the (now empty) maps, removing old data
                     showNotice(t("tasteCleared"));
                 } catch (err) {
                     console.warn("[SmartWave] taste clear failed:", err);
@@ -2739,7 +2775,7 @@ document.head.appendChild(style);
 
         window.addEventListener("keydown", (e) => {
             if (e.key === "Escape" && STATE.pageVisible) {
-                hidePage();
+                hidePage({ keepActive: true });
             }
         });
     }
@@ -2852,28 +2888,24 @@ document.head.appendChild(style);
             STATE.closeGraceTimer = null;
         }
     }
-    // Leaving the window: stops the wave immediately by default; with deferMs keeps the mode alive for N more ms.
+    // Leaving the window: stops the wave if keepActive is false; keeps it alive indefinitely if keepActive is true.
     function hidePage(options) {
         if (!overlayEl) return;
-        const deferMs = Number(options?.deferMs || 0);
+        const keepActive = options?.keepActive === true || Number(options?.deferMs || 0) > 0;
         clearCloseGraceTimer();
         overlayEl.classList.remove("visible");
         STATE.pageVisible = false;
         stopProgressTimer();
         stopWaveAnimation();
-        if (deferMs > 0) {
+        if (keepActive) {
             STATE.active = true;
             updateNavButtonActive(true);
-            STATE.closeGraceTimer = setTimeout(() => {
-                STATE.closeGraceTimer = null;
-                stopWave();
-            }, deferMs);
         } else {
             stopWave();
         }
     }
     function togglePage() {
-        if (STATE.pageVisible) hidePage();
+        if (STATE.pageVisible) hidePage({ keepActive: true });
         else showPage();
     }
     function resetProgressUI() {
@@ -3024,6 +3056,13 @@ document.head.appendChild(style);
             if (img && (imgEl.src !== img || STATE.lastExtractedImg !== img)) {
                 imgEl.src = img;
                 STATE.lastExtractedImg = img;
+                if (isWaitingForCoverSwap) {
+                    if (imgEl.complete) {
+                        finishShakeCardFlip();
+                    } else {
+                        imgEl.onload = () => finishShakeCardFlip();
+                    }
+                }
                 // Extract the two-color palette with caching
                 extractAdaptiveWaveTheme(img).then(theme => {
                     if (theme && theme.colorA && theme.colorB) {
@@ -3034,8 +3073,41 @@ document.head.appendChild(style);
                         applyCoverGlow();
                     }
                 });
+            } else if (isWaitingForCoverSwap) {
+                finishShakeCardFlip();
             }
         }
+    }
+    let shakeCardTimeout = null;
+    let isWaitingForCoverSwap = false;
+
+    function triggerShakeCardAnimation() {
+        const card = overlayEl?.querySelector("#sw-cover-card");
+        if (!card) return;
+        clearTimeout(shakeCardTimeout);
+        card.classList.remove("flip-in", "flip-out");
+        void card.offsetWidth;
+        card.classList.add("flip-out");
+        isWaitingForCoverSwap = true;
+
+        // Fallback: if Spotify/network takes longer than 650ms, complete the flip anyway
+        shakeCardTimeout = setTimeout(() => {
+            finishShakeCardFlip();
+        }, 650);
+    }
+
+    function finishShakeCardFlip() {
+        if (!isWaitingForCoverSwap) return;
+        isWaitingForCoverSwap = false;
+        clearTimeout(shakeCardTimeout);
+        const card = overlayEl?.querySelector("#sw-cover-card");
+        if (!card) return;
+        card.classList.remove("flip-out");
+        void card.offsetWidth;
+        card.classList.add("flip-in");
+        setTimeout(() => {
+            card?.classList.remove("flip-in");
+        }, 500);
     }
     // -------------------------------------------------------------------------
     // WAVE BUTTON NEXT TO HOME (48x48px)
@@ -3093,6 +3165,5 @@ document.head.appendChild(style);
         window.addEventListener("resize", handleWindowResize);
     }
     init();
-    setTimeout(prewarmArtistGraph, 5000);
-    console.log("[SmartWave] initialized.");
+    console.log("[SmartWave] initialized (native station engine).");
 })();

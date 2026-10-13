@@ -49,11 +49,11 @@
         country: { id: "country", name: { en: "Country", ru: "Кантри" }, desc: { en: "Country Hits & Americana", ru: "Кантри и американа" }, uri: "spotify:playlist:37i9dQZF1DX1lVhptIYRda", query: "Hot Country" },
         latin: { id: "latin", name: { en: "Latin", ru: "Латина" }, desc: { en: "Reggaeton & Latin Pop", ru: "Реггетон и латиноамериканский поп" }, uri: "spotify:playlist:37i9dQZF1DX10zKzsJ2jva", query: "Viva Latino" },
         instrumental: { id: "instrumental", name: { en: "Instrumental", ru: "Инструментальная" }, desc: { en: "Peaceful Piano & Instrumental", ru: "Спокойный фортепианный инструментал" }, uri: "spotify:playlist:37i9dQZF1DX4sWSpwq3LiO", query: "Peaceful Piano" },
-        trending: { id: "trending", name: { en: "Trending", ru: "В тренде" }, desc: { en: "Viral & Chart-Topping Hits", ru: "Вирусные треки и чарты" }, uri: "spotify:playlist:37i9dQZF1DX4JAvHpjipBk", query: "New Music Friday" },
-        newreleases: { id: "newreleases", name: { en: "New Releases", ru: "Новинки" }, desc: { en: "Fresh Music This Week", ru: "Свежие релизы этой недели" }, query: "New Music Friday" },
+        trending: { id: "trending", name: { en: "Trending", ru: "В тренде" }, desc: { en: "Viral & Chart-Topping Hits", ru: "Вирусные треки и чарты" }, uri: "spotify:playlist:37i9dQZF1DX2L0iB23Enbq", query: "Viral Hits" },
+        newreleases: { id: "newreleases", name: { en: "New Releases", ru: "Новинки" }, desc: { en: "Fresh Music This Week", ru: "Свежие релизы этой недели" }, uri: "spotify:playlist:37i9dQZF1DX4JAvHpjipBk", query: "New Music Friday" },
         altrock: { id: "altrock", name: { en: "Alternative", ru: "Альтернатива" }, desc: { en: "New Alternative & Rock", ru: "Новая альтернатива и рок" }, uri: "spotify:playlist:37i9dQZF1DWT2jS7NwYPVI", query: "New Noise" },
         synthwave: { id: "synthwave", name: { en: "Synthwave", ru: "Синтвейв" }, desc: { en: "80s Retrowave & Cyberpunk", ru: "Ретровейв 80-х и киберпанк" }, uri: "spotify:playlist:37i9dQZF1DXdLEN7aqioXM", query: "Retrowave Outrun" },
-        night: { id: "night", name: { en: "Night", ru: "Ночь" }, desc: { en: "Late Night Calm & Drives", ru: "Ночные поездки и спокойствие" }, query: "Night Rain" },
+        night: { id: "night", name: { en: "Night", ru: "Ночь" }, desc: { en: "Late Night Calm & Drives", ru: "Ночные поездки и спокойствие" }, uri: "spotify:playlist:37i9dQZF1DX5DYkVgiO6RF", query: "Night Drive" },
         blues: { id: "blues", name: { en: "Blues", ru: "Блюз" }, desc: { en: "Delta & Electric Blues", ru: "Электрический и дельта-блюз" }, uri: "spotify:playlist:37i9dQZF1DXd9rSDyQguIk", query: "Blues Classics" }
     };
 
@@ -223,70 +223,124 @@
         STATE.customArtistsCache = Array.from(artistMap.entries()).map(([uri, name]) => ({ uri, name }));
         return allTracks;
     }
-    async function generateCustomTrack(curUri) {
-        const tracks = await loadCustomTracksCache();
-        if (tracks.length === 0) return null;
-        const subMode = STATE.customSubMode || "flow"; // "flow" (50/50), "discovery", "favorite"
-        let isComfort = false;
-        if (subMode === "favorite") {
-            isComfort = true;
-        } else if (subMode === "discovery") {
-            isComfort = false;
-        } else {
-            isComfort = Math.random() < 0.5;
+    // =========================================================================
+    // NATIVE SPOTIFY STATION ENGINE
+    // =========================================================================
+
+    // Resolves and plays a native Spotify station context
+    async function playStationContext(seedTrackId = null) {
+        let stationUri = null;
+        const cur = Spicetify.Player?.data?.item;
+
+        // 1. Explicit seed provided (e.g. from Shake / Встряхнуть) -> highest priority
+        if (seedTrackId) {
+            stationUri = `spotify:station:track:${seedTrackId}`;
         }
-        // 1. Track directly from the selected playlists
-        if (isComfort) {
-            const available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.upcomingWave.some(u => u.uri === t.uri));
-            const pick = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : tracks[0];
-            if (pick) {
-                return {
-                    uri: pick.uri,
-                    title: pick.title,
-                    artist: pick.artist,
-                    image: pick.image,
-                    duration: pick.duration,
-                    seedUri: pick.artistUri,
-                    seedArtist: pick.artist
-                };
+        // 2. Browse genre selected (e.g. Rock, Indie, Lo-Fi, EDM)
+        else if (STATE.activeGenre && STATE.activeGenre !== "all" && STATE.activeGenre !== "custom") {
+            const def = BROWSE_GENRES[STATE.activeGenre];
+            if (def && def.uri) {
+                const playlistId = def.uri.split(":").pop();
+                stationUri = `spotify:station:playlist:${playlistId}`;
             }
         }
-        // 2. Discoveries based on artists from the selected playlists
-        const artists = STATE.customArtistsCache;
-        if (artists.length > 0) {
-            const seed = artists[Math.floor(Math.random() * artists.length)];
-            const graph = await getArtistGraph(seed.uri);
-            if (graph?.related?.length > 0) {
-                const randomRelated = graph.related[Math.floor(Math.random() * graph.related.length)];
-                const relatedGraph = await getArtistGraph(randomRelated.uri);
-                if (relatedGraph?.topTracks?.length > 0) {
-                    const availableTracks = relatedGraph.topTracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.upcomingWave.some(u => u.uri === t.uri));
-                    const pick = availableTracks.length > 0
-                        ? availableTracks[Math.floor(Math.random() * availableTracks.length)]
-                        : moodTracks.find(t => t.uri !== curUri);
-                    if (pick) {
-                        return {
-                            ...pick,
-                            seedUri: randomRelated.uri,
-                            seedArtist: randomRelated.name
-                        };
-                    }
+        // 3. Custom mode (user selected personal playlists)
+        else if (STATE.activeGenre === "custom") {
+            const customTracks = await loadCustomTracksCache();
+            if (customTracks.length > 0) {
+                const pick = customTracks[Math.floor(Math.random() * customTracks.length)];
+                if (pick?.uri) {
+                    stationUri = `spotify:station:track:${pick.uri.split(":").pop()}`;
                 }
             }
         }
-        // Fallback: random track from playlists
-        const fallback = tracks[Math.floor(Math.random() * tracks.length)];
-        return {
-            uri: fallback.uri,
-            title: fallback.title,
-            artist: fallback.artist,
-            image: fallback.image,
-            duration: fallback.duration,
-            seedUri: fallback.artistUri,
-            seedArtist: fallback.artist
-        };
+
+        // 4. All tracks stream (Song Radio from current track or favorite track)
+        if (!stationUri) {
+            let trackId = null;
+            if (cur?.uri && !STATE.dislikedTracks.has(cur.uri)) {
+                trackId = cur.uri.split(":").pop();
+            } else if (STATE.comfortPool && STATE.comfortPool.length > 0) {
+                const fav = STATE.comfortPool[Math.floor(Math.random() * STATE.comfortPool.length)];
+                trackId = fav.uri.split(":").pop();
+            } else {
+                trackId = "4cOdK2wGLETKBW3PvgPWqT"; // Universal fallback
+            }
+            stationUri = `spotify:station:track:${trackId}`;
+        }
+
+        try {
+            await Spicetify.Platform?.PlayerAPI?.play?.(
+                { uri: stationUri },
+                { featureIdentifier: "station" }
+            );
+        } catch (err) {
+            console.warn("[SmartWave] Station play failed:", err);
+        }
     }
-    // Instant start of the first track of a fresh queue (no penalty to the artist — this is not a dislike)
+
+    // Pull upcoming tracks directly from Spotify's native queue
+    async function syncUpcomingWaveFromNativeQueue() {
+        if (!STATE.active) return;
+        try {
+            const q = await Spicetify.Platform?.PlayerAPI?.getQueue?.();
+            const nextUp = q?.nextUp || [];
+            STATE.upcomingWave = nextUp.map(t => {
+                const meta = t.metadata || {};
+                const imgs = t.images || [];
+                return {
+                    uri: t.uri,
+                    title: t.name || meta.title || "Track",
+                    artist: t.artists?.[0]?.name || meta.artist_name || "Artist",
+                    image: imgs[0]?.url || resolveImageUrl(meta.image_large_url || meta.image_url || ""),
+                    thumb: imgs[1]?.url || imgs[0]?.url || resolveImageUrl(meta.image_small_url || meta.image_url || ""),
+                    duration: t.duration?.milliseconds || Number(meta.duration) || 180000
+                };
+            }).filter(t => t.uri && !STATE.dislikedTracks.has(t.uri) && !isUnwantedRegionalTrack(t));
+            renderUpNextList();
+        } catch (err) {
+            console.warn("[SmartWave] syncUpcomingWaveFromNativeQueue error:", err);
+        }
+    }
+
+    // Strict favorites mode: purely from user's library
+    async function ensureFavoritesQueue(autoPlay = true) {
+        if (!STATE.comfortPool || STATE.comfortPool.length === 0) {
+            await loadComfortPool();
+        }
+        let pool = (STATE.comfortPool || []).filter(t => !STATE.dislikedTracks.has(t.uri) && !isUnwantedRegionalTrack(t));
+        if (STATE.activeGenre && STATE.activeGenre !== "all" && STATE.activeGenre !== "custom") {
+            const genreTracks = await loadGenreTracks(STATE.activeGenre);
+            const genreUris = new Set(genreTracks.map(t => t.uri));
+            const matched = pool.filter(t => genreUris.has(t.uri));
+            if (matched.length > 0) pool = matched;
+        } else if (STATE.activeGenre === "custom") {
+            const customTracks = await loadCustomTracksCache();
+            const customUris = new Set(customTracks.map(t => t.uri));
+            const matched = pool.filter(t => customUris.has(t.uri));
+            if (matched.length > 0) pool = matched;
+        }
+
+        if (!pool.length) {
+            STATE.mode = "stream";
+            Spicetify.LocalStorage.set("smartWave_mode", "stream");
+            if (typeof updateModeChipsUI === "function") updateModeChipsUI();
+            if (typeof showNotice === "function") showNotice(t("noFavoritesInGenre"));
+            return playStationContext();
+        }
+
+        const curUri = Spicetify.Player?.data?.item?.uri;
+        const available = pool.filter(t => t.uri !== curUri);
+        const shuffled = [...available].sort(() => Math.random() - 0.5).slice(0, 15);
+        STATE.upcomingWave = shuffled;
+        renderUpNextList();
+        syncNativeQueue();
+
+        if (autoPlay && STATE.upcomingWave.length > 0) {
+            await playFirstOfQueue();
+        }
+    }
+
     async function playFirstOfQueue() {
         const nextTrack = STATE.upcomingWave.shift();
         if (!nextTrack?.uri) return;
@@ -299,329 +353,15 @@
         } catch (err) {}
         STATE.currentTrack = nextTrack;
         addHistory(nextTrack.uri);
-        if (nextTrack.seedUri) {
-            STATE.currentSeedUri = nextTrack.seedUri;
-            STATE.currentSeedArtist = nextTrack.seedArtist;
-        }
         STATE.currentTrackStartTime = Date.now();
         resetProgressUI();
-        await ensureWaveQueue();
         updateUI();
         renderUpNextList();
         syncNativeQueue();
     }
-        async function regenerateQueue(autoPlay = true) {
-        STATE.isQueueing = false;
-        STATE.upcomingWave = [];
-        renderUpNextList();
-        // Guaranteed queue fill
-        await ensureWaveQueue(true);
-        if (autoPlay && STATE.upcomingWave.length > 0) {
-            await playFirstOfQueue();
-        }
-        updateUI();
-    }
-        // =========================================================================
-    // RECOMMENDATION ENGINE: SEED & GRAPH NAVIGATION
-    // =========================================================================
 
-async function generateNextTrack() {
-        const curUri = Spicetify.Player?.data?.item?.uri;
-        let track = null;
-
-        // Set of all tracks and artists from the user's favorites
-        const likedUris = new Set((STATE.comfortPool || []).map(t => t.uri));
-        const libraryArtistNames = new Set((STATE.comfortPool || []).map(t => (t.artist || "").toLowerCase()));
-
-        // Recent artists (protection against repeats of the same artist)
-        const recentArtists = new Set(
-            [STATE.currentTrack?.artist, ...STATE.upcomingWave.slice(-3).map(t => t.artist)].filter(Boolean).map(a => a.toLowerCase())
-        );
-
-        // 1. Custom mode (user's own personal collections)
-        if (STATE.activeGenre === "custom") {
-            const tracks = await loadCustomTracksCache();
-            if (tracks && tracks.length > 0) {
-                if (STATE.mode === "favorite") {
-                    const libraryUris = new Set((STATE.comfortPool || []).map(t => t.uri));
-                    let available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri) && libraryUris.has(t.uri));
-                    if (available.length === 0) {
-                        // Allow repeats from history instead of flipping the mode
-                        available = tracks.filter(t => t.uri !== curUri && !STATE.dislikedTracks.has(t.uri) && libraryUris.has(t.uri));
-                    }
-                    if (available.length === 0) {
-                        available = tracks.filter(t => !STATE.dislikedTracks.has(t.uri) && libraryUris.has(t.uri));
-                    }
-                    if (available.length > 0) {
-                        track = available[Math.floor(Math.random() * available.length)];
-                    } else {
-                        STATE.mode = "stream";
-                        Spicetify.LocalStorage.set("smartWave_mode", "stream");
-                        if (typeof updateModeChipsUI === "function") updateModeChipsUI();
-                        if (typeof showNotice === "function") showNotice(t("noFavoritesInCustom"));
-                        const anyCustom = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri));
-                        if (anyCustom.length > 0) track = anyCustom[Math.floor(Math.random() * anyCustom.length)];
-                    }
-                } else if (STATE.mode === "discovery") {
-                    const customArtistUris = [...new Set(tracks.map(t => t.artistUri).filter(Boolean))];
-                    const seedGraphs = await Promise.all(customArtistUris.slice(0, 4).map(u => getArtistGraph(u).catch(() => null)));
-                    const relUris = [];
-                    for (const g of seedGraphs) {
-                        for (const rel of (g?.related || []).slice(0, 4)) {
-                            if (libraryArtistNames.has(rel.name?.toLowerCase())) continue;
-                            relUris.push(rel);
-                        }
-                    }
-                    const relGraphs = await Promise.all(relUris.slice(0, 8).map(r => getArtistGraph(r.uri).catch(() => null)));
-                    for (let ri = 0; ri < relGraphs.length && !track; ri++) {
-                        const rg = relGraphs[ri];
-                        const fresh = (rg?.topTracks || []).filter(t => t.uri !== curUri && !likedUris.has(t.uri) && !STATE.history.has(t.uri));
-                        if (fresh.length > 0) {
-                            track = { ...fresh[Math.floor(Math.random() * fresh.length)], seedUri: relUris[ri].uri, seedArtist: relUris[ri].name };
-                        }
-                    }
-                } else {
-                    if (Math.random() < 0.35) {
-                        const available = tracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri));
-                        track = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : null;
-                    }
-                }
-            }
-            if (track && !isUnwantedRegionalTrack(track)) return track;
-        }
-
-        // 2. Selected Browse genre mode (Chill, Focus, Indie, Electronic, Rock, Hip-Hop, etc.)
-        if (STATE.activeGenre && STATE.activeGenre !== "all" && STATE.activeGenre !== "custom") {
-            const genreTracks = await loadGenreTracks(STATE.activeGenre);
-            if (genreTracks && genreTracks.length > 0) {
-                if (STATE.mode === "favorite") {
-                    // Genre-favorites: YOUR liked tracks that are literally in the editorial genre playlist (URI match against library)
-                    const libraryUris = new Set((STATE.comfortPool || []).map(t => t.uri));
-                    let matchedLib = genreTracks.filter(t =>
-                        libraryUris.has(t.uri) &&
-                        t.uri !== curUri &&
-                        !STATE.history.has(t.uri) &&
-                        !STATE.dislikedTracks.has(t.uri)
-                    );
-                    if (matchedLib.length === 0) {
-                        // Allow repeats from history instead of picking unliked songs
-                        matchedLib = genreTracks.filter(t =>
-                            libraryUris.has(t.uri) &&
-                            t.uri !== curUri &&
-                            !STATE.dislikedTracks.has(t.uri)
-                        );
-                    }
-                    if (matchedLib.length === 0) {
-                        // All genre favorites played or equal to curUri: allow any liked track in this genre
-                        matchedLib = genreTracks.filter(t =>
-                            libraryUris.has(t.uri) &&
-                            !STATE.dislikedTracks.has(t.uri)
-                        );
-                    }
-                    if (matchedLib.length > 0) {
-                        track = matchedLib[Math.floor(Math.random() * matchedLib.length)];
-                    } else {
-                        STATE.mode = "stream";
-                        Spicetify.LocalStorage.set("smartWave_mode", "stream");
-                        if (typeof updateModeChipsUI === "function") updateModeChipsUI();
-                        if (typeof showNotice === "function") showNotice(t("noFavoritesInGenre"));
-                        const available = genreTracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri) && !recentArtists.has((t.artist || "").toLowerCase()));
-                        if (available.length > 0) track = available[Math.floor(Math.random() * available.length)];
-                    }
-                } else if (STATE.mode === "discovery") {
-                    const freshPool = genreTracks.filter(t =>
-                        t.uri !== curUri &&
-                        !likedUris.has(t.uri) &&
-                        !STATE.history.has(t.uri) &&
-                        !recentArtists.has((t.artist || "").toLowerCase())
-                    );
-                    if (freshPool.length > 0) {
-                        track = freshPool[Math.floor(Math.random() * freshPool.length)];
-                    }
-                } else {
-                    const isFav = Math.random() < 0.35;
-                    if (isFav) {
-                        const genreUris = new Set(genreTracks.map(t => t.uri));
-                        const matchedLib = (STATE.comfortPool || []).filter(t =>
-                            genreUris.has(t.uri) &&
-                            t.uri !== curUri &&
-                            !STATE.history.has(t.uri)
-                        );
-                        if (matchedLib.length > 0) track = matchedLib[Math.floor(Math.random() * matchedLib.length)];
-                    }
-                    if (!track) {
-                        const available = genreTracks.filter(t => t.uri !== curUri && !STATE.history.has(t.uri) && !recentArtists.has((t.artist || "").toLowerCase()));
-                        if (available.length > 0) track = available[Math.floor(Math.random() * available.length)];
-                    }
-                }
-            }
-            if (track && !isUnwantedRegionalTrack(track)) return track;
-        }
-
-        // 3. "All tracks" mode (global Smart Wave stream)
-        const isComfort = STATE.mode === "favorite" ? true :
-                          STATE.mode === "discovery" ? false :
-                          Math.random() < 0.35;
-
-        // Liked-track gravity: weighted pick from taste memory steers the wave toward loved territory.
-        // Runs ONLY in stream mode: discovery is 100% exploration, favorite is 100% library tracks.
-        if (STATE.mode === "stream" && STATE.likedTracks.size > 0 && Math.random() < 0.45) {
-            const weighted = [];
-            for (const [uri, item] of STATE.likedTracks) {
-                if (recentArtists.has((item.artist || "").toLowerCase())) continue;
-                let artistUri = item.artistUri;
-                if (!artistUri) {
-                    const t = STATE.comfortPool.find(x => x.artist?.toLowerCase() === (item.artist || "").toLowerCase());
-                    artistUri = t?.artistUri || null;
-                    if (artistUri) item.artistUri = artistUri;
-                }
-                if (artistUri) {
-                    weighted.push({ name: item.artist, uri: artistUri, trackTitle: item.title, w: Number(item.weight) || 1 });
-                }
-            }
-            if (weighted.length > 0) {
-                const total = weighted.reduce((s, a) => s + a.w, 0);
-                let roll = Math.random() * total;
-                let picked = weighted[0];
-                for (const a of weighted) {
-                    roll -= a.w;
-                    if (roll <= 0) { picked = a; break; }
-                }
-                const likedGraph = await getArtistGraph(picked.uri);
-                const likedFresh = (likedGraph?.topTracks || []).filter(t =>
-                    t.uri !== curUri && !STATE.history.has(t.uri) && !STATE.dislikedTracks.has(t.uri)
-                );
-                if (likedFresh.length > 0) {
-                    console.log(`[SmartWave] Taste gravity: seeding from loved track "${picked.trackTitle}" (${picked.name}, weight ${picked.w})`);
-                    return {
-                        ...likedFresh[Math.floor(Math.random() * likedFresh.length)],
-                        seedUri: picked.uri,
-                        seedArtist: picked.name
-                    };
-                }
-            }
-        }
-
-        if (!isComfort && STATE.currentSeedUri) {
-            const graph = await getArtistGraph(STATE.currentSeedUri);
-            if (graph?.related?.length > 0) {
-                const unplayedRelated = graph.related.filter(a => {
-                    const aName = (a.name || "").toLowerCase();
-                    if (recentArtists.has(aName)) return false;
-                    if (STATE.mode === "discovery" && libraryArtistNames.has(aName)) return false;
-                    return true;
-                });
-                const pool = unplayedRelated;
-
-                // Epsilon-exploration (~15% probability, ~1 in 7 tracks):
-                // Explores the deeper ring of related artists (ranks 6-15) instead of cycling
-                // between the same top-5 mainstream artists forever.
-                const isEpsilon = Math.random() < 0.15 && pool.length > 5;
-                const candidatePool = isEpsilon ? pool.slice(5, 15) : pool.slice(0, 5);
-                // Shuffle candidate order so artist #0 doesn't monopolize picks
-                const candidates = [...candidatePool].sort(() => Math.random() - 0.5).slice(0, 5);
-
-                // Parallel fetch: latency = slowest request instead of the sum of all five
-                const graphs = await Promise.all(candidates.map(c => getArtistGraph(c.uri).catch(() => null)));
-                for (let ci = 0; ci < candidates.length && !track; ci++) {
-                    const rGraph = graphs[ci];
-                    if (!rGraph?.topTracks?.length) continue;
-
-                    const freshTracks = rGraph.topTracks.filter(t =>
-                        t.uri !== curUri &&
-                        !STATE.history.has(t.uri) &&
-                        (STATE.mode !== "discovery" || !likedUris.has(t.uri))
-                    );
-
-                    if (freshTracks.length > 0) {
-                        if (isEpsilon) {
-                            console.log(`[SmartWave] Epsilon exploration: branched into deeper related artist "${candidates[ci].name}"`);
-                        }
-                        track = {
-                            ...freshTracks[Math.floor(Math.random() * freshTracks.length)],
-                            seedUri: candidates[ci].uri,
-                            seedArtist: candidates[ci].name,
-                        };
-                    }
-                }
-            }
-        }
-
-        if (STATE.mode === "favorite" && !track) {
-            track = pickComfortTrack(curUri);
-        }
-
-        if (STATE.mode === "stream" && !track) {
-            track = pickComfortTrack(curUri);
-        }
-
-        if (!track) {
-            if (STATE.mode === "discovery") {
-                const availableLib = (STATE.comfortPool || []).filter(t => t.artistUri && t.artistUri !== STATE.currentSeedUri);
-                const fallbackItem = availableLib.length > 0 ? availableLib[Math.floor(Math.random() * availableLib.length)] : null;
-                if (fallbackItem?.artistUri) {
-                    const fGraph = await getArtistGraph(fallbackItem.artistUri);
-                    const fresh = (fGraph?.topTracks || []).filter(t => t.uri !== curUri && !likedUris.has(t.uri) && !STATE.history.has(t.uri));
-                    if (fresh.length > 0) track = fresh[Math.floor(Math.random() * fresh.length)];
-                }
-            } else {
-                track = pickComfortTrack(curUri);
-            }
-        }
-
-        return track;
-    }
-
-    // Background graph pre-warm: at startup fill the artist-graph cache (7-day TTL)
-    // so "All tracks" builds instantly. Concurrency-limited, fully silent, runs once per session.
-    let graphPrewarmStarted = false;
-    async function prewarmArtistGraph() {
-        if (graphPrewarmStarted) return;
-        graphPrewarmStarted = true;
-        try {
-            await loadComfortPool();
-            if (!STATE.comfortPool.length) return;
-            // Most frequent library artists first
-            const freq = new Map();
-            for (const t of STATE.comfortPool) {
-                if (t?.artistUri) freq.set(t.artistUri, (freq.get(t.artistUri) || 0) + 1);
-            }
-            const seedUris = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12).map(([u]) => u);
-            const runWithLimit = async (uris, limit) => {
-                const queue = [...uris];
-                await Promise.all(Array.from({ length: limit }, async () => {
-                    while (queue.length) {
-                        const uri = queue.shift();
-                        try { await getArtistGraph(uri); } catch {}
-                    }
-                }));
-            };
-            await runWithLimit(seedUris, 3);
-            // Second hop: related artists of library seeds (feeds Discovery mode)
-            const level2 = new Set();
-            for (const uri of seedUris) {
-                const g = memoryArtistCache.get(uri);
-                for (const rel of (g?.related || []).slice(0, 5)) if (rel?.uri) level2.add(rel.uri);
-            }
-            await runWithLimit([...level2].slice(0, 40), 3);
-            console.log("[SmartWave] Artist graph pre-warmed");
-        } catch (err) {
-            console.warn("[SmartWave] prewarm failed:", err);
-        }
-    }
-
-    let queueDebounceTimer = null;
-    function triggerEnsureWaveQueue() {
-        if (queueDebounceTimer) clearTimeout(queueDebounceTimer);
-        queueDebounceTimer = setTimeout(async () => {
-            await ensureWaveQueue();
-            renderUpNextList();
-            syncNativeQueue();
-        }, 300);
-    }
-    // Sync the Smart Wave queue with Spotify's real internal queue
     async function syncNativeQueue() {
-        if (!STATE.active) return;
+        if (!STATE.active || STATE.mode !== "favorite") return;
         try {
             const pAPI = Spicetify.Platform?.PlayerAPI;
             if (!pAPI?.clearQueue || !pAPI?.addToQueue) return;
@@ -633,63 +373,39 @@ async function generateNextTrack() {
             console.warn("[SmartWave] syncNativeQueue error:", err);
         }
     }
+
+    async function regenerateQueue(autoPlay = true) {
+        STATE.isQueueing = false;
+        STATE.upcomingWave = [];
+        renderUpNextList();
+
+        if (STATE.mode === "favorite") {
+            await ensureFavoritesQueue(autoPlay);
+        } else {
+            await playStationContext();
+            setTimeout(syncUpcomingWaveFromNativeQueue, 1500);
+        }
+        updateUI();
+    }
+
     async function playUpcomingIndex(index) {
         if (!STATE.upcomingWave || index < 0 || index >= STATE.upcomingWave.length) return;
         const target = STATE.upcomingWave[index];
         if (!target || !target.uri) return;
-        STATE.upcomingWave.splice(0, index + 1);
-        if (STATE.currentTrack) {
-            STATE.historyStack.push(STATE.currentTrack);
-            if (STATE.historyStack.length > 50) STATE.historyStack.shift();
-        }
-        try {
-            if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(target.uri, {});
-        } catch (err) {
-            console.warn("[SmartWave] playUri skipped (player not ready)");
-        }
-        STATE.currentTrack = target;
-        addHistory(target.uri);
-        if (target.seedUri) {
-            STATE.currentSeedUri = target.seedUri;
-            STATE.currentSeedArtist = target.seedArtist;
-        }
-        STATE.currentTrackStartTime = Date.now();
-        resetProgressUI();
-        await ensureWaveQueue();
-        updateUI();
-        renderUpNextList();
-        syncNativeQueue();
-    }
-        async function ensureWaveQueue(force = false) {
-        if (!STATE.active || (STATE.isQueueing && !force)) return;
-        STATE.isQueueing = true;
-        try {
-            let diversityRetries = 0;
-            while (STATE.upcomingWave.length < CONFIG.MIN_QUEUE) {
-                const nextTrk = await generateNextTrack();
-                const isFav = STATE.mode === "favorite";
-                const dupe = nextTrk && (
-                    STATE.upcomingWave.some(t => t.uri === nextTrk.uri) ||
-                    (!isFav && nextTrk.artist && STATE.upcomingWave.some(t => t.artist === nextTrk.artist)) ||
-                    (!isFav && nextTrk.artist && STATE.currentTrack?.artist === nextTrk.artist)
-                );
-                if (nextTrk && !dupe) {
-                    STATE.upcomingWave.push(nextTrk);
-                    addHistory(nextTrk.uri);
-                } else {
-                    diversityRetries++;
-                    if (diversityRetries > 10) break;
-                }
-            }
-        } finally {
-            STATE.isQueueing = false;
+
+        if (STATE.mode === "favorite") {
+            STATE.upcomingWave.splice(0, index + 1);
+            try { await Spicetify.Player?.playUri?.(target.uri, {}); } catch {}
             renderUpNextList();
             syncNativeQueue();
+        } else {
+            try {
+                await Spicetify.Player?.playUri?.(target.uri, {});
+                setTimeout(syncUpcomingWaveFromNativeQueue, 1500);
+            } catch {}
         }
     }
-    // -------------------------------------------------------------------------
-    // PLAYBACK CONTROL (ACTIVE ONLY INSIDE THE SCREEN)
-    // -------------------------------------------------------------------------
+
     async function startWave() {
         STATE.active = true;
         updateNavButtonActive(true);
@@ -698,10 +414,6 @@ async function generateNextTrack() {
         if (cur && cur.uri) {
             const curArtist = fixMojibake(cur.artists?.[0]?.name) || "Artist";
             const curArtistUri = cur.artists?.[0]?.uri || null;
-            if (curArtistUri) {
-                STATE.currentSeedUri = curArtistUri;
-                STATE.currentSeedArtist = curArtist;
-            }
             STATE.currentTrack = {
                 uri: cur.uri,
                 title: fixMojibake(cur.name) || "Track",
@@ -714,81 +426,75 @@ async function generateNextTrack() {
             addHistory(cur.uri);
             STATE.currentTrackStartTime = Date.now();
         } else {
-            // Cold start with an empty library and no active playback:
-            // don't force any hardcoded track — just start the wave queue; the engine
-            // will pick whatever Spotify itself is able to serve (search fallback path).
             STATE.currentTrack = null;
             STATE.currentTrackStartTime = 0;
         }
         STATE.upcomingWave = [];
-        await ensureWaveQueue();
-        syncNativeQueue();
+        if (STATE.mode === "favorite") {
+            await ensureFavoritesQueue(false);
+        } else {
+            await playStationContext();
+            setTimeout(syncUpcomingWaveFromNativeQueue, 1500);
+        }
         updateUI();
     }
+
     function stopWave() {
         STATE.active = false;
         updateNavButtonActive(false);
     }
-    // Skip forward (Skip)
+
     async function skipWaveTrack(isDislike = false) {
         const curUri = Spicetify.Player?.data?.item?.uri;
-        if (STATE.currentTrack) {
-            STATE.historyStack.push(STATE.currentTrack);
-            if (STATE.historyStack.length > 50) STATE.historyStack.shift();
-            // Block the specific track on an explicit Dislike press!
-            if (isDislike && STATE.currentTrack?.uri) {
-                addDislikedTrack(STATE.currentTrack.uri, STATE.currentTrack.artist);
-                console.log(`[SmartWave] Track banned via dislike: ${STATE.currentTrack.artist} — ${STATE.currentTrack.title}`);
-            }
+        if (isDislike && curUri) {
+            addDislikedTrack(curUri, STATE.currentTrack?.artist);
+            console.log(`[SmartWave] Track banned via dislike: ${curUri}`);
+            if (typeof showNotice === "function") showNotice(t("trackBanned") || "Трек забанен");
         }
-        let nextTrack = null;
-        while (STATE.upcomingWave.length > 0) {
-            const candidate = STATE.upcomingWave.shift();
-            if (candidate?.uri && candidate.uri !== curUri) {
-                nextTrack = candidate;
-                break;
+
+        if (STATE.mode === "favorite") {
+            let nextTrack = null;
+            while (STATE.upcomingWave.length > 0) {
+                const candidate = STATE.upcomingWave.shift();
+                if (candidate?.uri && candidate.uri !== curUri) {
+                    nextTrack = candidate;
+                    break;
+                }
             }
-        }
-        if (!nextTrack) {
-            nextTrack = await generateNextTrack();
-        }
-        if (nextTrack?.uri && nextTrack.uri !== curUri) {
-            try {
-                if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(nextTrack.uri, {});
-            } catch (err) {
-                console.warn("[SmartWave] playUri skipped (player not ready)");
+            if (!nextTrack) {
+                await ensureFavoritesQueue(false);
+                nextTrack = STATE.upcomingWave.shift();
             }
-            STATE.currentTrack = nextTrack;
-            addHistory(nextTrack.uri);
-            if (nextTrack.seedUri) {
-                STATE.currentSeedUri = nextTrack.seedUri;
-                STATE.currentSeedArtist = nextTrack.seedArtist;
+            if (nextTrack?.uri) {
+                try {
+                    if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(nextTrack.uri, {});
+                } catch (err) {}
+                STATE.currentTrack = nextTrack;
+                STATE.currentTrackStartTime = Date.now();
+                resetProgressUI();
+                renderUpNextList();
+                syncNativeQueue();
+                updateUI();
             }
-            STATE.currentTrackStartTime = Date.now();
-            resetProgressUI();
         } else {
-            try { Spicetify.Player?.next?.(); } catch (err) {}
+            try {
+                await Spicetify.Player?.next?.();
+                setTimeout(syncUpcomingWaveFromNativeQueue, 1000);
+            } catch (err) {
+                console.warn("[SmartWave] skip error:", err);
+            }
         }
-        await ensureWaveQueue();
-        renderUpNextList();
-        syncNativeQueue();
-        updateUI();
     }
+
     async function prevWaveTrack() {
-        if (STATE.historyStack.length > 0) {
+        if (STATE.mode === "favorite" && STATE.historyStack.length > 0) {
             const prev = STATE.historyStack.pop();
             if (prev?.uri) {
-                if (STATE.currentTrack) {
-                    STATE.upcomingWave.unshift(STATE.currentTrack);
-                }
+                if (STATE.currentTrack) STATE.upcomingWave.unshift(STATE.currentTrack);
                 try {
                     if (Spicetify.Player?.playUri) await Spicetify.Player.playUri(prev.uri, {});
                 } catch (err) {}
                 STATE.currentTrack = prev;
-                if (prev.seedUri) {
-                    STATE.currentSeedUri = prev.seedUri;
-                    STATE.currentSeedArtist = prev.seedArtist;
-                }
                 STATE.currentTrackStartTime = Date.now();
                 updateUI();
                 return;
@@ -796,5 +502,3 @@ async function generateNextTrack() {
         }
         try { Spicetify.Player?.back?.(); } catch (err) {}
     }
-    // =========================================================================
-    // RECOMMENDATION ENGINE: CLUSTER SPACE AND ORTHOGONAL SHIFT
