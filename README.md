@@ -2,7 +2,7 @@
 
 **Smart Wave** turns Spotify into an endless personalized radio station with a hardware-accelerated WebGL fluid wave visualizer — pick a mode, pin a genre, or let it read your library and surf your taste.
 
-![preview](preview.png)
+[![preview](preview.png)](https://github.com/Shinsha1337/smart-wave/blob/main/preview.png?raw=true)
 
 ## Features
 
