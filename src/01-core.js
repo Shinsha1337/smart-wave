@@ -27,6 +27,8 @@
             waveToggleOn: "Включить эффект волны",
             waveToggleOff: "Выключить эффект волны",
             upNextTitle: "Очередь",
+            lyricsTitle: "Текст песни",
+            noLyrics: "Текст недоступен",
             upNextHeader: "Очередь",
             upNextEmpty: "Очередь формируется...",
             coverHint: "Открыть альбом/плейлист трека",
@@ -93,6 +95,8 @@
             waveToggleOn: "Enable wave effect",
             waveToggleOff: "Disable wave effect",
             upNextTitle: "Queue",
+            lyricsTitle: "Lyrics",
+            noLyrics: "No lyrics available",
             upNextHeader: "Queue",
             upNextEmpty: "Loading queue...",
             coverHint: "Open track source",
@@ -159,6 +163,8 @@
             waveToggleOn: "Wellen-Effekt aktivieren",
             waveToggleOff: "Wellen-Effekt deaktivieren",
             upNextTitle: "Warteschlange",
+            lyricsTitle: "Songtext",
+            noLyrics: "Kein Songtext verfügbar",
             upNextHeader: "Warteschlange",
             upNextEmpty: "Warteschlange wird erstellt...",
             coverHint: "Track-Quelle öffnen",
@@ -218,6 +224,8 @@
             waveToggleOn: "Activar efecto de onda",
             waveToggleOff: "Desactivar efecto de onda",
             upNextTitle: "Cola",
+            lyricsTitle: "Letra",
+            noLyrics: "No hay letra disponible",
             upNextHeader: "Cola",
             upNextEmpty: "Generando cola...",
             coverHint: "Abrir fuente del tema",
@@ -277,6 +285,8 @@
             waveToggleOn: "Activer l'effet de vague",
             waveToggleOff: "Désactiver l'effet de vague",
             upNextTitle: "File d'attente",
+            lyricsTitle: "Paroles",
+            noLyrics: "Aucune parole disponible",
             upNextHeader: "File d'attente",
             upNextEmpty: "Génération de la file...",
             coverHint: "Ouvrir la source du titre",
@@ -336,6 +346,8 @@
             waveToggleOn: "Ativar efeito de onda",
             waveToggleOff: "Desativar efeito de onda",
             upNextTitle: "Fila",
+            lyricsTitle: "Letra",
+            noLyrics: "Letra indisponível",
             upNextHeader: "Fila",
             upNextEmpty: "Gerando fila...",
             coverHint: "Abrir fonte da faixa",
@@ -395,6 +407,8 @@
             waveToggleOn: "Attiva effetto onda",
             waveToggleOff: "Disattiva effetto onda",
             upNextTitle: "Coda",
+            lyricsTitle: "Testo",
+            noLyrics: "Nessun testo disponibile",
             upNextHeader: "Coda",
             upNextEmpty: "Generazione coda...",
             coverHint: "Apri sorgente brano",
@@ -454,6 +468,8 @@
             waveToggleOn: "Włącz efekt fali",
             waveToggleOff: "Wyłącz efekt fali",
             upNextTitle: "Kolejka",
+            lyricsTitle: "Tekst utworu",
+            noLyrics: "Brak dostępnego tekstu",
             upNextHeader: "Kolejka",
             upNextEmpty: "Tworzenie kolejki...",
             coverHint: "Otwórz źródło utworu",
@@ -513,6 +529,8 @@
             waveToggleOn: "Dalga efektini aç",
             waveToggleOff: "Dalga efektini kapat",
             upNextTitle: "Sıra",
+            lyricsTitle: "Şarkı sözleri",
+            noLyrics: "Şarkı sözü bulunamadı",
             upNextHeader: "Sıra",
             upNextEmpty: "Sıra oluşturuluyor...",
             coverHint: "Parça kaynağını aç",
@@ -572,6 +590,8 @@
             waveToggleOn: "Увімкнути ефект хвилі",
             waveToggleOff: "Вимкнути ефект хвилі",
             upNextTitle: "Черга",
+            lyricsTitle: "Текст пісні",
+            noLyrics: "Текст недоступний",
             upNextHeader: "Черга",
             upNextEmpty: "Черга формується...",
             coverHint: "Відкрити джерело треку",
@@ -631,6 +651,8 @@
             waveToggleOn: "ウェーブエフェクトをオン",
             waveToggleOff: "ウェーブエフェクトをオフ",
             upNextTitle: "キュー",
+            lyricsTitle: "歌詞",
+            noLyrics: "歌詞が見つかりません",
             upNextHeader: "キュー",
             upNextEmpty: "キューを生成中...",
             coverHint: "トラックのソースを開く",
@@ -690,6 +712,8 @@
             waveToggleOn: "웨이브 효과 켜기",
             waveToggleOff: "웨이브 효과 끄기",
             upNextTitle: "대기열",
+            lyricsTitle: "가사",
+            noLyrics: "가사가 없습니다",
             upNextHeader: "대기열",
             upNextEmpty: "대기열 생성 중...",
             coverHint: "트랙 소스 열기",
@@ -749,6 +773,8 @@
             waveToggleOn: "开启波浪效果",
             waveToggleOff: "关闭波浪效果",
             upNextTitle: "队列",
+            lyricsTitle: "歌词",
+            noLyrics: "暂无歌词",
             upNextHeader: "队列",
             upNextEmpty: "正在生成队列...",
             coverHint: "打开曲目来源",
@@ -808,6 +834,8 @@
             waveToggleOn: "Golfeffect inschakelen",
             waveToggleOff: "Golfeffect uitschakelen",
             upNextTitle: "Wachtrij",
+            lyricsTitle: "Songtekst",
+            noLyrics: "Geen songtekst beschikbaar",
             upNextHeader: "Wachtrij",
             upNextEmpty: "Wachtrij wordt gemaakt...",
             coverHint: "Trackbron openen",
@@ -867,6 +895,8 @@
             waveToggleOn: "Aktivera vågeffekt",
             waveToggleOff: "Inaktivera vågeffekt",
             upNextTitle: "Kö",
+            lyricsTitle: "Låttext",
+            noLyrics: "Ingen låttext tillgänglig",
             upNextHeader: "Kö",
             upNextEmpty: "Skapar kö...",
             coverHint: "Öppna låtens källa",
@@ -1015,6 +1045,9 @@
         lastObservedProgress: 0,
         isQueueing: false,
         pageVisible: false,
+        lyricsOpen: false,
+        isFetchingLyrics: false,
+        currentLyrics: null, // { syncType: 'LINE_SYNCED'|'UNSYNCED', lines: [{ startTimeMs, words }] }
         isDraggingProgress: false,
         progressInterval: null,
         animFrameId: null,
@@ -1022,6 +1055,7 @@
         waveTime: 0,
         lastFrameTime: 0,
         waveSpeedMultiplier: 1.0,
+        pendingShakeTransition: false,
         beatPulse: 0.0,
         // Two-color palette: ColorA (base) and ColorB (top trail)
         extractedColorA: [0.95, 0.12, 0.55],
@@ -1092,6 +1126,16 @@
             try { return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(b)); } catch {}
         }
         return s;
+    }
+
+    function formatArtists(artists, fallback = "Artist") {
+        if (!artists) return fallback;
+        if (typeof artists === "string") return fixMojibake(artists) || fallback;
+        if (Array.isArray(artists)) {
+            const names = artists.map(a => fixMojibake(a?.name || a || "")).filter(Boolean);
+            return names.length > 0 ? names.join(", ") : fallback;
+        }
+        return fallback;
     }
 
     // Persist blacklist (cap: 500 banned tracks, FIFO)
@@ -1300,6 +1344,7 @@
     }
     // Export debug and public API: window.SmartWave
     window.SmartWave = {
+        STATE,
         debugPulse: () => STATE.beatPulse,
         getWaveState: () => ({
             colorA: STATE.currentColorA,

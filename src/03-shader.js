@@ -4,12 +4,8 @@
         if (isShakingBusy) return;
         isShakingBusy = true;
         try {
-            // Visual surge immediately on click (0ms response)
-            STATE.waveSpeedMultiplier = 3.8;
-            if (typeof triggerShakeCardAnimation === "function") {
-                triggerShakeCardAnimation();
-            }
-
+            // Audio/queue switch request
+            STATE.pendingShakeTransition = true;
             await loadComfortPool();
             let seedId = null;
             let seedArtist = null;
@@ -139,7 +135,7 @@
             return;
         }
         if (cur) {
-            const curArtist = fixMojibake(cur.artists?.[0]?.name) || "Artist";
+            const curArtist = formatArtists(cur.artists, "Artist");
             const curArtistUri = cur.artists?.[0]?.uri || null;
             const curTitle = fixMojibake(cur.name) || "Untitled";
             const curImages = getTrackImages(cur);
@@ -155,6 +151,9 @@
             };
             STATE.currentTrackStartTime = Date.now();
             addHistory(cur.uri);
+            if (typeof fetchTrackLyrics === "function") {
+                fetchTrackLyrics(cur);
+            }
             // Immediately start color extraction for the new track
             if (curImage && STATE.lastExtractedImg !== curImage) {
                 STATE.lastExtractedImg = curImage;

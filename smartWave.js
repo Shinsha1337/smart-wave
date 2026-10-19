@@ -32,6 +32,8 @@
             waveToggleOn: "Включить эффект волны",
             waveToggleOff: "Выключить эффект волны",
             upNextTitle: "Очередь",
+            lyricsTitle: "Текст песни",
+            noLyrics: "Текст недоступен",
             upNextHeader: "Очередь",
             upNextEmpty: "Очередь формируется...",
             coverHint: "Открыть альбом/плейлист трека",
@@ -98,6 +100,8 @@
             waveToggleOn: "Enable wave effect",
             waveToggleOff: "Disable wave effect",
             upNextTitle: "Queue",
+            lyricsTitle: "Lyrics",
+            noLyrics: "No lyrics available",
             upNextHeader: "Queue",
             upNextEmpty: "Loading queue...",
             coverHint: "Open track source",
@@ -164,6 +168,8 @@
             waveToggleOn: "Wellen-Effekt aktivieren",
             waveToggleOff: "Wellen-Effekt deaktivieren",
             upNextTitle: "Warteschlange",
+            lyricsTitle: "Songtext",
+            noLyrics: "Kein Songtext verfügbar",
             upNextHeader: "Warteschlange",
             upNextEmpty: "Warteschlange wird erstellt...",
             coverHint: "Track-Quelle öffnen",
@@ -223,6 +229,8 @@
             waveToggleOn: "Activar efecto de onda",
             waveToggleOff: "Desactivar efecto de onda",
             upNextTitle: "Cola",
+            lyricsTitle: "Letra",
+            noLyrics: "No hay letra disponible",
             upNextHeader: "Cola",
             upNextEmpty: "Generando cola...",
             coverHint: "Abrir fuente del tema",
@@ -282,6 +290,8 @@
             waveToggleOn: "Activer l'effet de vague",
             waveToggleOff: "Désactiver l'effet de vague",
             upNextTitle: "File d'attente",
+            lyricsTitle: "Paroles",
+            noLyrics: "Aucune parole disponible",
             upNextHeader: "File d'attente",
             upNextEmpty: "Génération de la file...",
             coverHint: "Ouvrir la source du titre",
@@ -341,6 +351,8 @@
             waveToggleOn: "Ativar efeito de onda",
             waveToggleOff: "Desativar efeito de onda",
             upNextTitle: "Fila",
+            lyricsTitle: "Letra",
+            noLyrics: "Letra indisponível",
             upNextHeader: "Fila",
             upNextEmpty: "Gerando fila...",
             coverHint: "Abrir fonte da faixa",
@@ -400,6 +412,8 @@
             waveToggleOn: "Attiva effetto onda",
             waveToggleOff: "Disattiva effetto onda",
             upNextTitle: "Coda",
+            lyricsTitle: "Testo",
+            noLyrics: "Nessun testo disponibile",
             upNextHeader: "Coda",
             upNextEmpty: "Generazione coda...",
             coverHint: "Apri sorgente brano",
@@ -459,6 +473,8 @@
             waveToggleOn: "Włącz efekt fali",
             waveToggleOff: "Wyłącz efekt fali",
             upNextTitle: "Kolejka",
+            lyricsTitle: "Tekst utworu",
+            noLyrics: "Brak dostępnego tekstu",
             upNextHeader: "Kolejka",
             upNextEmpty: "Tworzenie kolejki...",
             coverHint: "Otwórz źródło utworu",
@@ -518,6 +534,8 @@
             waveToggleOn: "Dalga efektini aç",
             waveToggleOff: "Dalga efektini kapat",
             upNextTitle: "Sıra",
+            lyricsTitle: "Şarkı sözleri",
+            noLyrics: "Şarkı sözü bulunamadı",
             upNextHeader: "Sıra",
             upNextEmpty: "Sıra oluşturuluyor...",
             coverHint: "Parça kaynağını aç",
@@ -577,6 +595,8 @@
             waveToggleOn: "Увімкнути ефект хвилі",
             waveToggleOff: "Вимкнути ефект хвилі",
             upNextTitle: "Черга",
+            lyricsTitle: "Текст пісні",
+            noLyrics: "Текст недоступний",
             upNextHeader: "Черга",
             upNextEmpty: "Черга формується...",
             coverHint: "Відкрити джерело треку",
@@ -636,6 +656,8 @@
             waveToggleOn: "ウェーブエフェクトをオン",
             waveToggleOff: "ウェーブエフェクトをオフ",
             upNextTitle: "キュー",
+            lyricsTitle: "歌詞",
+            noLyrics: "歌詞が見つかりません",
             upNextHeader: "キュー",
             upNextEmpty: "キューを生成中...",
             coverHint: "トラックのソースを開く",
@@ -695,6 +717,8 @@
             waveToggleOn: "웨이브 효과 켜기",
             waveToggleOff: "웨이브 효과 끄기",
             upNextTitle: "대기열",
+            lyricsTitle: "가사",
+            noLyrics: "가사가 없습니다",
             upNextHeader: "대기열",
             upNextEmpty: "대기열 생성 중...",
             coverHint: "트랙 소스 열기",
@@ -754,6 +778,8 @@
             waveToggleOn: "开启波浪效果",
             waveToggleOff: "关闭波浪效果",
             upNextTitle: "队列",
+            lyricsTitle: "歌词",
+            noLyrics: "暂无歌词",
             upNextHeader: "队列",
             upNextEmpty: "正在生成队列...",
             coverHint: "打开曲目来源",
@@ -813,6 +839,8 @@
             waveToggleOn: "Golfeffect inschakelen",
             waveToggleOff: "Golfeffect uitschakelen",
             upNextTitle: "Wachtrij",
+            lyricsTitle: "Songtekst",
+            noLyrics: "Geen songtekst beschikbaar",
             upNextHeader: "Wachtrij",
             upNextEmpty: "Wachtrij wordt gemaakt...",
             coverHint: "Trackbron openen",
@@ -872,6 +900,8 @@
             waveToggleOn: "Aktivera vågeffekt",
             waveToggleOff: "Inaktivera vågeffekt",
             upNextTitle: "Kö",
+            lyricsTitle: "Låttext",
+            noLyrics: "Ingen låttext tillgänglig",
             upNextHeader: "Kö",
             upNextEmpty: "Skapar kö...",
             coverHint: "Öppna låtens källa",
@@ -1020,6 +1050,9 @@
         lastObservedProgress: 0,
         isQueueing: false,
         pageVisible: false,
+        lyricsOpen: false,
+        isFetchingLyrics: false,
+        currentLyrics: null, // { syncType: 'LINE_SYNCED'|'UNSYNCED', lines: [{ startTimeMs, words }] }
         isDraggingProgress: false,
         progressInterval: null,
         animFrameId: null,
@@ -1027,6 +1060,7 @@
         waveTime: 0,
         lastFrameTime: 0,
         waveSpeedMultiplier: 1.0,
+        pendingShakeTransition: false,
         beatPulse: 0.0,
         // Two-color palette: ColorA (base) and ColorB (top trail)
         extractedColorA: [0.95, 0.12, 0.55],
@@ -1097,6 +1131,16 @@
             try { return new TextDecoder("utf-8", { fatal: true }).decode(new Uint8Array(b)); } catch {}
         }
         return s;
+    }
+
+    function formatArtists(artists, fallback = "Artist") {
+        if (!artists) return fallback;
+        if (typeof artists === "string") return fixMojibake(artists) || fallback;
+        if (Array.isArray(artists)) {
+            const names = artists.map(a => fixMojibake(a?.name || a || "")).filter(Boolean);
+            return names.length > 0 ? names.join(", ") : fallback;
+        }
+        return fallback;
     }
 
     // Persist blacklist (cap: 500 banned tracks, FIFO)
@@ -1305,6 +1349,7 @@
     }
     // Export debug and public API: window.SmartWave
     window.SmartWave = {
+        STATE,
         debugPulse: () => STATE.beatPulse,
         getWaveState: () => ({
             colorA: STATE.currentColorA,
@@ -1338,7 +1383,7 @@
         const regions = STATE.excludedRegions || [];
         if (!regions.length) return false;
         const title = String(track.title || track.name || "");
-        const artist = String(track.artist || track.artists?.[0]?.name || "");
+        const artist = String(track.artist || formatArtists(track.artists, "") || "");
         const full = (title + " " + artist).toLowerCase();
         for (const rid of regions) {
             const preset = REGION_PRESETS[rid];
@@ -1481,7 +1526,7 @@
                         .map(t => ({
                             uri: t.uri,
                             title: t.name || "Favorite track",
-                            artist: t.artists?.[0]?.name || "From library",
+                            artist: formatArtists(t.artists, "From library"),
                             artistUri: t.artists?.[0]?.uri,
                             image: resolveImageUrl(t.album?.images?.[0]?.url),
                             duration: t.duration?.milliseconds || 180000,
@@ -1516,7 +1561,7 @@
             allTracks.push({
                 uri: item.uri,
                 title: item.name || "Track",
-                artist: item.artists?.[0]?.name || "Unknown Artist",
+                artist: formatArtists(item.artists, "Unknown Artist"),
                 artistUri: item.artists?.[0]?.uri || null,
                 image: imgs.image,
                 thumb: imgs.thumb || imgs.image,
@@ -1623,7 +1668,7 @@
                 return {
                     uri: t.uri,
                     title: t.name || meta.title || "Track",
-                    artist: t.artists?.[0]?.name || meta.artist_name || "Artist",
+                    artist: formatArtists(t.artists, meta.artist_name || "Artist"),
                     image: imgs[0]?.url || resolveImageUrl(meta.image_large_url || meta.image_url || ""),
                     thumb: imgs[1]?.url || imgs[0]?.url || resolveImageUrl(meta.image_small_url || meta.image_url || ""),
                     duration: t.duration?.milliseconds || Number(meta.duration) || 180000
@@ -1744,7 +1789,7 @@
         await loadComfortPool();
         const cur = Spicetify.Player?.data?.item;
         if (cur && cur.uri) {
-            const curArtist = fixMojibake(cur.artists?.[0]?.name) || "Artist";
+            const curArtist = formatArtists(cur.artists, "Artist");
             const curArtistUri = cur.artists?.[0]?.uri || null;
             STATE.currentTrack = {
                 uri: cur.uri,
@@ -1765,7 +1810,10 @@
         if (STATE.mode === "favorite") {
             await ensureFavoritesQueue(false);
         } else {
-            await playStationContext();
+            // Do NOT force playStationContext if player already has a track (preserve playing/paused state!)
+            if (!cur?.uri) {
+                await playStationContext();
+            }
             setTimeout(syncUpcomingWaveFromNativeQueue, 1500);
         }
         updateUI();
@@ -1840,12 +1888,8 @@
         if (isShakingBusy) return;
         isShakingBusy = true;
         try {
-            // Visual surge immediately on click (0ms response)
-            STATE.waveSpeedMultiplier = 3.8;
-            if (typeof triggerShakeCardAnimation === "function") {
-                triggerShakeCardAnimation();
-            }
-
+            // Audio/queue switch request
+            STATE.pendingShakeTransition = true;
             await loadComfortPool();
             let seedId = null;
             let seedArtist = null;
@@ -1975,7 +2019,7 @@
             return;
         }
         if (cur) {
-            const curArtist = fixMojibake(cur.artists?.[0]?.name) || "Artist";
+            const curArtist = formatArtists(cur.artists, "Artist");
             const curArtistUri = cur.artists?.[0]?.uri || null;
             const curTitle = fixMojibake(cur.name) || "Untitled";
             const curImages = getTrackImages(cur);
@@ -1991,6 +2035,9 @@
             };
             STATE.currentTrackStartTime = Date.now();
             addHistory(cur.uri);
+            if (typeof fetchTrackLyrics === "function") {
+                fetchTrackLyrics(cur);
+            }
             // Immediately start color extraction for the new track
             if (curImage && STATE.lastExtractedImg !== curImage) {
                 STATE.lastExtractedImg = curImage;
@@ -2348,6 +2395,7 @@ function startWaveAnimation() {
             .sw-top-right {
                 display: flex;
                 align-items: center;
+                gap: 12px;
             }
             .sw-top-bar button {
                 -webkit-app-region: no-drag;
@@ -2356,18 +2404,32 @@ function startWaveAnimation() {
                 background: rgba(255, 255, 255, 0.06);
                 border: none;
                 border-radius: 50%;
-                width: 44px;
-                height: 44px;
+                width: clamp(34px, 3.2vmin, 50px);
+                height: clamp(34px, 3.2vmin, 50px);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: #b3b3b3;
                 cursor: pointer;
                 transition: color 0.15s, transform 0.15s, background-color 0.15s, opacity 0.15s;
+                flex-shrink: 0;
+            }
+            .sw-back-circle svg {
+                width: clamp(17px, 1.6vmin, 25px);
+                height: clamp(17px, 1.6vmin, 25px);
             }
             .sw-back-circle:hover {
                 color: #ffffff;
                 background: rgba(255, 255, 255, 0.14);
+                transform: scale(1.08);
+            }
+            .sw-back-circle.active {
+                color: #1ed760;
+                background: rgba(30, 215, 96, 0.16);
+            }
+            .sw-back-circle.active:hover {
+                color: #1ed760;
+                background: rgba(30, 215, 96, 0.24);
                 transform: scale(1.08);
             }
             .sw-wave-toggle-btn {
@@ -2383,7 +2445,7 @@ function startWaveAnimation() {
                 align-items: center;
                 justify-content: center;
                 height: 100%;
-                max-width: min(94vw, 1500px);
+                max-width: min(96vw, 2600px);
                 width: 100%;
                 margin: 0 auto;
                 position: relative;
@@ -2400,41 +2462,63 @@ function startWaveAnimation() {
                 width: 100%;
                 margin: auto 0;
                 flex-shrink: 0;
+                position: relative;
             }
-            /* Cover art and WebGL shader container (compact, fine-tuned spacing) */
+            /* Stage row: flex container for cover art + lyrics side-by-side */
+            .sw-stage-row {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: clamp(28px, 4.2vh, 64px);
+            }
+            /* Cover art and WebGL shader container (square matching cover card) */
             .sw-art-wrapper {
                 position: relative;
-                width: clamp(280px, min(47vh, 50vw), 880px);
-                height: clamp(280px, min(47vh, 50vw), 880px);
-                margin-bottom: clamp(-78px, -5.5vh, -28px);
+                width: clamp(180px, min(30vh, 26vw), 460px);
+                height: clamp(180px, min(30vh, 26vw), 460px);
+                margin-bottom: 0;
+                margin-left: 0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                transition: margin-left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             }
-            /* Hardware WebGL canvas for the live wave (smooth trail without clipping) */
+            .sw-stage-row.lyrics-active .sw-art-wrapper {
+                margin-left: calc(clamp(260px, min(50vh, 40vw), 720px) - clamp(180px, min(30vh, 26vw), 460px));
+            }
+            /* Hardware WebGL canvas for the live wave (perfectly centered on cover card, enlarged aura) */
             #sw-wave-canvas {
                 position: absolute;
-                width: 175%;
-                height: 175%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 310%;
+                height: 310%;
                 z-index: 1;
                 pointer-events: none;
             }
-            /* Square cover with rounded corners */
+            /* Square cover with rounded corners (fills wrapper 100%) */
             .sw-cover-card {
                 position: relative;
                 z-index: 2;
-                width: clamp(130px, min(20vh, 22vw), 380px);
-                height: clamp(130px, min(20vh, 22vw), 380px);
-                border-radius: clamp(16px, 2.5vmin, 30px);
+                width: 100%;
+                height: 100%;
+                border-radius: clamp(16px, 2.2vmin, 28px);
                 overflow: hidden;
                 box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
                 background: #121212;
                 cursor: pointer;
-                transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+                transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, filter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
                 flex-shrink: 0;
                 backface-visibility: hidden;
                 will-change: transform, box-shadow;
+            }
+            .sw-cover-card.lyrics-hidden {
+                opacity: 0 !important;
+                pointer-events: none !important;
             }
             .sw-cover-card.paused {
                 filter: grayscale(0.85) brightness(0.80) contrast(0.92);
@@ -2449,41 +2533,25 @@ function startWaveAnimation() {
                 transform: scale(1.05);
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95);
             }
-            @keyframes swCardFlipOut {
+            /* Cover swap flash: triggered exactly when the new cover image lands */
+            @keyframes swCoverSwapFlash {
                 0% {
-                    transform: perspective(900px) rotateY(0deg) scale(1);
-                    opacity: 1;
-                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+                    filter: blur(14px) brightness(2.2) contrast(1.1);
+                    transform: scale(0.94);
+                    box-shadow: 0 0 45px rgba(255, 255, 255, 0.4), 0 16px 48px rgba(0, 0, 0, 0.6);
                 }
-                60% {
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+                50% {
+                    filter: blur(6px) brightness(1.4) contrast(1.05);
+                    transform: scale(1.02);
                 }
                 100% {
-                    transform: perspective(900px) rotateY(90deg) scale(0.85);
-                    opacity: 0.9;
-                    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-                }
-            }
-            @keyframes swCardFlipIn {
-                0% {
-                    transform: perspective(900px) rotateY(-90deg) scale(0.85);
-                    opacity: 0.9;
-                    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-                }
-                40% {
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
-                }
-                100% {
-                    transform: perspective(900px) rotateY(0deg) scale(1);
-                    opacity: 1;
+                    filter: blur(0px) brightness(1) contrast(1);
+                    transform: scale(1);
                     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
                 }
             }
-            .sw-cover-card.flip-out {
-                animation: swCardFlipOut 0.26s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
-            }
-            .sw-cover-card.flip-in {
-                animation: swCardFlipIn 0.44s cubic-bezier(0.2, 1.25, 0.4, 1) forwards !important;
+            .sw-cover-card.swap-flash {
+                animation: swCoverSwapFlash 0.65s cubic-bezier(0.2, 0.9, 0.3, 1) forwards !important;
             }
             /* Inner Glow: takes the color of the wave gradient's inner core */
             .sw-cover-card::after {
@@ -2510,14 +2578,120 @@ function startWaveAnimation() {
             .sw-cover-card.paused .sw-cover-img {
                 filter: grayscale(0.88) brightness(0.82) contrast(0.92);
             }
+            /* Synced lyrics panel to the right of the cover art (expanding to the right via width transition!) */
+            .sw-lyrics-card {
+                width: 0;
+                min-width: 0;
+                max-width: 0;
+                height: clamp(160px, min(26vh, 24vw), 360px);
+                opacity: 0;
+                margin-left: 0;
+                overflow: hidden;
+                pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                            min-width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                            max-width 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                            margin-left 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                            opacity 0.35s ease;
+                z-index: 5;
+                flex-shrink: 0;
+                align-self: center;
+            }
+            .sw-stage-row.lyrics-active .sw-lyrics-card {
+                width: clamp(320px, 32vw, 680px);
+                min-width: clamp(320px, 32vw, 680px);
+                max-width: clamp(320px, 32vw, 680px);
+                margin-left: clamp(24px, 2.5vw, 48px);
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .sw-lyrics-scroll {
+                position: relative;
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+                height: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                gap: clamp(10px, 1.4vh, 18px);
+                mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                pointer-events: auto;
+                padding: 40px 16px;
+                transition: opacity 0.25s ease-out;
+            }
+            .sw-lyrics-scroll.fading-out {
+                opacity: 0;
+                pointer-events: none;
+            }
+            .sw-lyrics-scroll::-webkit-scrollbar {
+                display: none;
+                width: 0 !important;
+                height: 0 !important;
+            }
+            .sw-lyric-line {
+                font-size: clamp(18px, min(2.6vh, 2.3vw), 30px);
+                font-weight: 700;
+                line-height: 1.35;
+                color: rgba(255, 255, 255, 0.45);
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+                transition: color 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.25s ease;
+                cursor: pointer;
+                text-align: left;
+                transform-origin: left center;
+                user-select: none;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                white-space: normal;
+                padding: 6px 14px 6px 8px;
+                box-sizing: border-box;
+                overflow: visible;
+            }
+            .sw-lyric-line:hover {
+                color: rgba(255, 255, 255, 0.85);
+            }
+            .sw-lyric-line.active {
+                color: #ffffff;
+                font-size: clamp(20px, min(2.9vh, 2.5vw), 34px);
+                font-weight: 850;
+                transform: scale(1.04);
+                text-shadow: 0 0 2px rgba(255, 255, 255, 0.7), 0 3px 14px rgba(0, 0, 0, 0.95);
+                opacity: 1;
+            }
+            .sw-lyrics-empty {
+                color: rgba(255, 255, 255, 0.5);
+                font-size: clamp(15px, 1.8vmin, 18px);
+                font-weight: 700;
+                text-align: left;
+                margin: auto 0;
+                text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+            }
+            .sw-back-circle.disabled {
+                opacity: 0.35;
+                cursor: not-allowed !important;
+                pointer-events: none;
+            }
             /* Title and artist (larger and more readable) */
             .sw-title-text {
-                font-size: clamp(30px, 3.4vw, 50px);
+                font-size: clamp(26px, 2.8vw, 48px);
                 font-weight: 850;
                 color: #ffffff;
                 text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
                 letter-spacing: -0.03em;
-                max-width: min(76vw, 680px);
+                max-width: min(84vw, 1100px);
                 white-space: nowrap;
                 overflow: hidden;
                 /* Padding creates room for the text-shadow inside the overflow:hidden box;
@@ -2535,7 +2709,7 @@ function startWaveAnimation() {
                 -webkit-mask-image: linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 16px), transparent 100%);
             }
             .sw-artist-text {
-                font-size: clamp(17px, 1.9vw, 26px);
+                font-size: clamp(15px, 1.8vw, 24px);
                 font-weight: 500;
                 color: #b3b3b3;
                 text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
@@ -2563,7 +2737,7 @@ function startWaveAnimation() {
             /* Music control panel (raised higher and balanced) */
             .sw-ctrl-wrap {
                 width: 100%;
-                max-width: clamp(520px, 62vw, 860px);
+                max-width: clamp(520px, 58vw, 1380px);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -2583,8 +2757,8 @@ function startWaveAnimation() {
                 background: rgba(255, 255, 255, 0.06);
                 border: none;
                 color: #b3b3b3;
-                width: clamp(48px, 5.5vmin, 64px);
-                height: clamp(48px, 5.5vmin, 64px);
+                width: clamp(48px, 5.5vmin, 70px);
+                height: clamp(48px, 5.5vmin, 70px);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -2612,8 +2786,8 @@ function startWaveAnimation() {
                 background: #ffffff;
                 border: none;
                 border-radius: 50%;
-                width: clamp(62px, 7.2vmin, 82px);
-                height: clamp(62px, 7.2vmin, 82px);
+                width: clamp(64px, 7.5vmin, 96px);
+                height: clamp(64px, 7.5vmin, 96px);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -2627,10 +2801,10 @@ function startWaveAnimation() {
                 background: #f5f5f5;
                 box-shadow: 0 6px 28px rgba(255, 255, 255, 0.35);
             }
-            /* Wide progress bar: spacious, comfortable, Spotify native style */
+            /* Progress bar: 33% shorter, centered and compact */
             .sw-timeline {
-                width: 100% !important;
-                align-self: stretch !important;
+                width: clamp(360px, 39vw, 924px) !important;
+                align-self: center !important;
                 display: flex;
                 align-items: center;
                 gap: clamp(6px, 0.75vmin, 10px);
@@ -2751,14 +2925,14 @@ function startWaveAnimation() {
                 color: #ffffff;
                 transform: scale(1.1);
             }
-            /* Popup vertical volume slider: strictly aligned with the volume button column */
+            /* Popup vertical volume slider: strictly aligned with the volume button column (shortened by 40%) */
             .sw-vol-panel {
                 position: absolute;
                 bottom: 100%;
                 left: 50%;
                 transform: translateX(-50%);
                 width: clamp(20px, 2.2vmin, 28px);
-                height: clamp(98px, 10.5vmin, 132px);
+                height: clamp(59px, 6.3vmin, 79px);
                 background: none;
                 border: none;
                 box-shadow: none;
@@ -2791,7 +2965,7 @@ function startWaveAnimation() {
             }
             .sw-vol-track {
                 width: clamp(4px, 0.45vmin, 6px);
-                height: clamp(88px, 9.4vmin, 120px);
+                height: clamp(53px, 5.6vmin, 72px);
                 background: rgba(255, 255, 255, 0.22);
                 border-radius: 9999px;
                 position: relative;
@@ -3041,9 +3215,9 @@ function startWaveAnimation() {
                 border: none;
                 border-radius: 9999px;
                 color: #b3b3b3;
-                font-size: clamp(12px, 1.2vw, 15px);
+                font-size: clamp(13px, 1.3vw, 18px);
                 font-weight: 700;
-                padding: clamp(6px, 0.8vh, 10px) clamp(14px, 1.5vw, 24px);
+                padding: clamp(7px, 1vh, 12px) clamp(16px, 1.8vw, 30px);
                 cursor: pointer;
                 transition: color 0.15s, transform 0.15s, background-color 0.15s;
             }
@@ -3676,9 +3850,69 @@ function startWaveAnimation() {
                 color: rgba(0, 0, 0, 0.72);
             }
 
-            
+            /* 4K and QHD Large Screen Proportional Scaling without buggy zoom */
+            @media (min-width: 1800px) and (min-height: 1000px) {
+                .sw-back-circle {
+                    width: clamp(42px, 3.2vmin, 58px);
+                    height: clamp(42px, 3.2vmin, 58px);
+                }
+                .sw-back-circle svg {
+                    width: clamp(21px, 1.6vmin, 28px);
+                    height: clamp(21px, 1.6vmin, 28px);
+                }
+                .sw-stage-row {
+                    margin-bottom: clamp(36px, 4.8vh, 72px);
+                }
+                .sw-art-wrapper {
+                    width: clamp(240px, min(32vh, 26vw), 460px);
+                    height: clamp(240px, min(32vh, 26vw), 460px);
+                }
+                .sw-stage-row.lyrics-active .sw-art-wrapper {
+                    margin-left: calc(clamp(420px, 34vw, 760px) - clamp(240px, min(32vh, 26vw), 460px));
+                }
+                .sw-cover-card {
+                    border-radius: clamp(20px, 2.6vmin, 36px);
+                }
+                .sw-stage-row.lyrics-active .sw-lyrics-card {
+                    width: clamp(420px, 34vw, 760px);
+                    min-width: clamp(420px, 34vw, 760px);
+                    max-width: clamp(420px, 34vw, 760px);
+                    margin-left: clamp(32px, 3vw, 56px);
+                    height: clamp(240px, min(32vh, 26vw), 460px);
+                }
+                .sw-lyric-line {
+                    font-size: clamp(20px, 1.5vw, 28px);
+                    gap: 16px;
+                }
+                .sw-lyric-line.active {
+                    font-size: clamp(24px, 1.8vw, 34px);
+                }
+                .sw-title-text {
+                    font-size: clamp(32px, 2.8vw, 50px);
+                    max-width: min(84vw, 1200px);
+                }
+                .sw-artist-text {
+                    font-size: clamp(18px, 1.6vw, 24px);
+                }
+                .sw-ctrl-wrap {
+                    margin-top: clamp(18px, 2.0vh, 36px);
+                    gap: clamp(12px, 1.4vh, 24px);
+                }
+                .sw-btn-play {
+                    width: clamp(74px, 5.8vmin, 96px);
+                    height: clamp(74px, 5.8vmin, 96px);
+                }
+                .sw-icon-btn {
+                    width: clamp(50px, 4.2vmin, 68px);
+                    height: clamp(50px, 4.2vmin, 68px);
+                }
+                .sw-chip {
+                    font-size: clamp(14px, 1.2vw, 18px);
+                    padding: clamp(8px, 1.1vh, 12px) clamp(16px, 1.6vw, 28px);
+                }
+            }
         `;
-document.head.appendChild(style);
+        document.head.appendChild(style);
         overlayEl = document.createElement("div");
         overlayEl.id = "sw-overlay";
         overlayEl.innerHTML = `
@@ -3721,14 +3955,14 @@ document.head.appendChild(style);
                 </div>
 
                 <div class="sw-top-right">
+                    <button class="sw-back-circle ${STATE.lyricsOpen ? 'active' : ''}" id="sw-btn-lyrics-toggle" title="${t('lyricsTitle')}">
+                        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M13.426 2.574a2.831 2.831 0 0 0-4.797 1.55l3.247 3.247a2.831 2.831 0 0 0 1.55-4.797M10.5 8.118l-2.619-2.62L4.74 9.075 2.065 12.12a1.287 1.287 0 0 0 1.816 1.816l3.06-2.688 3.56-3.129zM7.12 4.094a4.331 4.331 0 1 1 4.786 4.786l-3.974 3.493-3.06 2.689a2.787 2.787 0 0 1-3.933-3.933l2.676-3.045z"></path>
+                        </svg>
+                    </button>
                     <button class="sw-back-circle ${STATE.upNextOpen ? 'active' : ''}" id="sw-btn-upnext-toggle" title="${t('upNextTitle')}">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="8" y1="6" x2="21" y2="6"></line>
-                            <line x1="8" y1="12" x2="21" y2="12"></line>
-                            <line x1="8" y1="18" x2="21" y2="18"></line>
-                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M15 15H1v-1.5h14zm0-4.5H1V9h14zm-14-7A2.5 2.5 0 0 1 3.5 1h9a2.5 2.5 0 0 1 0 5h-9A2.5 2.5 0 0 1 1 3.5m2.5-1a1 1 0 0 0 0 2h9a1 1 0 1 0 0-2z"></path>
                         </svg>
                     </button>
                 </div>
@@ -3746,11 +3980,19 @@ document.head.appendChild(style);
             <div class="sw-wrap">
                 <!-- Centered player -->
                 <div class="sw-hero-center">
-                    <div class="sw-art-wrapper" id="sw-art-wrapper">
-                        <canvas id="sw-wave-canvas" width="640" height="640"></canvas>
-                        <!-- Square 220x220 cover; click opens the track in Spotify -->
-                        <div class="sw-cover-card" id="sw-cover-card">
-                            <img class="sw-cover-img" id="sw-cover-img" src="" alt="" />
+                    <div class="sw-stage-row ${STATE.lyricsOpen ? 'lyrics-active' : ''}" id="sw-stage-row">
+                        <div class="sw-art-wrapper" id="sw-art-wrapper">
+                            <canvas id="sw-wave-canvas" width="640" height="640"></canvas>
+                            <!-- Square 220x220 cover; click opens the track in Spotify -->
+                            <div class="sw-cover-card" id="sw-cover-card">
+                                <img class="sw-cover-img" id="sw-cover-img" src="" alt="" />
+                            </div>
+                        </div>
+                        <!-- 3-line lyrics panel to the right of the cover -->
+                        <div class="sw-lyrics-card" id="sw-lyrics-card">
+                            <div class="sw-lyrics-scroll" id="sw-lyrics-scroll">
+                                <div class="sw-lyrics-empty" id="sw-lyrics-empty">${t('noLyrics')}</div>
+                            </div>
                         </div>
                     </div>
                     <!-- Title and artist -->
@@ -3990,6 +4232,7 @@ document.head.appendChild(style);
             // Cover and spacing: synchronized equal distance to the title with wave ON and OFF
             const artWrapper = overlayEl?.querySelector("#sw-art-wrapper");
             const coverCard = overlayEl?.querySelector("#sw-cover-card");
+            const lyricsCard = overlayEl?.querySelector("#sw-lyrics-card");
             if (coverCard) {
                 if (enabled) {
                     coverCard.style.width = "";
@@ -4010,36 +4253,39 @@ document.head.appendChild(style);
         }
         // Apply the saved effect state
         setWaveEffect(STATE.waveEffectEnabled);
-        // Cover click: navigate to the track/album in Spotify while keeping the wave mode active indefinitely
+        // Cover click / Lyrics card click: navigate to the track/album in Spotify while keeping the wave mode active indefinitely
         const coverCardEl = overlayEl.querySelector("#sw-cover-card");
+        const handleCoverOrLyricsNav = (e) => {
+            // Don't navigate if user clicked an individual lyric line to seek
+            if (e.target.closest(".sw-lyric-line")) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const wasPlaying = isPlayerPlaying() || !!Spicetify.Player?.isPlaying?.();
+            const item = Spicetify.Player?.data?.item;
+            const albumUri = item?.album?.uri || item?.uri;
+            let path = null;
+            try { path = Spicetify.URI?.fromString?.(albumUri)?.toURLPath?.(); } catch {}
+            if (!path && item?.uri) {
+                try { path = Spicetify.URI?.fromString?.(item.uri)?.toURLPath?.(); } catch {}
+            }
+            hidePage({ keepActive: true });
+            if (path && Spicetify.Platform?.History?.push) {
+                setTimeout(() => {
+                    try { Spicetify.Platform.History.push({ pathname: "/" + String(path).replace(/^\/+/, "") }); } catch {}
+                }, 60);
+            }
+            if (!wasPlaying) {
+                const forcePause = () => {
+                    try { if (isPlayerPlaying() || !!Spicetify.Player?.isPlaying?.()) Spicetify.Player?.pause?.(); } catch {}
+                };
+                setTimeout(forcePause, 180);
+                setTimeout(forcePause, 650);
+            }
+        };
+
         if (coverCardEl) {
             coverCardEl.title = t('coverHint');
-            coverCardEl.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const wasPlaying = isPlayerPlaying() || !!Spicetify.Player?.isPlaying?.();
-                const item = Spicetify.Player?.data?.item;
-                const albumUri = item?.album?.uri || item?.uri;
-                let path = null;
-                try { path = Spicetify.URI?.fromString?.(albumUri)?.toURLPath?.(); } catch {}
-                if (!path && item?.uri) {
-                    try { path = Spicetify.URI?.fromString?.(item.uri)?.toURLPath?.(); } catch {}
-                }
-                // Hide the overlay, keep wave running forever (no 30s timer)
-                hidePage({ keepActive: true });
-                if (path && Spicetify.Platform?.History?.push) {
-                    setTimeout(() => {
-                        try { Spicetify.Platform.History.push({ pathname: "/" + String(path).replace(/^\/+/, "") }); } catch {}
-                    }, 60);
-                }
-                if (!wasPlaying) {
-                    const forcePause = () => {
-                        try { if (isPlayerPlaying() || !!Spicetify.Player?.isPlaying?.()) Spicetify.Player?.pause?.(); } catch {}
-                    };
-                    setTimeout(forcePause, 180);
-                    setTimeout(forcePause, 650);
-                }
-            };
+            coverCardEl.onclick = handleCoverOrLyricsNav;
         }
         overlayEl.querySelector("#sw-btn-play").onclick = () => {
             try {
@@ -4245,6 +4491,23 @@ document.head.appendChild(style);
             };
         }
         updateVolumeUI();
+        // Toggle the in-wave lyrics view
+        const lyricsBtn = overlayEl.querySelector("#sw-btn-lyrics-toggle");
+        if (lyricsBtn) {
+            lyricsBtn.onclick = () => {
+                if (lyricsBtn.classList.contains("disabled")) return;
+                STATE.lyricsOpen = !STATE.lyricsOpen;
+                if (!STATE.lyricsOpen) STATE.isFetchingLyrics = false;
+                updateLyricsUIState();
+                if (STATE.lyricsOpen) {
+                    renderLyricsLines();
+                    setTimeout(() => {
+                        activeLyricIndex = -1;
+                        syncActiveLyricLine(Spicetify.Player?.getProgress?.() || 0, true);
+                    }, 520);
+                }
+            };
+        }
         // Toggle the "Up Next" side panel
         const upnextBtn = overlayEl.querySelector("#sw-btn-upnext-toggle");
         const upnextPanel = overlayEl.querySelector("#sw-upnext-panel");
@@ -5170,6 +5433,9 @@ document.head.appendChild(style);
         if (STATE.waveEffectEnabled) {
             startWaveAnimation();
         }
+        if (typeof fetchTrackLyrics === "function" && Spicetify.Player?.data?.item) {
+            fetchTrackLyrics(Spicetify.Player.data.item);
+        }
         updateUI();
         renderUpNextList();
     }
@@ -5232,6 +5498,10 @@ document.head.appendChild(style);
                 if (curT) curT.textContent = formatTime(Math.min(progress, duration));
                 if (totT) totT.textContent = formatTime(duration);
             }
+            // Real-time synced lyric scrolling
+            if (STATE.lyricsOpen) {
+                syncActiveLyricLine(progress);
+            }
             // Soft track-change check: run the full onSongChange to reset progress and queue
             const cur = Spicetify.Player?.data?.item;
             if (cur && cur.uri !== STATE.currentTrack?.uri) {
@@ -5286,6 +5556,7 @@ document.head.appendChild(style);
     async function updateUI() {
         if (!overlayEl) return;
         renderUpNextList();
+        updateLyricsUIState();
         alignTimelineToChips();
         // Sync mode chips
         overlayEl.querySelectorAll(".sw-chip[data-mode]").forEach(c => {
@@ -5338,8 +5609,11 @@ document.head.appendChild(style);
         const artistEl = overlayEl.querySelector("#sw-hero-by");
         const imgEl = overlayEl.querySelector("#sw-cover-img");
         if (cur) {
+            if (typeof fetchTrackLyrics === "function" && cur.uri !== lastFetchedLyricsUri) {
+                fetchTrackLyrics(cur);
+            }
             const title = fixMojibake(cur.name) || "Untitled";
-            const artist = fixMojibake(cur.artists?.[0]?.name) || "Artist";
+            const artist = formatArtists(cur.artists, fixMojibake(cur.metadata?.artist_name) || "Artist");
             const rawImg = cur.metadata?.image_url || "";
             const img = getTrackImages(cur).image || resolveImageUrl(rawImg);
             setMarqueeText(nameEl, title);
@@ -5347,12 +5621,11 @@ document.head.appendChild(style);
             if (img && (imgEl.src !== img || STATE.lastExtractedImg !== img)) {
                 imgEl.src = img;
                 STATE.lastExtractedImg = img;
-                if (isWaitingForCoverSwap) {
-                    if (imgEl.complete) {
-                        finishShakeCardFlip();
-                    } else {
-                        imgEl.onload = () => finishShakeCardFlip();
-                    }
+                // Shake effect: surge wave speed & flash cover ONLY during Shake
+                if (STATE.pendingShakeTransition) {
+                    STATE.pendingShakeTransition = false;
+                    triggerCoverSwapFlash();
+                    STATE.waveSpeedMultiplier = 3.6;
                 }
                 // Extract the two-color palette with caching
                 extractAdaptiveWaveTheme(img).then(theme => {
@@ -5364,41 +5637,244 @@ document.head.appendChild(style);
                         applyCoverGlow();
                     }
                 });
-            } else if (isWaitingForCoverSwap) {
-                finishShakeCardFlip();
             }
         }
     }
-    let shakeCardTimeout = null;
-    let isWaitingForCoverSwap = false;
 
-    function triggerShakeCardAnimation() {
+    function triggerCoverSwapFlash() {
         const card = overlayEl?.querySelector("#sw-cover-card");
         if (!card) return;
-        clearTimeout(shakeCardTimeout);
-        card.classList.remove("flip-in", "flip-out");
+        card.classList.remove("swap-flash");
         void card.offsetWidth;
-        card.classList.add("flip-out");
-        isWaitingForCoverSwap = true;
-
-        // Fallback: if Spotify/network takes longer than 650ms, complete the flip anyway
-        shakeCardTimeout = setTimeout(() => {
-            finishShakeCardFlip();
-        }, 650);
+        card.classList.add("swap-flash");
+        setTimeout(() => card?.classList.remove("swap-flash"), 700);
     }
 
-    function finishShakeCardFlip() {
-        if (!isWaitingForCoverSwap) return;
-        isWaitingForCoverSwap = false;
-        clearTimeout(shakeCardTimeout);
-        const card = overlayEl?.querySelector("#sw-cover-card");
-        if (!card) return;
-        card.classList.remove("flip-out");
-        void card.offsetWidth;
-        card.classList.add("flip-in");
-        setTimeout(() => {
-            card?.classList.remove("flip-in");
-        }, 500);
+    // -------------------------------------------------------------------------
+    // IN-WAVE LYRICS LOGIC & EXTENSION INTEGRATION
+    // -------------------------------------------------------------------------
+    let lastFetchedLyricsUri = null;
+    let activeLyricIndex = -1;
+    let lyricsFetchSeq = 0;
+    const lyricsCache = new Map();
+
+    function cacheLyrics(uri, lyrics) {
+        if (!uri) return;
+        if (lyricsCache.size >= 120) {
+            const oldest = lyricsCache.keys().next().value;
+            lyricsCache.delete(oldest);
+        }
+        lyricsCache.set(uri, lyrics);
+    }
+
+    async function fetchTrackLyrics(item) {
+        if (!item?.uri) return;
+        if (lastFetchedLyricsUri === item.uri) {
+            updateLyricsUIState();
+            return;
+        }
+
+        const prevHadLyrics = !!(STATE.currentLyrics && STATE.currentLyrics.lines && STATE.currentLyrics.lines.length > 0);
+        lastFetchedLyricsUri = item.uri;
+        const currentSeq = ++lyricsFetchSeq;
+
+        const scrollContainer = document.querySelector("#sw-lyrics-scroll");
+        if (scrollContainer) {
+            scrollContainer.classList.add("fading-out");
+        }
+
+        // Cache hit: instant resolution (0ms), no network, zero twitch
+        if (lyricsCache.has(item.uri)) {
+            const cached = lyricsCache.get(item.uri);
+            STATE.isFetchingLyrics = false;
+            STATE.currentLyrics = cached;
+            activeLyricIndex = 0;
+            updateLyricsUIState();
+            renderLyricsLines();
+            if (scrollContainer) {
+                scrollContainer.scrollTop = 0;
+                setTimeout(() => scrollContainer.classList.remove("fading-out"), 40);
+            }
+            if (STATE.lyricsOpen && cached) {
+                syncActiveLyricLine(0, true);
+            }
+            return;
+        }
+
+        // Only keep stage shifted left if the previous track actually had lyrics
+        STATE.isFetchingLyrics = prevHadLyrics && STATE.lyricsOpen;
+        STATE.currentLyrics = null;
+        updateLyricsUIState();
+
+        const id = item.uri.split(":").pop();
+        let lyrics = null;
+
+        // 1. Direct fetch from Spotify's official internal color-lyrics service
+        try {
+            const url = `https://spclient.wg.spotify.com/color-lyrics/v2/track/${id}?format=json&vocalRemoval=false&market=from_token`;
+            const res = await Spicetify.CosmosAsync?.get?.(url);
+            if (res?.lyrics?.lines?.length) {
+                lyrics = {
+                    syncType: res.lyrics.syncType || "LINE_SYNCED",
+                    lines: res.lyrics.lines.map(l => ({
+                        startTimeMs: Number(l.startTimeMs) || 0,
+                        words: l.words || ""
+                    }))
+                };
+            }
+        } catch (err) {}
+
+        // 2. Integration with installed community extensions (LyricsPlus, PopupLyrics, etc.)
+        if (!lyrics && currentSeq === lyricsFetchSeq) {
+            try {
+                // If a community extension stored parsed lyrics in DOM or global cache:
+                const externalContainer = document.querySelector(".lyrics-lyricsContent-LyricsContainer, [data-testid='lyrics-container']");
+                if (externalContainer) {
+                    const lines = [...externalContainer.querySelectorAll("[data-testid='lyrics-line'], p, div")];
+                    if (lines.length > 5) {
+                        lyrics = {
+                            syncType: "UNSYNCED",
+                            lines: lines.map(el => ({ startTimeMs: 0, words: el.textContent?.trim() })).filter(l => l.words)
+                        };
+                    }
+                }
+            } catch (err) {}
+        }
+
+        // 3. Fallback: query free synced lyrics provider (LRCLIB)
+        if (!lyrics && currentSeq === lyricsFetchSeq) {
+            try {
+                const trackName = item.name || item.metadata?.title || "";
+                const artistName = formatArtists(item.artists, item.metadata?.artist_name || "");
+                const title = encodeURIComponent(trackName);
+                const artist = encodeURIComponent(artistName);
+                const dur = Math.round((item.duration?.milliseconds || item.duration || safeGetDuration()) / 1000);
+                const lrcUrl = `https://lrclib.net/api/get?track_name=${title}&artist_name=${artist}&duration=${dur}`;
+                const r = await fetch(lrcUrl).then(res => res.json()).catch(() => null);
+                if (r?.syncedLyrics) {
+                    const parsedLines = [];
+                    const matches = r.syncedLyrics.matchAll(/\[(\d+):(\d+\.\d+)\](.*)/g);
+                    for (const m of matches) {
+                        const ms = (parseInt(m[1], 10) * 60 + parseFloat(m[2])) * 1000;
+                        parsedLines.push({ startTimeMs: ms, words: m[3].trim() });
+                    }
+                    if (parsedLines.length) lyrics = { syncType: "LINE_SYNCED", lines: parsedLines };
+                } else if (r?.plainLyrics) {
+                    lyrics = {
+                        syncType: "UNSYNCED",
+                        lines: r.plainLyrics.split("\n").map(w => ({ startTimeMs: 0, words: w.trim() })).filter(l => l.words)
+                    };
+                }
+            } catch (err) {}
+        }
+
+        if (currentSeq !== lyricsFetchSeq) return;
+
+        // Remember result in cache (even if null / no lyrics)
+        cacheLyrics(item.uri, lyrics);
+
+        STATE.isFetchingLyrics = false;
+        STATE.currentLyrics = lyrics;
+        activeLyricIndex = 0;
+        updateLyricsUIState();
+        renderLyricsLines();
+
+        if (scrollContainer) {
+            scrollContainer.scrollTop = 0;
+            setTimeout(() => scrollContainer.classList.remove("fading-out"), 40);
+        }
+        if (STATE.lyricsOpen && lyrics) {
+            syncActiveLyricLine(0, true);
+        }
+    }
+
+    function updateLyricsUIState() {
+        const btn = document.querySelector("#sw-btn-lyrics-toggle");
+        if (!btn) return;
+        const hasLyrics = !!(STATE.currentLyrics && STATE.currentLyrics.lines && STATE.currentLyrics.lines.length > 0);
+        const stageRow = document.querySelector("#sw-stage-row");
+        if (hasLyrics) {
+            btn.classList.remove("disabled");
+            btn.setAttribute("title", t('lyricsTitle'));
+            if (STATE.lyricsOpen) {
+                btn.classList.add("active");
+                if (stageRow) stageRow.classList.add("lyrics-active");
+            } else {
+                btn.classList.remove("active");
+                if (stageRow) stageRow.classList.remove("lyrics-active");
+            }
+        } else if (STATE.isFetchingLyrics && STATE.lyricsOpen) {
+            // New track is loading lyrics: KEEP lyrics-active so cover does not animate close/open!
+            btn.classList.remove("disabled");
+            btn.classList.add("active");
+            if (stageRow) stageRow.classList.add("lyrics-active");
+        } else {
+            btn.classList.add("disabled");
+            btn.setAttribute("title", t('noLyrics'));
+            btn.classList.remove("active");
+            // If track has no lyrics: cover returns to default centered position, lyrics hide
+            if (stageRow) stageRow.classList.remove("lyrics-active");
+        }
+    }
+
+    function renderLyricsLines() {
+        const container = document.querySelector("#sw-lyrics-scroll");
+        if (!container) return;
+        if (!STATE.currentLyrics || !STATE.currentLyrics.lines || !STATE.currentLyrics.lines.length) {
+            container.innerHTML = "";
+            return;
+        }
+        container.innerHTML = STATE.currentLyrics.lines.map((line, idx) => `
+            <div class="sw-lyric-line" data-idx="${idx}" data-time="${line.startTimeMs}">${escapeHtml(line.words || "• • •")}</div>
+        `).join("");
+
+        container.querySelectorAll(".sw-lyric-line").forEach(el => {
+            el.onclick = () => {
+                const ms = Number(el.getAttribute("data-time"));
+                if (ms >= 0 && typeof Spicetify.Player?.seek === "function") {
+                    Spicetify.Player.seek(ms);
+                    syncActiveLyricLine(ms, true);
+                }
+            };
+        });
+        activeLyricIndex = -1;
+        syncActiveLyricLine(Spicetify.Player?.getProgress?.() || 0, true);
+    }
+
+    function syncActiveLyricLine(currentMs, isInstant = false) {
+        if (!STATE.lyricsOpen || !STATE.currentLyrics || !STATE.currentLyrics.lines || !STATE.currentLyrics.lines.length) return;
+        if (STATE.currentLyrics.syncType !== "LINE_SYNCED") return;
+
+        const lines = STATE.currentLyrics.lines;
+        let newIdx = 0;
+        for (let i = lines.length - 1; i >= 0; i--) {
+            if (currentMs >= lines[i].startTimeMs - 150) {
+                newIdx = i;
+                break;
+            }
+        }
+        if (newIdx === activeLyricIndex && !isInstant) return;
+        activeLyricIndex = newIdx;
+
+        const container = document.querySelector("#sw-lyrics-scroll");
+        if (!container) return;
+        const lineEls = container.querySelectorAll(".sw-lyric-line");
+        const activeEl = container.querySelector(`.sw-lyric-line[data-idx="${newIdx}"]`);
+        lineEls.forEach((el, i) => {
+            if (i === newIdx) {
+                el.classList.add("active");
+            } else {
+                el.classList.remove("active");
+            }
+        });
+        if (activeEl) {
+            // Container has position: relative, activeEl.offsetTop is the exact inner scroll offset
+            const targetScroll = activeEl.offsetTop - (container.clientHeight / 2) + (activeEl.clientHeight / 2);
+            container.scrollTo({
+                top: Math.max(0, targetScroll),
+                behavior: isInstant ? "auto" : "smooth"
+            });
+        }
     }
     // -------------------------------------------------------------------------
     // WAVE BUTTON NEXT TO HOME (48x48px)
@@ -5454,6 +5930,11 @@ document.head.appendChild(style);
         Spicetify.Player?.addEventListener?.("onvolume", () => updateVolumeUI());
         document.addEventListener("visibilitychange", onVisibilityChange);
         window.addEventListener("resize", handleWindowResize);
+        if (window.SmartWave) {
+            window.SmartWave.updateLyricsUIState = updateLyricsUIState;
+            window.SmartWave.fetchTrackLyrics = fetchTrackLyrics;
+            window.SmartWave.renderLyricsLines = renderLyricsLines;
+        }
     }
     init();
     console.log("[SmartWave] initialized (native station engine).");

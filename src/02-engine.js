@@ -6,7 +6,7 @@
         const regions = STATE.excludedRegions || [];
         if (!regions.length) return false;
         const title = String(track.title || track.name || "");
-        const artist = String(track.artist || track.artists?.[0]?.name || "");
+        const artist = String(track.artist || formatArtists(track.artists, "") || "");
         const full = (title + " " + artist).toLowerCase();
         for (const rid of regions) {
             const preset = REGION_PRESETS[rid];
@@ -149,7 +149,7 @@
                         .map(t => ({
                             uri: t.uri,
                             title: t.name || "Favorite track",
-                            artist: t.artists?.[0]?.name || "From library",
+                            artist: formatArtists(t.artists, "From library"),
                             artistUri: t.artists?.[0]?.uri,
                             image: resolveImageUrl(t.album?.images?.[0]?.url),
                             duration: t.duration?.milliseconds || 180000,
@@ -184,7 +184,7 @@
             allTracks.push({
                 uri: item.uri,
                 title: item.name || "Track",
-                artist: item.artists?.[0]?.name || "Unknown Artist",
+                artist: formatArtists(item.artists, "Unknown Artist"),
                 artistUri: item.artists?.[0]?.uri || null,
                 image: imgs.image,
                 thumb: imgs.thumb || imgs.image,
@@ -291,7 +291,7 @@
                 return {
                     uri: t.uri,
                     title: t.name || meta.title || "Track",
-                    artist: t.artists?.[0]?.name || meta.artist_name || "Artist",
+                    artist: formatArtists(t.artists, meta.artist_name || "Artist"),
                     image: imgs[0]?.url || resolveImageUrl(meta.image_large_url || meta.image_url || ""),
                     thumb: imgs[1]?.url || imgs[0]?.url || resolveImageUrl(meta.image_small_url || meta.image_url || ""),
                     duration: t.duration?.milliseconds || Number(meta.duration) || 180000
@@ -412,7 +412,7 @@
         await loadComfortPool();
         const cur = Spicetify.Player?.data?.item;
         if (cur && cur.uri) {
-            const curArtist = fixMojibake(cur.artists?.[0]?.name) || "Artist";
+            const curArtist = formatArtists(cur.artists, "Artist");
             const curArtistUri = cur.artists?.[0]?.uri || null;
             STATE.currentTrack = {
                 uri: cur.uri,
@@ -433,7 +433,10 @@
         if (STATE.mode === "favorite") {
             await ensureFavoritesQueue(false);
         } else {
-            await playStationContext();
+            // Do NOT force playStationContext if player already has a track (preserve playing/paused state!)
+            if (!cur?.uri) {
+                await playStationContext();
+            }
             setTimeout(syncUpcomingWaveFromNativeQueue, 1500);
         }
         updateUI();
